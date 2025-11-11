@@ -497,7 +497,7 @@ async def get_chargers(
 
 @api_router.post("/chargers")
 async def add_charger(
-    charger: Charger,
+    request: ChargerCreateRequest,
     session_token: Optional[str] = Cookie(None),
     authorization: Optional[str] = Header(None)
 ):
@@ -509,8 +509,134 @@ async def add_charger(
     if user.is_guest:
         raise HTTPException(403, "Please sign in to add chargers")
     
+    # Create charger with community source
+    charger = Charger(
+        name=request.name,
+        address=request.address,
+        latitude=request.latitude,
+        longitude=request.longitude,
+        port_types=request.port_types,
+        total_ports=request.total_ports,
+        available_ports=request.total_ports,  # Initially all available
+        amenities=request.amenities,
+        nearby_amenities=request.nearby_amenities,
+        photos=request.photos,
+        notes=request.notes,
+        source_type="community_manual",
+        verification_level=1,
+        added_by=user.id,
+        verified_by_count=1,
+        verification_history=[VerificationAction(
+            user_id=user.id,
+            action="active",
+            notes="Initial submission"
+        )],
+        last_verified=datetime.now(timezone.utc),
+        uptime_percentage=100.0
+    )
+    
     await db.chargers.insert_one(charger.dict())
+    
+    # Reward user with SharaCoins
+    await db.users.update_one(
+        {"id": user.id},
+        {"$inc": {"shara_coins": 50, "chargers_added": 1}}
+    )
+    
     return charger
+
+@api_router.get("/chargers/{charger_id}")
+async def get_charger_detail(
+    charger_id: str,
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Get detailed charger information"""
+    user = await get_user_from_session(session_token, authorization)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    
+    charger = await db.chargers.find_one({"id": charger_id})
+    if not charger:
+        raise HTTPException(404, "Charger not found")
+    
+    return Charger(**charger)
+
+@api_router.post("/chargers/{charger_id}/verify")
+async def verify_charger(
+    charger_id: str,
+    request: VerificationActionRequest,
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Add verification action to charger"""
+    user = await get_user_from_session(session_token, authorization)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    
+    if user.is_guest:
+        raise HTTPException(403, "Please sign in to verify chargers")
+    
+    charger = await db.chargers.find_one({"id": charger_id})
+    if not charger:
+        raise HTTPException(404, "Charger not found")
+    
+    # Create verification action
+    action = VerificationAction(
+        user_id=user.id,
+        action=request.action,
+        notes=request.notes
+    )
+    
+    # Update charger
+    verification_history = charger.get("verification_history", [])
+    verification_history.append(action.dict())
+    
+    # Calculate new verification level based on recent actions
+    recent_actions = verification_history[-10:]  # Last 10 actions
+    active_count = sum(1 for a in recent_actions if a.get("action") == "active")
+    not_working_count = sum(1 for a in recent_actions if a.get("action") == "not_working")
+    
+    # Determine new level
+    if not_working_count >= 3:
+        new_level = 1
+    elif active_count >= 8:
+        new_level = 5
+    elif active_count >= 6:
+        new_level = 4
+    elif active_count >= 4:
+        new_level = 3
+    else:
+        new_level = 2
+    
+    # Calculate uptime
+    total_actions = len(verification_history)
+    active_actions = sum(1 for a in verification_history if a.get("action") == "active")
+    uptime = (active_actions / total_actions * 100) if total_actions > 0 else 100.0
+    
+    await db.chargers.update_one(
+        {"id": charger_id},
+        {"$set": {
+            "verification_history": verification_history,
+            "verification_level": new_level,
+            "verified_by_count": len(set(a.get("user_id") for a in verification_history)),
+            "last_verified": datetime.now(timezone.utc),
+            "uptime_percentage": uptime
+        }}
+    )
+    
+    # Reward user with SharaCoins
+    coins_reward = 10 if request.action == "active" else 5
+    await db.users.update_one(
+        {"id": user.id},
+        {"$inc": {"shara_coins": coins_reward, "verifications_count": 1}}
+    )
+    
+    return {
+        "message": "Verification recorded",
+        "coins_earned": coins_reward,
+        "new_level": new_level
+    }
 
 # Include router
 app.include_router(api_router)
