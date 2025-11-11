@@ -225,7 +225,7 @@ export default function AddCharger() {
           {/* Reward Info */}
           <View style={styles.rewardCard}>
             <Ionicons name="trophy" size={24} color="#FFB300" />
-            <Text style={styles.rewardText}>Earn 50 SharaCoins for adding a charger!</Text>
+            <Text style={styles.rewardText}>Earn 5 + 3/photo SharaCoins!</Text>
           </View>
 
           {/* Station Name */}
