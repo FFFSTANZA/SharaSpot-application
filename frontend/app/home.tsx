@@ -117,7 +117,7 @@ export default function Home() {
       );
       return;
     }
-    Alert.alert('Coming Soon', 'Add hidden charger feature will be available in the next module');
+    router.push('/add-charger');
   };
 
   const handleLogout = async () => {
