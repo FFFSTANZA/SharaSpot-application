@@ -503,14 +503,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   chargerName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#0F172A',
     marginBottom: 4,
+    letterSpacing: 0.2,
   },
   chargerAddress: {
     fontSize: 13,
-    color: '#666666',
+    color: '#64748B',
+    lineHeight: 18,
   },
   cardDetails: {
     flexDirection: 'row',
