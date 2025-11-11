@@ -364,13 +364,14 @@ export default function Discover() {
         </View>
       )}
 
-      {/* View Toggle Button */}
+      {/* View Toggle Button - Lowered Position */}
       <TouchableOpacity
         style={styles.viewToggle}
         onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+        activeOpacity={0.85}
       >
-        <Ionicons name={viewMode === 'map' ? 'list' : 'map'} size={24} color="#FFFFFF" />
-        <Text style={styles.viewToggleText}>{viewMode === 'map' ? 'List' : 'Map'}</Text>
+        <Ionicons name={viewMode === 'map' ? 'list' : 'map'} size={22} color="#FFFFFF" />
+        <Text style={styles.viewToggleText}>{viewMode === 'map' ? 'List View' : 'Map View'}</Text>
       </TouchableOpacity>
 
       {/* Filter Modal */}
