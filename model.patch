@@ -1,76 +1,112 @@
-diff --git a/backend/server.py b/backend/server.py
-index f090850..80bec59 100644
---- a/backend/server.py
-+++ b/backend/server.py
-@@ -618,12 +618,21 @@ async def verify_charger(
-             "uptime_percentage": uptime
-         }}
-     )
--    # Reward user with SharaCoins
--    coins_reward = 10 if request.action == "active" else 5
-+    # Reward user with SharaCoins (2 for verification)
-+    coins_reward = 2
-     await db.users.update_one(
-         {"id": user.id},
-         {"$inc": {"shara_coins": coins_reward, "verifications_count": 1}}
-     )
-+    
-+    # Log coin transaction
-+    await log_coin_transaction(
-+        user.id,
-+        "verify_charger",
-+        coins_reward,
-+        f"Verified charger as {request.action}: {charger['name']}"
-+    )
-+    
-     return {
-         "message": "Verification recorded",
-         "coins_earned": coins_reward,
+diff --git a/frontend/app/charger-detail.tsx b/frontend/app/charger-detail.tsx
+index 38a9c70..2c8003c 100644
+--- a/frontend/app/charger-detail.tsx
++++ b/frontend/app/charger-detail.tsx
+@@ -224,7 +224,7 @@ export default function ChargerDetail() {
+                   <>
+                     <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
+                     <Text style={styles.actionButtonText}>Active</Text>
+-                    <Text style={styles.actionReward}>+10 🪙</Text>
++                    <Text style={styles.actionReward}>+2 🪙</Text>
+                   </>
+                 )}
+               </TouchableOpacity>
+@@ -240,7 +240,7 @@ export default function ChargerDetail() {
+                   <>
+                     <Ionicons name="close-circle" size={24} color="#FFFFFF" />
+                     <Text style={styles.actionButtonText}>Not Working</Text>
+-                    <Text style={styles.actionReward}>+5 🪙</Text>
++                    <Text style={styles.actionReward}>+2 🪙</Text>
+                   </>
+                 )}
+               </TouchableOpacity>
+@@ -256,7 +256,7 @@ export default function ChargerDetail() {
+                   <>
+                     <Ionicons name="battery-half" size={24} color="#FFFFFF" />
+                     <Text style={styles.actionButtonText}>Partial</Text>
+-                    <Text style={styles.actionReward}>+5 🪙</Text>
++                    <Text style={styles.actionReward}>+2 🪙</Text>
+                   </>
+                 )}
+               </TouchableOpacity>
 diff --git a/model.patch b/model.patch
-index e322d44..e69de29 100644
+index 7c0bac6..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,43 +0,0 @@
+@@ -1,76 +0,0 @@
 -diff --git a/backend/server.py b/backend/server.py
--index e75b33b..f090850 100644
+-index f090850..80bec59 100644
 ---- a/backend/server.py
 -+++ b/backend/server.py
--@@ -519,11 +519,36 @@ async def add_charger(
--         uptime_percentage=100.0
+-@@ -618,12 +618,21 @@ async def verify_charger(
+-             "uptime_percentage": uptime
+-         }}
 -     )
--     await db.chargers.insert_one(charger.dict())
 --    # Reward user with SharaCoins
--+    
--+    # Reward user with SharaCoins (5 for adding charger)
--+    coins_earned = 5
+--    coins_reward = 10 if request.action == "active" else 5
+-+    # Reward user with SharaCoins (2 for verification)
+-+    coins_reward = 2
 -     await db.users.update_one(
 -         {"id": user.id},
---        {"$inc": {"shara_coins": 50, "chargers_added": 1}}
--+        {"$inc": {"shara_coins": coins_earned, "chargers_added": 1}}
--+    )
+-         {"$inc": {"shara_coins": coins_reward, "verifications_count": 1}}
+-     )
 -+    
 -+    # Log coin transaction
 -+    await log_coin_transaction(
 -+        user.id,
--+        "add_charger",
--+        coins_earned,
--+        f"Added charger: {charger.name}"
--     )
+-+        "verify_charger",
+-+        coins_reward,
+-+        f"Verified charger as {request.action}: {charger['name']}"
+-+    )
 -+    
--+    # Award additional coins for photos
--+    if request.photos and len(request.photos) > 0:
--+        photo_coins = len(request.photos) * 3
--+        await db.users.update_one(
--+            {"id": user.id},
--+            {"$inc": {"shara_coins": photo_coins, "photos_uploaded": len(request.photos)}}
--+        )
--+        await log_coin_transaction(
--+            user.id,
--+            "upload_photo",
--+            photo_coins,
--+            f"Uploaded {len(request.photos)} photo(s) for {charger.name}"
--+        )
--+    
--     return charger
-- @api_router.get("/chargers/{charger_id}")
-- async def get_charger_detail(
+-     return {
+-         "message": "Verification recorded",
+-         "coins_earned": coins_reward,
+-diff --git a/model.patch b/model.patch
+-index e322d44..e69de29 100644
+---- a/model.patch
+-+++ b/model.patch
+-@@ -1,43 +0,0 @@
+--diff --git a/backend/server.py b/backend/server.py
+--index e75b33b..f090850 100644
+----- a/backend/server.py
+--+++ b/backend/server.py
+--@@ -519,11 +519,36 @@ async def add_charger(
+--         uptime_percentage=100.0
+--     )
+--     await db.chargers.insert_one(charger.dict())
+---    # Reward user with SharaCoins
+--+    
+--+    # Reward user with SharaCoins (5 for adding charger)
+--+    coins_earned = 5
+--     await db.users.update_one(
+--         {"id": user.id},
+---        {"$inc": {"shara_coins": 50, "chargers_added": 1}}
+--+        {"$inc": {"shara_coins": coins_earned, "chargers_added": 1}}
+--+    )
+--+    
+--+    # Log coin transaction
+--+    await log_coin_transaction(
+--+        user.id,
+--+        "add_charger",
+--+        coins_earned,
+--+        f"Added charger: {charger.name}"
+--     )
+--+    
+--+    # Award additional coins for photos
+--+    if request.photos and len(request.photos) > 0:
+--+        photo_coins = len(request.photos) * 3
+--+        await db.users.update_one(
+--+            {"id": user.id},
+--+            {"$inc": {"shara_coins": photo_coins, "photos_uploaded": len(request.photos)}}
+--+        )
+--+        await log_coin_transaction(
+--+            user.id,
+--+            "upload_photo",
+--+            photo_coins,
+--+            f"Uploaded {len(request.photos)} photo(s) for {charger.name}"
+--+        )
+--+    
+--     return charger
+-- @api_router.get("/chargers/{charger_id}")
+-- async def get_charger_detail(
