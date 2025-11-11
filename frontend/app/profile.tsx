@@ -152,7 +152,7 @@ export default function Profile() {
             <Image source={{ uri: user.picture }} style={styles.avatar} />
           ) : (
             <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={48} color=\"#FFFFFF\" />
+              <Ionicons name="person" size={48} color="#FFFFFF" />
             </View>
           )}
         </View>
@@ -163,7 +163,7 @@ export default function Profile() {
       {/* SharaCoin Balance */}
       <View style={styles.coinCard}>
         <View style={styles.coinHeader}>
-          <Ionicons name=\"diamond\" size={32} color=\"#FFB300\" />
+          <Ionicons name="diamond" size={32} color="#FFB300" />
           <View style={styles.coinInfo}>
             <Text style={styles.coinLabel}>SharaCoin Balance</Text>
             <Text style={styles.coinValue}>{stats?.shara_coins || 0} \ud83e\ude99</Text>
@@ -174,7 +174,7 @@ export default function Profile() {
           onPress={() => setRedeemModalVisible(true)}
         >
           <Text style={styles.redeemButtonText}>Redeem Coins</Text>
-          <Ionicons name=\"arrow-forward\" size={16} color=\"#FFFFFF\" />
+          <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
@@ -184,17 +184,17 @@ export default function Profile() {
           <Text style={styles.sectionTitle}>Vehicle Details</Text>
           <View style={styles.detailCard}>
             <View style={styles.detailRow}>
-              <Ionicons name=\"car\" size={20} color=\"#666666\" />
+              <Ionicons name="car" size={20} color="#666666" />
               <Text style={styles.detailLabel}>Type:</Text>
               <Text style={styles.detailValue}>{user.vehicle_type}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Ionicons name=\"power\" size={20} color=\"#666666\" />
+              <Ionicons name="power" size={20} color="#666666" />
               <Text style={styles.detailLabel}>Port:</Text>
               <Text style={styles.detailValue}>{user.port_type || 'Not set'}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Ionicons name=\"speedometer\" size={20} color=\"#666666\" />
+              <Ionicons name="speedometer" size={20} color="#666666" />
               <Text style={styles.detailLabel}>Distance:</Text>
               <Text style={styles.detailValue}>{user.distance_unit || 'km'}</Text>
             </View>
@@ -223,17 +223,17 @@ export default function Profile() {
         <Text style={styles.sectionTitle}>My Activity</Text>
         <View style={styles.statsGrid}>
           <View style={styles.statBox}>
-            <Ionicons name=\"add-circle\" size={24} color=\"#4CAF50\" />
+            <Ionicons name="add-circle" size={24} color="#4CAF50" />
             <Text style={styles.statNumber}>{stats?.chargers_added || 0}</Text>
             <Text style={styles.statLabel}>Chargers Added</Text>
           </View>
           <View style={styles.statBox}>
-            <Ionicons name=\"checkmark-circle\" size={24} color=\"#2196F3\" />
+            <Ionicons name="checkmark-circle" size={24} color="#2196F3" />
             <Text style={styles.statNumber}>{stats?.verifications_count || 0}</Text>
             <Text style={styles.statLabel}>Verifications</Text>
           </View>
           <View style={styles.statBox}>
-            <Ionicons name=\"camera\" size={24} color=\"#FF9800\" />
+            <Ionicons name="camera" size={24} color="#FF9800" />
             <Text style={styles.statNumber}>{stats?.photos_uploaded || 0}</Text>
             <Text style={styles.statLabel}>Photos</Text>
           </View>
@@ -253,12 +253,12 @@ export default function Profile() {
                 params: { charger: JSON.stringify(charger) },
               })}
             >
-              <Ionicons name=\"flash\" size={20} color=\"#4CAF50\" />
+              <Ionicons name="flash" size={20} color="#4CAF50" />
               <View style={styles.activityInfo}>
                 <Text style={styles.activityName}>{charger.name}</Text>
                 <Text style={styles.activityAddress}>{charger.address}</Text>
               </View>
-              <Ionicons name=\"chevron-forward\" size={20} color=\"#CCCCCC\" />
+              <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
             </TouchableOpacity>
           ))
         ) : (
@@ -297,22 +297,22 @@ export default function Profile() {
         <Text style={styles.sectionTitle}>How to Earn Coins</Text>
         <View style={styles.earningCard}>
           <View style={styles.earningRow}>
-            <Ionicons name=\"add-circle\" size={20} color=\"#4CAF50\" />
+            <Ionicons name="add-circle" size={20} color="#4CAF50" />
             <Text style={styles.earningText}>+5 coins</Text>
             <Text style={styles.earningLabel}>Add new charger</Text>
           </View>
           <View style={styles.earningRow}>
-            <Ionicons name=\"checkmark-circle\" size={20} color=\"#2196F3\" />
+            <Ionicons name="checkmark-circle" size={20} color="#2196F3" />
             <Text style={styles.earningText}>+2 coins</Text>
             <Text style={styles.earningLabel}>Verify charger</Text>
           </View>
           <View style={styles.earningRow}>
-            <Ionicons name=\"camera\" size={20} color=\"#FF9800\" />
+            <Ionicons name="camera" size={20} color="#FF9800" />
             <Text style={styles.earningText}>+3 coins</Text>
             <Text style={styles.earningLabel}>Upload photo</Text>
           </View>
           <View style={styles.earningRow}>
-            <Ionicons name=\"flag\" size={20} color=\"#F44336\" />
+            <Ionicons name="flag" size={20} color="#F44336" />
             <Text style={styles.earningText}>+1 coin</Text>
             <Text style={styles.earningLabel}>Report invalid data</Text>
           </View>
@@ -363,7 +363,7 @@ export default function Profile() {
 
       {/* Coupon Status */}
       <View style={styles.couponStatus}>
-        <Ionicons name=\"ticket\" size={24} color=\"#FF9800\" />
+        <Ionicons name="ticket" size={24} color="#FF9800" />
         <Text style={styles.couponStatusText}>Coupon Access: Pending Approval</Text>
       </View>
     </ScrollView>
@@ -376,7 +376,7 @@ export default function Profile() {
         <Text style={styles.sectionTitle}>Appearance</Text>
         <View style={styles.settingRow}>
           <View style={styles.settingLeft}>
-            <Ionicons name={theme === 'light' ? 'sunny' : 'moon'} size={24} color=\"#666666\" />
+            <Ionicons name={theme === 'light' ? 'sunny' : 'moon'} size={24} color="#666666" />
             <Text style={styles.settingLabel}>Theme</Text>
           </View>
           <TouchableOpacity style={styles.themeToggle} onPress={handleThemeToggle}>
@@ -390,14 +390,14 @@ export default function Profile() {
         <Text style={styles.sectionTitle}>Preferences</Text>
         <View style={styles.settingRow}>
           <View style={styles.settingLeft}>
-            <Ionicons name=\"notifications\" size={24} color=\"#666666\" />
+            <Ionicons name="notifications" size={24} color="#666666" />
             <Text style={styles.settingLabel}>Notifications</Text>
           </View>
           <Switch
             value={notificationsEnabled}
             onValueChange={handleNotificationsToggle}
             trackColor={{ false: '#CCCCCC', true: '#4CAF50' }}
-            thumbColor=\"#FFFFFF\"
+            thumbColor="#FFFFFF"
           />
         </View>
       </View>
@@ -406,7 +406,7 @@ export default function Profile() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Account</Text>
         <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-          <Ionicons name=\"log-out\" size={24} color=\"#F44336\" />
+          <Ionicons name="log-out" size={24} color="#F44336" />
           <Text style={[styles.settingLabel, { color: '#F44336' }]}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -414,23 +414,23 @@ export default function Profile() {
   );
 
   const renderRedeemModal = () => (
-    <Modal visible={redeemModalVisible} animationType=\"slide\" transparent={true}>
+    <Modal visible={redeemModalVisible} animationType="slide" transparent={true}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Redeem Coins</Text>
             <TouchableOpacity onPress={() => setRedeemModalVisible(false)}>
-              <Ionicons name=\"close\" size={28} color=\"#1A1A1A\" />
+              <Ionicons name="close" size={28} color="#1A1A1A" />
             </TouchableOpacity>
           </View>
           <View style={styles.modalContent}>
-            <Ionicons name=\"ticket\" size={64} color=\"#FFB300\" />
+            <Ionicons name="ticket" size={64} color="#FFB300" />
             <Text style={styles.modalHeading}>Coupons Coming Soon!</Text>
             <Text style={styles.modalText}>
               EV charging discount coupons and partner store offers will be available soon.
             </Text>
             <View style={styles.modalStatus}>
-              <Ionicons name=\"time\" size={20} color=\"#FF9800\" />
+              <Ionicons name="time" size={20} color="#FF9800" />
               <Text style={styles.modalStatusText}>Access: Pending Approval</Text>
             </View>
           </View>
@@ -448,7 +448,7 @@ export default function Profile() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size=\"large\" color=\"#4CAF50\" />
+        <ActivityIndicator size="large" color="#4CAF50" />
       </View>
     );
   }
@@ -461,7 +461,7 @@ export default function Profile() {
           style={[styles.tab, selectedTab === 'profile' && styles.tabActive]}
           onPress={() => setSelectedTab('profile')}
         >
-          <Ionicons name=\"person\" size={24} color={selectedTab === 'profile' ? '#4CAF50' : '#999999'} />
+          <Ionicons name="person" size={24} color={selectedTab === 'profile' ? '#4CAF50' : '#999999'} />
           <Text style={[styles.tabText, selectedTab === 'profile' && styles.tabTextActive]}>
             Profile
           </Text>
@@ -470,7 +470,7 @@ export default function Profile() {
           style={[styles.tab, selectedTab === 'wallet' && styles.tabActive]}
           onPress={() => setSelectedTab('wallet')}
         >
-          <Ionicons name=\"wallet\" size={24} color={selectedTab === 'wallet' ? '#4CAF50' : '#999999'} />
+          <Ionicons name="wallet" size={24} color={selectedTab === 'wallet' ? '#4CAF50' : '#999999'} />
           <Text style={[styles.tabText, selectedTab === 'wallet' && styles.tabTextActive]}>
             Wallet
           </Text>
@@ -479,7 +479,7 @@ export default function Profile() {
           style={[styles.tab, selectedTab === 'settings' && styles.tabActive]}
           onPress={() => setSelectedTab('settings')}
         >
-          <Ionicons name=\"settings\" size={24} color={selectedTab === 'settings' ? '#4CAF50' : '#999999'} />
+          <Ionicons name="settings" size={24} color={selectedTab === 'settings' ? '#4CAF50' : '#999999'} />
           <Text style={[styles.tabText, selectedTab === 'settings' && styles.tabTextActive]}>
             Settings
           </Text>
