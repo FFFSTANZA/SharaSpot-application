@@ -319,14 +319,19 @@ async def update_preferences(
 @api_router.get("/chargers", response_model=List[Charger])
 async def get_chargers(
     session_token: Optional[str] = Cookie(None),
-    authorization: Optional[str] = Header(None)
+    authorization: Optional[str] = Header(None),
+    verification_level: Optional[int] = None,
+    port_type: Optional[str] = None,
+    amenity: Optional[str] = None,
+    max_distance: Optional[float] = None
 ):
-    """Get nearby chargers (mock data for now)"""
+    """Get nearby chargers with optional filters"""
     user = await get_user_from_session(session_token, authorization)
     if not user:
         raise HTTPException(401, "Not authenticated")
     
-    # Mock chargers data
+    # Enhanced mock chargers data with all new fields
+    now = datetime.now(timezone.utc)
     mock_chargers = [
         {
             "id": str(uuid.uuid4()),
@@ -335,9 +340,16 @@ async def get_chargers(
             "latitude": 37.7749,
             "longitude": -122.4194,
             "port_types": ["Type 2", "CCS"],
-            "available": True,
+            "available_ports": 6,
+            "total_ports": 8,
+            "source_type": "official",
+            "verification_level": 5,
+            "added_by": "admin",
+            "amenities": ["restroom", "cafe", "wifi", "parking"],
+            "last_verified": now - timedelta(days=2),
+            "uptime_percentage": 98.5,
             "distance": 0.5,
-            "created_at": datetime.now(timezone.utc)
+            "created_at": now - timedelta(days=180)
         },
         {
             "id": str(uuid.uuid4()),
@@ -346,9 +358,16 @@ async def get_chargers(
             "latitude": 37.7849,
             "longitude": -122.4094,
             "port_types": ["Type 2", "CHAdeMO"],
-            "available": True,
+            "available_ports": 2,
+            "total_ports": 4,
+            "source_type": "official",
+            "verification_level": 4,
+            "added_by": "admin",
+            "amenities": ["restroom", "shopping", "wifi", "parking"],
+            "last_verified": now - timedelta(days=5),
+            "uptime_percentage": 95.2,
             "distance": 1.2,
-            "created_at": datetime.now(timezone.utc)
+            "created_at": now - timedelta(days=120)
         },
         {
             "id": str(uuid.uuid4()),
@@ -357,9 +376,16 @@ async def get_chargers(
             "latitude": 37.7649,
             "longitude": -122.4294,
             "port_types": ["CCS", "CHAdeMO"],
-            "available": False,
+            "available_ports": 0,
+            "total_ports": 3,
+            "source_type": "official",
+            "verification_level": 3,
+            "added_by": "admin",
+            "amenities": ["restroom", "parking"],
+            "last_verified": now - timedelta(days=15),
+            "uptime_percentage": 87.3,
             "distance": 2.8,
-            "created_at": datetime.now(timezone.utc)
+            "created_at": now - timedelta(days=90)
         },
         {
             "id": str(uuid.uuid4()),
@@ -368,13 +394,71 @@ async def get_chargers(
             "latitude": 37.7549,
             "longitude": -122.4394,
             "port_types": ["Type 2", "CCS"],
-            "available": True,
+            "available_ports": 4,
+            "total_ports": 6,
+            "source_type": "official",
+            "verification_level": 5,
+            "added_by": "admin",
+            "amenities": ["restroom", "cafe", "wifi", "parking", "shopping"],
+            "last_verified": now - timedelta(days=1),
+            "uptime_percentage": 99.1,
             "distance": 3.5,
-            "created_at": datetime.now(timezone.utc)
+            "created_at": now - timedelta(days=200)
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Hidden Gem Charging - Local Cafe",
+            "address": "789 Quiet Street",
+            "latitude": 37.7599,
+            "longitude": -122.4144,
+            "port_types": ["Type 2"],
+            "available_ports": 1,
+            "total_ports": 2,
+            "source_type": "community_manual",
+            "verification_level": 2,
+            "added_by": user.id if not user.is_guest else "community",
+            "amenities": ["cafe", "wifi"],
+            "last_verified": now - timedelta(days=30),
+            "uptime_percentage": 78.5,
+            "distance": 1.8,
+            "created_at": now - timedelta(days=45)
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Community Charger - Park & Ride",
+            "address": "555 Transit Way",
+            "latitude": 37.7699,
+            "longitude": -122.4244,
+            "port_types": ["Type 2", "Type 1"],
+            "available_ports": 3,
+            "total_ports": 4,
+            "source_type": "community_manual",
+            "verification_level": 3,
+            "added_by": "community",
+            "amenities": ["parking"],
+            "last_verified": now - timedelta(days=10),
+            "uptime_percentage": 91.7,
+            "distance": 2.1,
+            "created_at": now - timedelta(days=60)
         }
     ]
     
-    return [Charger(**charger) for charger in mock_chargers]
+    # Apply filters
+    filtered_chargers = mock_chargers
+    
+    if verification_level is not None:
+        filtered_chargers = [c for c in filtered_chargers if c["verification_level"] >= verification_level]
+    
+    if port_type:
+        filtered_chargers = [c for c in filtered_chargers if port_type in c["port_types"]]
+    
+    if amenity:
+        filtered_chargers = [c for c in filtered_chargers if amenity in c["amenities"]]
+    
+    if max_distance is not None:
+        filtered_chargers = [c for c in filtered_chargers if c["distance"] <= max_distance]
+    
+    return [Charger(**charger) for charger in filtered_chargers]
 
 @api_router.post("/chargers")
 async def add_charger(
