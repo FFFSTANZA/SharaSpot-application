@@ -781,3 +781,197 @@ async def get_profile_stats(
         "trust_score": trust_score
     }
 
+
+# Eco-Routing Models
+class RouteSegment(BaseModel):
+    start_lat: float
+    start_lng: float
+    end_lat: float
+    end_lng: float
+    distance: float  # km
+    elevation_gain: float  # meters
+    traffic_factor: float  # 0-1
+    speed_profile: str  # "slow", "moderate", "fast"
+
+class EnergyPrediction(BaseModel):
+    base_wh_per_km: float = 150.0  # Base consumption
+    total_energy_kwh: float
+    estimated_range_km: float
+    factors: dict  # {"elevation": X, "traffic": Y, "temperature": Z}
+
+class EcoRoute(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    origin: dict  # {"lat": X, "lng": Y, "address": "..."}
+    destination: dict
+    distance_km: float
+    duration_minutes: float
+    energy_prediction: EnergyPrediction
+    eco_score: float  # 0-100
+    reliability_score: float  # 0-100
+    suggested_chargers: List[dict]  # Chargers along route
+    weather_conditions: Optional[dict] = None
+    terrain_summary: Optional[dict] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# Eco-Routing Helper Functions
+def calculate_energy_cost(segment: RouteSegment, temperature: float = 20.0) -> float:
+    """Calculate energy cost for a route segment"""
+    base_wh_per_km = 150.0
+    
+    # Elevation impact (20-30% increase per 100m gain)
+    elevation_impact = (segment.elevation_gain / 100) * 0.25
+    
+    # Traffic impact (15% increase in heavy traffic)
+    traffic_impact = segment.traffic_factor * 0.15
+    
+    # Temperature deviation impact (10% per 10°C deviation from 20°C)
+    temp_deviation = abs(temperature - 20) / 10
+    temp_impact = temp_deviation * 0.1
+    
+    # Speed profile impact
+    speed_impact = {
+        "slow": 0.05,  # AC overhead
+        "moderate": 0.0,  # Optimal
+        "fast": 0.2  # High speed inefficiency
+    }.get(segment.speed_profile, 0.0)
+    
+    total_factor = 1.0 + elevation_impact + traffic_impact + temp_impact + speed_impact
+    energy_wh = base_wh_per_km * segment.distance * total_factor
+    
+    return energy_wh
+
+def calculate_eco_score(
+    distance: float,
+    energy_cost: float,
+    reliability: float,
+    weather_advantage: float
+) -> float:
+    """Calculate composite EcoScore (0-100, higher is better)"""
+    # Normalize scores
+    distance_score = max(0, 100 - (distance * 2))  # Prefer shorter routes
+    energy_score = max(0, 100 - (energy_cost / 10))  # Lower energy = better
+    reliability_score = reliability * 100  # Already 0-1
+    weather_score = weather_advantage * 100
+    
+    # Weighted combination
+    eco_score = (
+        distance_score * 0.3 +
+        energy_score * 0.4 +
+        reliability_score * 0.2 +
+        weather_score * 0.1
+    )
+    
+    return round(eco_score, 1)
+
+# Eco-Routing Endpoints
+@api_router.post("/routing/calculate")
+async def calculate_eco_route(
+    origin_lat: float,
+    origin_lng: float,
+    destination_lat: float,
+    destination_lng: float,
+    battery_capacity_kwh: float = 60.0,
+    current_battery_percent: float = 80.0,
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Calculate eco-optimized route with energy predictions"""
+    user = await get_user_from_session(session_token, authorization)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    
+    # Mock route calculation (will integrate with Mapbox later)
+    # For now, return a sample route
+    
+    # Calculate distance (simplified)
+    from math import radians, sin, cos, sqrt, atan2
+    R = 6371  # Earth radius in km
+    lat1, lon1 = radians(origin_lat), radians(origin_lng)
+    lat2, lon2 = radians(destination_lat), radians(destination_lng)
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    distance_km = R * c
+    
+    # Mock energy calculation
+    avg_wh_per_km = 160.0  # With some elevation/traffic
+    total_energy_kwh = (distance_km * avg_wh_per_km) / 1000
+    current_battery_kwh = battery_capacity_kwh * (current_battery_percent / 100)
+    estimated_range = (current_battery_kwh / avg_wh_per_km) * 1000
+    
+    # Find chargers along route
+    all_chargers = await db.chargers.find().to_list(100)
+    suggested_chargers = []
+    for charger in all_chargers[:3]:  # Mock: suggest first 3
+        suggested_chargers.append({
+            "id": charger.get("id"),
+            "name": charger.get("name"),
+            "distance_from_route": round(distance_km * 0.1, 2),
+            "verification_level": charger.get("verification_level"),
+            "available_ports": charger.get("available_ports", 0)
+        })
+    
+    # Calculate eco score
+    eco_score = calculate_eco_score(
+        distance=distance_km,
+        energy_cost=total_energy_kwh,
+        reliability=0.85,  # Mock
+        weather_advantage=0.7  # Mock
+    )
+    
+    route = EcoRoute(
+        name="Eco-Optimized Route",
+        origin={"lat": origin_lat, "lng": origin_lng, "address": "Origin"},
+        destination={"lat": destination_lat, "lng": destination_lng, "address": "Destination"},
+        distance_km=round(distance_km, 2),
+        duration_minutes=round(distance_km * 1.2, 0),  # Mock: ~50 km/h avg
+        energy_prediction=EnergyPrediction(
+            total_energy_kwh=round(total_energy_kwh, 2),
+            estimated_range_km=round(estimated_range, 2),
+            factors={
+                "elevation": 0.15,
+                "traffic": 0.10,
+                "temperature": 0.05,
+                "speed": 0.08
+            }
+        ),
+        eco_score=eco_score,
+        reliability_score=85.0,
+        suggested_chargers=suggested_chargers,
+        weather_conditions={"temp": 22, "condition": "clear"},
+        terrain_summary={"elevation_gain": 120, "max_slope": 8}
+    )
+    
+    return route
+
+@api_router.get("/routing/chargers-along-route")
+async def get_chargers_along_route(
+    origin_lat: float,
+    origin_lng: float,
+    destination_lat: float,
+    destination_lng: float,
+    max_detour_km: float = 5.0,
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Get chargers along a route within specified detour distance"""
+    user = await get_user_from_session(session_token, authorization)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    
+    # Mock implementation - will add proper route-based filtering
+    all_chargers = await db.chargers.find().to_list(100)
+    
+    # Return chargers with mock distance from route
+    chargers_on_route = []
+    for charger in all_chargers[:5]:
+        chargers_on_route.append({
+            **charger,
+            "detour_km": round(max_detour_km * 0.6, 2),
+            "time_detour_min": round(max_detour_km * 0.6 * 1.2, 0)
+        })
+    
+    return chargers_on_route
+
