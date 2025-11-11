@@ -404,10 +404,15 @@ async def get_chargers(
             "verification_level": 4,
             "added_by": "admin",
             "amenities": ["restroom", "shopping", "wifi", "parking"],
+            "nearby_amenities": ["bank", "food court"],
+            "photos": [],
+            "verified_by_count": 18,
+            "verification_history": [],
             "last_verified": now - timedelta(days=5),
             "uptime_percentage": 95.2,
             "distance": 1.2,
             "created_at": now - timedelta(days=120)
+            "notes": None,
         },
         {
             "id": str(uuid.uuid4()),
@@ -422,10 +427,15 @@ async def get_chargers(
             "verification_level": 3,
             "added_by": "admin",
             "amenities": ["restroom", "parking"],
+            "nearby_amenities": [],
+            "photos": [],
+            "verified_by_count": 12,
+            "verification_history": [],
             "last_verified": now - timedelta(days=15),
             "uptime_percentage": 87.3,
             "distance": 2.8,
             "created_at": now - timedelta(days=90)
+            "notes": None,
         },
         {
             "id": str(uuid.uuid4()),
@@ -440,10 +450,15 @@ async def get_chargers(
             "verification_level": 5,
             "added_by": "admin",
             "amenities": ["restroom", "cafe", "wifi", "parking", "shopping"],
+            "nearby_amenities": ["mall", "restaurant"],
+            "photos": [],
+            "verified_by_count": 30,
+            "verification_history": [],
             "last_verified": now - timedelta(days=1),
             "uptime_percentage": 99.1,
             "distance": 3.5,
             "created_at": now - timedelta(days=200)
+            "notes": None,
         },
         {
             "id": str(uuid.uuid4()),
@@ -458,10 +473,15 @@ async def get_chargers(
             "verification_level": 2,
             "added_by": user.id if not user.is_guest else "community",
             "amenities": ["cafe", "wifi"],
+            "nearby_amenities": ["cafe"],
+            "photos": [],
+            "verified_by_count": 5,
+            "verification_history": [],
             "last_verified": now - timedelta(days=30),
             "uptime_percentage": 78.5,
             "distance": 1.8,
             "created_at": now - timedelta(days=45)
+            "notes": "Small cafe with 2 chargers",
         },
         {
             "id": str(uuid.uuid4()),
@@ -476,10 +496,15 @@ async def get_chargers(
             "verification_level": 3,
             "added_by": "community",
             "amenities": ["parking"],
+            "nearby_amenities": ["bus stop"],
+            "photos": [],
+            "verified_by_count": 8,
+            "verification_history": [],
             "last_verified": now - timedelta(days=10),
             "uptime_percentage": 91.7,
             "distance": 2.1,
             "created_at": now - timedelta(days=60)
+            "notes": "Free parking available",
         }
     ]
     
