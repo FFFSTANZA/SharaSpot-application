@@ -47,11 +47,11 @@ interface Charger {
 type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
-  1: '#F44336',
-  2: '#FF9800',
-  3: '#FFC107',
-  4: '#8BC34A',
-  5: '#4CAF50',
+  1: '#9E9E9E',  // Grey - New Entry
+  2: '#4CAF50',  // Green - Community Verified
+  3: '#2196F3',  // Blue - Reliable
+  4: '#FFB300',  // Gold - Trusted
+  5: '#9C27B0',  // Platinum - Certified Partner
 };
 
 export default function Home() {
