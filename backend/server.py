@@ -92,10 +92,27 @@ class ChargerCreateRequest(BaseModel):
 class VerificationActionRequest(BaseModel):
     action: str  # "active", "not_working", "partial"
     notes: Optional[str] = None
+class CoinTransaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    action: str  # "add_charger", "verify_charger", "upload_photo", "report_invalid", "redeem_coupon"
+    amount: int  # positive for earning, negative for spending
+    description: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserSettings(BaseModel):
+    theme: str = "light"  # "light" or "dark"
+    notifications_enabled: bool = True
+
 class UserProfile(BaseModel):
     shara_coins: int = 0
     verifications_count: int = 0
     chargers_added: int = 0
+    photos_uploaded: int = 0
+    reports_submitted: int = 0
+    coins_redeemed: int = 0
+    trust_score: float = 0.0
+    settings: UserSettings = Field(default_factory=UserSettings)
 # Helper functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
