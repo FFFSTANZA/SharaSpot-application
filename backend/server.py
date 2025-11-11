@@ -34,6 +34,12 @@ class User(BaseModel):
     shara_coins: int = 0
     verifications_count: int = 0
     chargers_added: int = 0
+    photos_uploaded: int = 0
+    reports_submitted: int = 0
+    coins_redeemed: int = 0
+    trust_score: float = 0.0
+    theme: str = "light"
+    notifications_enabled: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 class UserSession(BaseModel):
     user_id: str
