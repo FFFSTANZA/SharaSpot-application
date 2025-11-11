@@ -519,11 +519,36 @@ async def add_charger(
         uptime_percentage=100.0
     )
     await db.chargers.insert_one(charger.dict())
-    # Reward user with SharaCoins
+    
+    # Reward user with SharaCoins (5 for adding charger)
+    coins_earned = 5
     await db.users.update_one(
         {"id": user.id},
-        {"$inc": {"shara_coins": 50, "chargers_added": 1}}
+        {"$inc": {"shara_coins": coins_earned, "chargers_added": 1}}
     )
+    
+    # Log coin transaction
+    await log_coin_transaction(
+        user.id,
+        "add_charger",
+        coins_earned,
+        f"Added charger: {charger.name}"
+    )
+    
+    # Award additional coins for photos
+    if request.photos and len(request.photos) > 0:
+        photo_coins = len(request.photos) * 3
+        await db.users.update_one(
+            {"id": user.id},
+            {"$inc": {"shara_coins": photo_coins, "photos_uploaded": len(request.photos)}}
+        )
+        await log_coin_transaction(
+            user.id,
+            "upload_photo",
+            photo_coins,
+            f"Uploaded {len(request.photos)} photo(s) for {charger.name}"
+        )
+    
     return charger
 @api_router.get("/chargers/{charger_id}")
 async def get_charger_detail(
