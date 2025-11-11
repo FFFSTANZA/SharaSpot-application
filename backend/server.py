@@ -434,8 +434,9 @@ async def get_chargers(
             "last_verified": now - timedelta(days=15),
             "uptime_percentage": 87.3,
             "distance": 2.8,
-            "created_at": now - timedelta(days=90)
+            "distance": 2.8,
             "notes": None,
+            "created_at": now - timedelta(days=90)
         },
         {
             "id": str(uuid.uuid4()),
@@ -457,8 +458,9 @@ async def get_chargers(
             "last_verified": now - timedelta(days=1),
             "uptime_percentage": 99.1,
             "distance": 3.5,
-            "created_at": now - timedelta(days=200)
+            "distance": 3.5,
             "notes": None,
+            "created_at": now - timedelta(days=200)
         },
         {
             "id": str(uuid.uuid4()),
@@ -480,8 +482,9 @@ async def get_chargers(
             "last_verified": now - timedelta(days=30),
             "uptime_percentage": 78.5,
             "distance": 1.8,
-            "created_at": now - timedelta(days=45)
+            "distance": 1.8,
             "notes": "Small cafe with 2 chargers",
+            "created_at": now - timedelta(days=45)
         },
         {
             "id": str(uuid.uuid4()),
@@ -503,8 +506,9 @@ async def get_chargers(
             "last_verified": now - timedelta(days=10),
             "uptime_percentage": 91.7,
             "distance": 2.1,
-            "created_at": now - timedelta(days=60)
+            "distance": 2.1,
             "notes": "Free parking available",
+            "created_at": now - timedelta(days=60)
         }
     ]
     
