@@ -158,7 +158,17 @@ export default function Profile() {
           <Text style={styles.sectionTitle}>Your Impact</Text>
           
           {/* SharaCoins Card */}
-          <View style={styles.coinsCard}>
+          <TouchableOpacity
+            style={styles.coinsCard}
+            onPress={() => {
+              Alert.alert(
+                '🎉 Coming Soon!',
+                'Exciting rewards and coupon redemption features are currently under development. Stay tuned for amazing offers!\n\nYour SharaCoins will unlock:\n• Exclusive EV charging discounts\n• Premium features\n• Partner rewards\n• And much more!',
+                [{ text: 'Got it!', style: 'default' }]
+              );
+            }}
+            activeOpacity={0.8}
+          >
             <LinearGradient
               colors={['#F97316', '#EC4899']}
               start={{ x: 0, y: 0 }}
@@ -176,7 +186,7 @@ export default function Profile() {
                 <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
               </View>
             </LinearGradient>
-          </View>
+          </TouchableOpacity>
 
           {/* Stats Grid */}
           <View style={styles.statsGrid}>
