@@ -57,6 +57,12 @@ class PreferencesUpdate(BaseModel):
     vehicle_type: str
     distance_unit: str
 
+class VerificationAction(BaseModel):
+    user_id: str
+    action: str  # "active", "not_working", "partial"
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    notes: Optional[str] = None
+
 class Charger(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
@@ -70,10 +76,36 @@ class Charger(BaseModel):
     verification_level: int = 5  # 1-5
     added_by: Optional[str] = None  # user_id or "admin"
     amenities: List[str] = []  # ["restroom", "cafe", "wifi", "parking", "shopping"]
+    nearby_amenities: List[str] = []  # amenities within 500m
+    photos: List[str] = []  # base64 encoded images
     last_verified: Optional[datetime] = None
     uptime_percentage: float = 95.0
+    verified_by_count: int = 0
+    verification_history: List[VerificationAction] = []
     distance: Optional[float] = None
+    notes: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ChargerCreateRequest(BaseModel):
+    name: str
+    address: str
+    latitude: float
+    longitude: float
+    port_types: List[str]
+    total_ports: int
+    amenities: List[str] = []
+    nearby_amenities: List[str] = []
+    photos: List[str] = []
+    notes: Optional[str] = None
+
+class VerificationActionRequest(BaseModel):
+    action: str  # "active", "not_working", "partial"
+    notes: Optional[str] = None
+
+class UserProfile(BaseModel):
+    shara_coins: int = 0
+    verifications_count: int = 0
+    chargers_added: int = 0
 
 # Helper functions
 def hash_password(password: str) -> str:
