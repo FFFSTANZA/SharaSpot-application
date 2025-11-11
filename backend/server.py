@@ -618,12 +618,21 @@ async def verify_charger(
             "uptime_percentage": uptime
         }}
     )
-    # Reward user with SharaCoins
-    coins_reward = 10 if request.action == "active" else 5
+    # Reward user with SharaCoins (2 for verification)
+    coins_reward = 2
     await db.users.update_one(
         {"id": user.id},
         {"$inc": {"shara_coins": coins_reward, "verifications_count": 1}}
     )
+    
+    # Log coin transaction
+    await log_coin_transaction(
+        user.id,
+        "verify_charger",
+        coins_reward,
+        f"Verified charger as {request.action}: {charger['name']}"
+    )
+    
     return {
         "message": "Verification recorded",
         "coins_earned": coins_reward,
