@@ -434,7 +434,6 @@ async def get_chargers(
             "last_verified": now - timedelta(days=15),
             "uptime_percentage": 87.3,
             "distance": 2.8,
-            "distance": 2.8,
             "notes": None,
             "created_at": now - timedelta(days=90)
         },
