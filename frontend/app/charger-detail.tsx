@@ -224,7 +224,7 @@ export default function ChargerDetail() {
                   <>
                     <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
                     <Text style={styles.actionButtonText}>Active</Text>
-                    <Text style={styles.actionReward}>+10 🪙</Text>
+                    <Text style={styles.actionReward}>+2 🪙</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -240,7 +240,7 @@ export default function ChargerDetail() {
                   <>
                     <Ionicons name="close-circle" size={24} color="#FFFFFF" />
                     <Text style={styles.actionButtonText}>Not Working</Text>
-                    <Text style={styles.actionReward}>+5 🪙</Text>
+                    <Text style={styles.actionReward}>+2 🪙</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -256,7 +256,7 @@ export default function ChargerDetail() {
                   <>
                     <Ionicons name="battery-half" size={24} color="#FFFFFF" />
                     <Text style={styles.actionButtonText}>Partial</Text>
-                    <Text style={styles.actionReward}>+5 🪙</Text>
+                    <Text style={styles.actionReward}>+2 🪙</Text>
                   </>
                 )}
               </TouchableOpacity>
