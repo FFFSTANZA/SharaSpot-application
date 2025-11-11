@@ -14,7 +14,7 @@ export default function Index() {
       } else if (needsPreferences && !user.is_guest) {
         router.replace('/preferences');
       } else {
-        router.replace('/home');
+        router.replace('/(tabs)');
       }
     }
   }, [loading, user, needsPreferences]);
