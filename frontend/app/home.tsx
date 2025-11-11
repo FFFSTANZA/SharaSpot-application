@@ -69,7 +69,7 @@ export default function Home() {
     maxDistance: null,
   });
 
-  const mapRef = React.useRef<MapView>(null);
+  const mapRef = React.useRef<any>(null);
 
   useEffect(() => {
     loadChargers();
