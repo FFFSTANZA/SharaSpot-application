@@ -207,7 +207,7 @@ export default function Profile() {
         <Text style={styles.sectionTitle}>Trust Score</Text>
         <View style={styles.trustCard}>
           <View style={styles.trustHeader}>
-            <Text style={styles.trustScore} style={{ color: getTrustScoreColor(stats?.trust_score || 0) }}>
+            <Text style={[styles.trustScore, { color: getTrustScoreColor(stats?.trust_score || 0) }]}>
               {stats?.trust_score || 0}%
             </Text>
             <Text style={styles.trustLabel}>Trusted Contributor</Text>
