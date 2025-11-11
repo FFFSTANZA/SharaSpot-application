@@ -64,7 +64,14 @@ class Charger(BaseModel):
     latitude: float
     longitude: float
     port_types: List[str]
-    available: bool = True
+    available_ports: int = 1
+    total_ports: int = 2
+    source_type: str = "official"  # "official" | "community_manual"
+    verification_level: int = 5  # 1-5
+    added_by: Optional[str] = None  # user_id or "admin"
+    amenities: List[str] = []  # ["restroom", "cafe", "wifi", "parking", "shopping"]
+    last_verified: Optional[datetime] = None
+    uptime_percentage: float = 95.0
     distance: Optional[float] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
