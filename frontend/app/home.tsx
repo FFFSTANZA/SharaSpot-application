@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, Alert, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, Alert, RefreshControl, Platform, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useAuth } from '../contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { VerificationBadge } from '../components/VerificationBadge';
+import { AmenitiesIcons } from '../components/AmenitiesIcons';
+import { FilterModal, Filters } from '../components/FilterModal';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
+const { width, height } = Dimensions.get('window');
 
 interface Charger {
   id: string;
@@ -16,10 +21,27 @@ interface Charger {
   latitude: number;
   longitude: number;
   port_types: string[];
-  available: boolean;
+  available_ports: number;
+  total_ports: number;
+  source_type: string;
+  verification_level: number;
+  added_by?: string;
+  amenities: string[];
+  last_verified?: string;
+  uptime_percentage: number;
   distance?: number;
   created_at: string;
 }
+
+type ViewMode = 'map' | 'list';
+
+const VERIFICATION_COLORS = {
+  1: '#F44336',
+  2: '#FF9800',
+  3: '#FFC107',
+  4: '#8BC34A',
+  5: '#4CAF50',
+};
 
 export default function Home() {
   const router = useRouter();
