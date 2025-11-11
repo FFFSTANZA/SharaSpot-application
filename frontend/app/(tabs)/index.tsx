@@ -373,12 +373,6 @@ export default function Discover() {
         <Text style={styles.viewToggleText}>{viewMode === 'map' ? 'List' : 'Map'}</Text>
       </TouchableOpacity>
 
-      {/* Add Hidden Charger FAB */}
-      <TouchableOpacity style={styles.fab} onPress={handleAddCharger}>
-        <Ionicons name="add" size={20} color="#FFFFFF" />
-        <Text style={styles.fabText}>Add Hidden Charger</Text>
-      </TouchableOpacity>
-
       {/* Filter Modal */}
       <FilterModal
         visible={filterModalVisible}
