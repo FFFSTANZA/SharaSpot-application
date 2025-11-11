@@ -381,9 +381,14 @@ async def get_chargers(
             "verification_level": 5,
             "added_by": "admin",
             "amenities": ["restroom", "cafe", "wifi", "parking"],
+            "nearby_amenities": ["restaurant", "atm"],
+            "photos": [],
+            "verified_by_count": 25,
+            "verification_history": [],
             "last_verified": now - timedelta(days=2),
             "uptime_percentage": 98.5,
             "distance": 0.5,
+            "notes": None,
             "created_at": now - timedelta(days=180)
         },
         {
