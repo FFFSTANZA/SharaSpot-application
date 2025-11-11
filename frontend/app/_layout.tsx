@@ -12,6 +12,10 @@ export default function RootLayout() {
         <Stack.Screen name="signup" />
         <Stack.Screen name="preferences" />
         <Stack.Screen name="home" />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="add-charger" />
+        <Stack.Screen name="charger-detail" />
+        <Stack.Screen name="profile" />
       </Stack>
     </AuthProvider>
   );
