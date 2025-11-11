@@ -675,4 +675,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  webMapFallback: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  mapPlaceholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  mapPlaceholderText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#999999',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  mapPlaceholderSubtext: {
+    fontSize: 14,
+    color: '#CCCCCC',
+    marginTop: 8,
+    textAlign: 'center',
+  },
 });
