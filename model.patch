@@ -1,43 +1,76 @@
 diff --git a/backend/server.py b/backend/server.py
-index e75b33b..f090850 100644
+index f090850..80bec59 100644
 --- a/backend/server.py
 +++ b/backend/server.py
-@@ -519,11 +519,36 @@ async def add_charger(
-         uptime_percentage=100.0
+@@ -618,12 +618,21 @@ async def verify_charger(
+             "uptime_percentage": uptime
+         }}
      )
-     await db.chargers.insert_one(charger.dict())
 -    # Reward user with SharaCoins
-+    
-+    # Reward user with SharaCoins (5 for adding charger)
-+    coins_earned = 5
+-    coins_reward = 10 if request.action == "active" else 5
++    # Reward user with SharaCoins (2 for verification)
++    coins_reward = 2
      await db.users.update_one(
          {"id": user.id},
--        {"$inc": {"shara_coins": 50, "chargers_added": 1}}
-+        {"$inc": {"shara_coins": coins_earned, "chargers_added": 1}}
-+    )
+         {"$inc": {"shara_coins": coins_reward, "verifications_count": 1}}
+     )
 +    
 +    # Log coin transaction
 +    await log_coin_transaction(
 +        user.id,
-+        "add_charger",
-+        coins_earned,
-+        f"Added charger: {charger.name}"
-     )
++        "verify_charger",
++        coins_reward,
++        f"Verified charger as {request.action}: {charger['name']}"
++    )
 +    
-+    # Award additional coins for photos
-+    if request.photos and len(request.photos) > 0:
-+        photo_coins = len(request.photos) * 3
-+        await db.users.update_one(
-+            {"id": user.id},
-+            {"$inc": {"shara_coins": photo_coins, "photos_uploaded": len(request.photos)}}
-+        )
-+        await log_coin_transaction(
-+            user.id,
-+            "upload_photo",
-+            photo_coins,
-+            f"Uploaded {len(request.photos)} photo(s) for {charger.name}"
-+        )
-+    
-     return charger
- @api_router.get("/chargers/{charger_id}")
- async def get_charger_detail(
+     return {
+         "message": "Verification recorded",
+         "coins_earned": coins_reward,
+diff --git a/model.patch b/model.patch
+index e322d44..e69de29 100644
+--- a/model.patch
++++ b/model.patch
+@@ -1,43 +0,0 @@
+-diff --git a/backend/server.py b/backend/server.py
+-index e75b33b..f090850 100644
+---- a/backend/server.py
+-+++ b/backend/server.py
+-@@ -519,11 +519,36 @@ async def add_charger(
+-         uptime_percentage=100.0
+-     )
+-     await db.chargers.insert_one(charger.dict())
+--    # Reward user with SharaCoins
+-+    
+-+    # Reward user with SharaCoins (5 for adding charger)
+-+    coins_earned = 5
+-     await db.users.update_one(
+-         {"id": user.id},
+--        {"$inc": {"shara_coins": 50, "chargers_added": 1}}
+-+        {"$inc": {"shara_coins": coins_earned, "chargers_added": 1}}
+-+    )
+-+    
+-+    # Log coin transaction
+-+    await log_coin_transaction(
+-+        user.id,
+-+        "add_charger",
+-+        coins_earned,
+-+        f"Added charger: {charger.name}"
+-     )
+-+    
+-+    # Award additional coins for photos
+-+    if request.photos and len(request.photos) > 0:
+-+        photo_coins = len(request.photos) * 3
+-+        await db.users.update_one(
+-+            {"id": user.id},
+-+            {"$inc": {"shara_coins": photo_coins, "photos_uploaded": len(request.photos)}}
+-+        )
+-+        await log_coin_transaction(
+-+            user.id,
+-+            "upload_photo",
+-+            photo_coins,
+-+            f"Uploaded {len(request.photos)} photo(s) for {charger.name}"
+-+        )
+-+    
+-     return charger
+- @api_router.get("/chargers/{charger_id}")
+- async def get_charger_detail(
