@@ -236,7 +236,7 @@ async def get_current_user(
 async def create_guest_session(response: Response):
     """Create guest user session"""
     guest = User(
-        email=f"guest_{uuid.uuid4()}@sharaspot.local",
+        email=f"guest_{uuid.uuid4().hex[:8]}@example.com",
         name="Guest User",
         is_guest=True
     )
