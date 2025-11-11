@@ -257,6 +257,19 @@ export default function Home() {
   const renderMapView = () => {
     if (chargers.length === 0) return null;
 
+    // Web fallback - show list of chargers with map placeholder
+    if (Platform.OS === 'web' || !MapView) {
+      return (
+        <View style={styles.webMapFallback}>
+          <View style={styles.mapPlaceholder}>
+            <Ionicons name="map" size={64} color="#CCCCCC" />
+            <Text style={styles.mapPlaceholderText}>Map view available on mobile</Text>
+            <Text style={styles.mapPlaceholderSubtext}>Download Expo Go app to view interactive map</Text>
+          </View>
+        </View>
+      );
+    }
+
     const initialRegion = {
       latitude: chargers[0]?.latitude || 37.7749,
       longitude: chargers[0]?.longitude || -122.4194,
