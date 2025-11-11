@@ -47,9 +47,9 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         return (
           <LinearGradient
             colors={[
-              'rgba(45, 63, 232, 0.1)',
-              'rgba(139, 92, 246, 0.1)',
-              'rgba(6, 182, 212, 0.05)',
+              'rgba(45, 63, 232, 0.08)',    // More subtle electric blue
+              'rgba(139, 92, 246, 0.08)',   // More subtle purple
+              'rgba(6, 182, 212, 0.04)',    // Very subtle cyan
             ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -71,7 +71,10 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       case 'primary':
         return (
           <LinearGradient
-            colors={['rgba(45, 63, 232, 0.15)', 'rgba(139, 92, 246, 0.15)']}
+            colors={[
+              'rgba(45, 63, 232, 0.12)',    // Refined opacity
+              'rgba(139, 92, 246, 0.12)'    // Refined opacity
+            ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[
@@ -93,7 +96,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         if (Platform.OS === 'ios' || Platform.OS === 'android') {
           return (
             <BlurView
-              intensity={80}
+              intensity={90}          // Increased for HD quality
               tint="dark"
               style={[
                 styles.container,
@@ -133,7 +136,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         if (Platform.OS === 'ios' || Platform.OS === 'android') {
           return (
             <BlurView
-              intensity={80}
+              intensity={90}          // Increased for HD quality
               tint="light"
               style={[
                 styles.container,
@@ -179,41 +182,41 @@ const styles = StyleSheet.create({
   },
   lightVariant: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: 1.5,              // HD border thickness
     borderColor: Colors.glassBorder,
   },
   lightVariantFallback: {
     backgroundColor: Colors.glass,
-    borderWidth: 1,
+    borderWidth: 1.5,              // HD border thickness
     borderColor: Colors.glassBorder,
     ...Platform.select({
       web: {
-        backdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(24px) saturate(1.2)', // Enhanced HD blur
       },
     }),
   },
   darkVariant: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1.5,              // HD border thickness
+    borderColor: 'rgba(255, 255, 255, 0.08)', // More subtle
   },
   darkVariantFallback: {
-    backgroundColor: 'rgba(30, 41, 59, 0.7)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(30, 41, 59, 0.65)', // Updated opacity
+    borderWidth: 1.5,              // HD border thickness
+    borderColor: 'rgba(255, 255, 255, 0.08)', // More subtle
     ...Platform.select({
       web: {
-        backdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(24px) saturate(1.2)', // Enhanced HD blur
       },
     }),
   },
   primaryVariant: {
-    borderWidth: 1,
-    borderColor: 'rgba(79, 95, 249, 0.3)',
+    borderWidth: 1.5,              // HD border thickness
+    borderColor: 'rgba(79, 95, 249, 0.25)', // Refined opacity
   },
   gradientVariant: {
-    borderWidth: 1,
-    borderColor: 'rgba(79, 95, 249, 0.2)',
+    borderWidth: 1.5,              // HD border thickness
+    borderColor: 'rgba(79, 95, 249, 0.15)', // More subtle
   },
 });
 
