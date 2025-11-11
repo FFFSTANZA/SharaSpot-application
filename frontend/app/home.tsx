@@ -248,7 +248,7 @@ export default function Home() {
         <Text style={styles.greeting}>Hello, {user?.name || 'Guest'}!</Text>
         <Text style={styles.subtitle}>{chargers.length} charging stations nearby</Text>
       </View>
-      <TouchableOpacity style={styles.profileButton} onPress={handleLogout}>
+      <TouchableOpacity style={styles.profileButton} onPress={() => router.push('/profile')}>
         <Ionicons name="person-circle" size={40} color="#4CAF50" />
       </TouchableOpacity>
     </View>
