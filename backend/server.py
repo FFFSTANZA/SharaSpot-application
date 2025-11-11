@@ -35,6 +35,9 @@ class User(BaseModel):
     vehicle_type: Optional[str] = None
     distance_unit: Optional[str] = "km"
     is_guest: bool = False
+    shara_coins: int = 0
+    verifications_count: int = 0
+    chargers_added: int = 0
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserSession(BaseModel):
