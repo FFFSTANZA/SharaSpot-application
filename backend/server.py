@@ -623,3 +623,127 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+# Helper function to log coin transactions
+async def log_coin_transaction(user_id: str, action: str, amount: int, description: str):
+    """Log a coin transaction"""
+    transaction = CoinTransaction(
+        user_id=user_id,
+        action=action,
+        amount=amount,
+        description=description
+    )
+    await db.coin_transactions.insert_one(transaction.dict())
+    return transaction
+
+# Helper function to calculate trust score
+async def calculate_trust_score(user_id: str) -> float:
+    """Calculate user's trust score based on contributions"""
+    user_doc = await db.users.find_one({"id": user_id})
+    if not user_doc:
+        return 0.0
+    
+    chargers_added = user_doc.get('chargers_added', 0)
+    verifications_count = user_doc.get('verifications_count', 0)
+    photos_uploaded = user_doc.get('photos_uploaded', 0)
+    
+    # Simple trust score formula (max 100)
+    score = min(100, (chargers_added * 10) + (verifications_count * 2) + (photos_uploaded * 3))
+    return round(score, 1)
+
+# Profile & Wallet Routes
+@api_router.get("/profile/activity")
+async def get_user_activity(
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Get user's activity (submissions, verifications, reports)"""
+    user = await get_user_from_session(session_token, authorization)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    
+    # Get user's submissions
+    submissions = await db.chargers.find({"added_by": user.id}).to_list(100)
+    
+    # Get user's verifications
+    verified_chargers = []
+    all_chargers = await db.chargers.find().to_list(1000)
+    for charger in all_chargers:
+        verification_history = charger.get('verification_history', [])
+        user_verifications = [v for v in verification_history if v.get('user_id') == user.id]
+        if user_verifications:
+            verified_chargers.append({
+                "charger": charger,
+                "verifications": user_verifications
+            })
+    
+    return {
+        "submissions": submissions,
+        "verifications": verified_chargers,
+        "reports": []  # Future implementation
+    }
+
+@api_router.get("/wallet/transactions")
+async def get_coin_transactions(
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Get user's coin transaction history"""
+    user = await get_user_from_session(session_token, authorization)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    
+    transactions = await db.coin_transactions.find({"user_id": user.id}).sort("timestamp", -1).to_list(100)
+    
+    return {
+        "total_coins": user.shara_coins,
+        "coins_earned": user.shara_coins + user.coins_redeemed,
+        "coins_redeemed": user.coins_redeemed,
+        "transactions": transactions
+    }
+
+@api_router.put("/settings")
+async def update_settings(
+    theme: Optional[str] = None,
+    notifications_enabled: Optional[bool] = None,
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Update user settings"""
+    user = await get_user_from_session(session_token, authorization)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    
+    update_data = {}
+    if theme is not None:
+        update_data["theme"] = theme
+    if notifications_enabled is not None:
+        update_data["notifications_enabled"] = notifications_enabled
+    
+    if update_data:
+        await db.users.update_one({"id": user.id}, {"$set": update_data})
+    
+    return {"message": "Settings updated successfully"}
+
+@api_router.get("/profile/stats")
+async def get_profile_stats(
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Get user profile statistics"""
+    user = await get_user_from_session(session_token, authorization)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    
+    trust_score = await calculate_trust_score(user.id)
+    await db.users.update_one({"id": user.id}, {"$set": {"trust_score": trust_score}})
+    
+    return {
+        "shara_coins": user.shara_coins,
+        "chargers_added": user.chargers_added,
+        "verifications_count": user.verifications_count,
+        "photos_uploaded": user.photos_uploaded,
+        "reports_submitted": user.reports_submitted,
+        "trust_score": trust_score
+    }
+
