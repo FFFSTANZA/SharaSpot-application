@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import * as Location from 'expo-location';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 const PORT_TYPES = ['Type 2', 'CCS', 'CHAdeMO', 'Type 1'];
 const VEHICLE_TYPES = ['2W (Scooter/Bike)', '4W (Car)', 'e-Bus', 'e-Rickshaw'];
@@ -67,13 +68,13 @@ export default function Preferences() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="location" size={24} color="#4CAF50" />
+            <Ionicons name="location" size={24} color={Colors.success} />
             <Text style={styles.sectionTitle}>Location Access</Text>
           </View>
           <Text style={styles.sectionDescription}>We need your location to find nearby charging stations</Text>
           {locationPermission === 'granted' ? (
             <View style={styles.permissionGranted}>
-              <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+              <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
               <Text style={styles.permissionText}>Location access granted</Text>
             </View>
           ) : (
@@ -85,7 +86,7 @@ export default function Preferences() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="power" size={24} color="#4CAF50" />
+            <Ionicons name="power" size={24} color={Colors.primary} />
             <Text style={styles.sectionTitle}>Charging Port Type</Text>
           </View>
           <View style={styles.optionsGrid}>
@@ -101,7 +102,7 @@ export default function Preferences() {
                 <Ionicons
                   name="flash"
                   size={24}
-                  color={portType === type ? '#4CAF50' : '#999999'}
+                  color={portType === type ? Colors.success : Colors.textTertiary}
                 />
                 <Text
                   style={[
@@ -118,7 +119,7 @@ export default function Preferences() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="car" size={24} color="#4CAF50" />
+            <Ionicons name="car" size={24} color={Colors.primary} />
             <Text style={styles.sectionTitle}>Vehicle Type</Text>
           </View>
           <View style={styles.optionsList}>
@@ -140,7 +141,7 @@ export default function Preferences() {
                   {type}
                 </Text>
                 {vehicleType === type && (
-                  <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+                  <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
                 )}
               </TouchableOpacity>
             ))}
@@ -149,7 +150,7 @@ export default function Preferences() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="speedometer" size={24} color="#4CAF50" />
+            <Ionicons name="speedometer" size={24} color={Colors.primary} />
             <Text style={styles.sectionTitle}>Distance Unit</Text>
           </View>
           <View style={styles.optionsRow}>
@@ -194,166 +195,159 @@ export default function Preferences() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 40,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xxl,
   },
   header: {
-    marginBottom: 32,
+    marginBottom: Spacing.xxl,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 8,
+    ...Typography.headlineMedium,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666666',
+    ...Typography.titleMedium,
+    color: Colors.textSecondary,
   },
   section: {
-    marginBottom: 32,
+    marginBottom: Spacing.xxl,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    ...Typography.titleLarge,
+    color: Colors.textPrimary,
   },
   sectionDescription: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 16,
+    ...Typography.bodyMedium,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
   },
   permissionGranted: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#E8F5E9',
-    padding: 12,
-    borderRadius: 8,
+    gap: Spacing.sm,
+    backgroundColor: Colors.successLight,
+    padding: Spacing['3'],
+    borderRadius: BorderRadius.sm,
   },
   permissionText: {
-    fontSize: 14,
-    color: '#2E7D32',
-    fontWeight: '500',
+    ...Typography.bodyMedium,
+    color: Colors.successDark,
   },
   permissionButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    backgroundColor: Colors.success,
+    paddingVertical: Spacing['3'],
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.sm,
     alignItems: 'center',
   },
   permissionButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.titleMedium,
+    color: Colors.textInverse,
   },
   optionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: Spacing['3'],
   },
   optionCard: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: '#F5F5F5',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.backgroundSecondary,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.sm,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   optionCardSelected: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#4CAF50',
+    backgroundColor: Colors.successLight,
+    borderColor: Colors.success,
   },
   optionText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#666666',
+    ...Typography.bodyMedium,
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   optionTextSelected: {
-    color: '#2E7D32',
+    color: Colors.successDark,
     fontWeight: '600',
   },
   optionsList: {
-    gap: 12,
+    gap: Spacing['3'],
   },
   optionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.backgroundSecondary,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   optionRowSelected: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#4CAF50',
+    backgroundColor: Colors.successLight,
+    borderColor: Colors.success,
   },
   optionRowText: {
-    fontSize: 16,
-    color: '#666666',
-    fontWeight: '500',
+    ...Typography.titleMedium,
+    color: Colors.textSecondary,
   },
   optionRowTextSelected: {
-    color: '#2E7D32',
+    color: Colors.successDark,
     fontWeight: '600',
   },
   optionsRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: Spacing['3'],
   },
   unitButton: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    backgroundColor: Colors.backgroundSecondary,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
   },
   unitButtonSelected: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#4CAF50',
+    backgroundColor: Colors.successLight,
+    borderColor: Colors.success,
   },
   unitText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#666666',
+    ...Typography.titleMedium,
+    color: Colors.textSecondary,
   },
   unitTextSelected: {
-    color: '#2E7D32',
+    color: Colors.successDark,
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: Spacing.md,
+    ...Shadows.md,
   },
   saveButtonDisabled: {
     opacity: 0.6,
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.titleMedium,
+    color: Colors.textInverse,
   },
 });

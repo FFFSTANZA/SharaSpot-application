@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width } = Dimensions.get('window');
@@ -111,7 +112,7 @@ export default function Profile() {
       >
         {/* Premium Header with Gradient */}
         <LinearGradient
-          colors={['#2D3FE8', '#8B5CF6']}
+          colors={Colors.gradientPremium}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.header}
@@ -127,7 +128,7 @@ export default function Profile() {
           {/* Profile Avatar */}
           <View style={styles.avatarContainer}>
             <LinearGradient
-              colors={['#06B6D4', '#8B5CF6']}
+              colors={[Colors.accentCyan, Colors.accentPurple]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.avatarGradient}
@@ -162,7 +163,7 @@ export default function Profile() {
             style={styles.coinsCard}
             onPress={() => {
               Alert.alert(
-                '🎉 Coming Soon!',
+                'Coming Soon!',
                 'Exciting rewards and coupon redemption features are currently under development. Stay tuned for amazing offers!\n\nYour SharaCoins will unlock:\n• Exclusive EV charging discounts\n• Premium features\n• Partner rewards\n• And much more!',
                 [{ text: 'Got it!', style: 'default' }]
               );
@@ -170,7 +171,7 @@ export default function Profile() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={['#F97316', '#EC4899']}
+              colors={[Colors.primaryLight, Colors.accentAmber]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.coinsGradient}
@@ -191,32 +192,32 @@ export default function Profile() {
           {/* Stats Grid */}
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
-              <View style={[styles.statIconCircle, { backgroundColor: '#2D3FE8' + '15' }]}>
-                <Ionicons name="flash" size={24} color="#2D3FE8" />
+              <View style={[styles.statIconCircle, { backgroundColor: Colors.primary + '15' }]}>
+                <Ionicons name="flash" size={24} color={Colors.primary} />
               </View>
               <Text style={styles.statValue}>{stats?.chargers_added || 0}</Text>
               <Text style={styles.statLabel}>Chargers Added</Text>
             </View>
 
             <View style={styles.statCard}>
-              <View style={[styles.statIconCircle, { backgroundColor: '#10B981' + '15' }]}>
-                <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+              <View style={[styles.statIconCircle, { backgroundColor: Colors.success + '15' }]}>
+                <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
               </View>
               <Text style={styles.statValue}>{stats?.verifications_count || 0}</Text>
               <Text style={styles.statLabel}>Verifications</Text>
             </View>
 
             <View style={styles.statCard}>
-              <View style={[styles.statIconCircle, { backgroundColor: '#06B6D4' + '15' }]}>
-                <Ionicons name="camera" size={24} color="#06B6D4" />
+              <View style={[styles.statIconCircle, { backgroundColor: Colors.accentCyan + '15' }]}>
+                <Ionicons name="camera" size={24} color={Colors.accentCyan} />
               </View>
               <Text style={styles.statValue}>{stats?.photos_uploaded || 0}</Text>
               <Text style={styles.statLabel}>Photos</Text>
             </View>
 
             <View style={styles.statCard}>
-              <View style={[styles.statIconCircle, { backgroundColor: '#F97316' + '15' }]}>
-                <Ionicons name="alert-circle" size={24} color="#F97316" />
+              <View style={[styles.statIconCircle, { backgroundColor: Colors.warning + '15' }]}>
+                <Ionicons name="alert-circle" size={24} color={Colors.warning} />
               </View>
               <Text style={styles.statValue}>{stats?.reports_submitted || 0}</Text>
               <Text style={styles.statLabel}>Reports</Text>
@@ -231,7 +232,7 @@ export default function Profile() {
             </View>
             <View style={styles.progressBar}>
               <LinearGradient
-                colors={['#2D3FE8', '#8B5CF6']}
+                colors={Colors.gradientPremium}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={[styles.progressFill, { width: `${stats?.trust_score || 0}%` }]}
@@ -249,7 +250,7 @@ export default function Profile() {
           <View style={styles.vehicleCard}>
             <View style={styles.vehicleRow}>
               <View style={styles.vehicleIconCircle}>
-                <Ionicons name="car-sport" size={24} color="#2D3FE8" />
+                <Ionicons name="car-sport" size={24} color={Colors.primary} />
               </View>
               <View style={styles.vehicleInfo}>
                 <Text style={styles.vehicleLabel}>Vehicle Type</Text>
@@ -259,7 +260,7 @@ export default function Profile() {
             <View style={styles.vehicleDivider} />
             <View style={styles.vehicleRow}>
               <View style={styles.vehicleIconCircle}>
-                <Ionicons name="plug" size={24} color="#8B5CF6" />
+                <Ionicons name="plug" size={24} color={Colors.accentPurple} />
               </View>
               <View style={styles.vehicleInfo}>
                 <Text style={styles.vehicleLabel}>Port Type</Text>
@@ -278,12 +279,12 @@ export default function Profile() {
             onPress={handleEditProfile}
           >
             <View style={styles.actionLeft}>
-              <View style={[styles.actionIconCircle, { backgroundColor: '#2D3FE8' + '15' }]}>
-                <Ionicons name="person-outline" size={20} color="#2D3FE8" />
+              <View style={[styles.actionIconCircle, { backgroundColor: Colors.primary + '15' }]}>
+                <Ionicons name="person-outline" size={20} color={Colors.primary} />
               </View>
               <Text style={styles.actionText}>Edit Profile</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+            <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -291,25 +292,12 @@ export default function Profile() {
             onPress={() => router.push('/add-charger')}
           >
             <View style={styles.actionLeft}>
-              <View style={[styles.actionIconCircle, { backgroundColor: '#10B981' + '15' }]}>
-                <Ionicons name="add-circle-outline" size={20} color="#10B981" />
+              <View style={[styles.actionIconCircle, { backgroundColor: Colors.success + '15' }]}>
+                <Ionicons name="add-circle-outline" size={20} color={Colors.success} />
               </View>
               <Text style={styles.actionText}>Add Hidden Charger</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => router.push('/profile')}
-          >
-            <View style={styles.actionLeft}>
-              <View style={[styles.actionIconCircle, { backgroundColor: '#06B6D4' + '15' }]}>
-                <Ionicons name="time-outline" size={20} color="#06B6D4" />
-              </View>
-              <Text style={styles.actionText}>My Activity</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+            <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
           </TouchableOpacity>
         </View>
 
@@ -331,13 +319,13 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.backgroundSecondary,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colors.backgroundSecondary,
   },
   scrollView: {
     flex: 1,
@@ -346,97 +334,85 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   header: {
-    paddingTop: 24,
-    paddingBottom: 32,
-    paddingHorizontal: 24,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+    paddingHorizontal: Spacing.lg,
     alignItems: 'center',
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    shadowColor: '#2D3FE8',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
+    borderBottomLeftRadius: BorderRadius.xxxl,
+    borderBottomRightRadius: BorderRadius.xxxl,
+    ...Shadows.xl,
   },
   settingsButton: {
     position: 'absolute',
-    top: 24,
-    right: 24,
+    top: Spacing.lg,
+    right: Spacing.lg,
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: BorderRadius.full,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarContainer: {
-    marginBottom: 16,
+    marginBottom: Spacing.md,
   },
   avatarGradient: {
     width: 100,
     height: 100,
-    borderRadius: 50,
+    borderRadius: BorderRadius.full,
     padding: 4,
   },
   avatar: {
     width: 92,
     height: 92,
-    borderRadius: 46,
-    backgroundColor: '#FFFFFF',
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: '#2D3FE8',
+    ...Typography.displayMedium,
+    color: Colors.primary,
   },
   userName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    ...Typography.headlineSmall,
+    color: Colors.textInverse,
     marginBottom: 4,
   },
   userEmail: {
-    fontSize: 14,
+    ...Typography.bodyMedium,
     color: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: 16,
+    marginBottom: Spacing.md,
   },
   trustBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.full,
     gap: 6,
   },
   trustText: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...Typography.labelLarge,
   },
   statsSection: {
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
     marginTop: -20,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0F172A',
-    marginBottom: 16,
-    marginTop: 24,
+    ...Typography.titleLarge,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
+    marginTop: Spacing.lg,
   },
   coinsCard: {
-    borderRadius: 20,
+    borderRadius: BorderRadius.xl,
     overflow: 'hidden',
-    shadowColor: '#F97316',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-    marginBottom: 24,
+    ...Shadows.primaryGlow,
+    marginBottom: Spacing.lg,
   },
   coinsGradient: {
-    padding: 20,
+    padding: Spacing.xl,
   },
   coinsContent: {
     flexDirection: 'row',
@@ -452,117 +428,100 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   coinsLabel: {
-    fontSize: 14,
+    ...Typography.bodyMedium,
     color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '500',
   },
   coinsValue: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    ...Typography.displaySmall,
+    color: Colors.textInverse,
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 24,
+    gap: Spacing['3'],
+    marginBottom: Spacing.lg,
   },
   statCard: {
     width: (width - 60) / 2,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    ...Shadows.sm,
   },
   statIconCircle: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: BorderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing['3'],
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0F172A',
+    ...Typography.headlineSmall,
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#64748B',
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   trustScoreCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xl,
+    ...Shadows.sm,
   },
   trustScoreHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing['3'],
   },
   trustScoreTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0F172A',
+    ...Typography.titleMedium,
+    color: Colors.textPrimary,
   },
   trustScoreValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2D3FE8',
+    ...Typography.titleLarge,
+    color: Colors.primary,
   },
   progressBar: {
     height: 8,
-    backgroundColor: '#E2E8F0',
-    borderRadius: 4,
+    backgroundColor: Colors.borderLight,
+    borderRadius: BorderRadius.xs,
     overflow: 'hidden',
-    marginBottom: 12,
+    marginBottom: Spacing['3'],
   },
   progressFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: BorderRadius.xs,
   },
   trustScoreDescription: {
-    fontSize: 12,
-    color: '#64748B',
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
     lineHeight: 18,
   },
   section: {
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
   },
   vehicleCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xl,
+    ...Shadows.sm,
   },
   vehicleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: Spacing.md,
   },
   vehicleIconCircle: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: '#F1F5F9',
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.backgroundSecondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -570,69 +529,62 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   vehicleLabel: {
-    fontSize: 12,
-    color: '#64748B',
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   vehicleValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0F172A',
+    ...Typography.titleMedium,
+    color: Colors.textPrimary,
     textTransform: 'capitalize',
   },
   vehicleDivider: {
     height: 1,
-    backgroundColor: '#F1F5F9',
-    marginVertical: 16,
+    backgroundColor: Colors.borderLight,
+    marginVertical: Spacing.md,
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing['3'],
+    ...Shadows.xs,
   },
   actionLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: Spacing['3'],
   },
   actionIconCircle: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: BorderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   actionText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#0F172A',
+    ...Typography.titleMedium,
+    color: Colors.textPrimary,
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 24,
-    marginTop: 24,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#FEE2E2',
-    gap: 8,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.lg,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.errorLight,
+    gap: Spacing.sm,
   },
   logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#EF4444',
+    ...Typography.titleMedium,
+    color: Colors.error,
   },
   bottomPadding: {
-    height: 24,
+    height: Spacing.lg,
   },
 });
