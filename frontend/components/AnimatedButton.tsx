@@ -86,7 +86,7 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
               <Ionicons
                 name={icon}
                 size={textSizes[size]}
-                color={Colors.textDark}
+                color={Colors.textInverse}
                 style={styles.icon}
               />
             )}
@@ -106,7 +106,7 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   };
 
   const textColors = {
-    secondary: Colors.textDark,
+    secondary: Colors.textInverse,
     outline: Colors.primary,
     ghost: Colors.primary,
   };
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: BorderRadius.lg,
-    ...Shadows.colored,
+    ...Shadows.md,
   },
   secondaryButton: {
     backgroundColor: Colors.secondary,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontWeight: '600',
-    color: Colors.textDark,
+    color: Colors.textInverse,
   },
   icon: {
     marginRight: 8,

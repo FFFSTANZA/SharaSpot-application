@@ -1,17 +1,88 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
+WebBrowser.maybeCompleteAuthSession();
+
+const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
+
 export default function Welcome() {
   const router = useRouter();
-  const { continueAsGuest } = useAuth();
+  const { continueAsGuest, handleGoogleCallback } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleSignIn = () => {
-    // For MVP, we'll show info that this opens browser
-    alert('Google Sign-In will open in your browser. For testing, use email/password login.');
+  useEffect(() => {
+    // Listen for deep link callbacks
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    // Check if app was opened with a URL
+    Linking.getInitialURL().then(url => {
+      if (url) {
+        handleDeepLink({ url });
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  const handleDeepLink = async ({ url }: { url: string }) => {
+    try {
+      // Parse the URL to extract session ID
+      const parsedUrl = Linking.parse(url);
+      const sessionId = parsedUrl.queryParams?.session_id as string;
+
+      if (sessionId) {
+        setIsLoading(true);
+        const result = await handleGoogleCallback(sessionId);
+
+        if (result.success) {
+          if (result.needsPreferences) {
+            router.replace('/preferences');
+          } else {
+            router.replace('/(tabs)');
+          }
+        }
+      }
+    } catch (error: any) {
+      Alert.alert('Sign-in Error', error.message || 'Failed to sign in with Google');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+
+      // Create the redirect URL that points back to our app
+      const redirectUrl = Linking.createURL('/auth/callback');
+      const encodedRedirectUrl = encodeURIComponent(redirectUrl);
+
+      // Construct Emergent Auth URL
+      const authUrl = `https://auth.emergentagent.com/?redirect=${encodedRedirectUrl}`;
+
+      // Open browser for authentication
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl);
+
+      if (result.type === 'success' && result.url) {
+        // Handle the callback URL
+        await handleDeepLink({ url: result.url });
+      } else if (result.type === 'cancel') {
+        Alert.alert('Cancelled', 'Google sign-in was cancelled');
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to open Google sign-in');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGuest = async () => {
@@ -32,11 +103,21 @@ export default function Welcome() {
           <Text style={styles.subtitle}>Whether you drive, Charge Nearby</Text>
         </View>
 
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-            <Ionicons name="logo-google" size={24} color="#DB4437" />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text style={styles.loadingText}>Signing in...</Text>
+          </View>
+        ) : (
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={handleGoogleSignIn}
+              disabled={isLoading}
+            >
+              <Ionicons name="logo-google" size={24} color="#DB4437" />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
 
           <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
             <Ionicons name="mail" size={24} color={Colors.textInverse} />
@@ -47,10 +128,15 @@ export default function Welcome() {
             <Text style={styles.signupButtonText}>Create Account</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.guestButton} onPress={handleGuest}>
-            <Text style={styles.guestButtonText}>Continue as Guest</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={styles.guestButton}
+              onPress={handleGuest}
+              disabled={isLoading}
+            >
+              <Text style={styles.guestButtonText}>Continue as Guest</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <Text style={styles.disclaimer}>Guest mode has limited features</Text>
       </View>
@@ -141,5 +227,15 @@ const styles = StyleSheet.create({
     ...Typography.bodySmall,
     color: Colors.textTertiary,
     marginTop: Spacing.lg,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.xxxl,
+    gap: Spacing.md,
+  },
+  loadingText: {
+    ...Typography.bodyMedium,
+    color: Colors.textSecondary,
   },
 });

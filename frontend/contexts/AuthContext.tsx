@@ -21,7 +21,8 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
-  loginWithGoogle: () => void;
+  loginWithGoogle: () => Promise<{ success: boolean; needsPreferences?: boolean }>;
+  handleGoogleCallback: (sessionId: string) => Promise<{ success: boolean; needsPreferences: boolean }>;
   continueAsGuest: () => Promise<void>;
   logout: () => Promise<void>;
   updatePreferences: (preferences: { port_type: string; vehicle_type: string; distance_unit: string }) => Promise<void>;
@@ -79,12 +80,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithGoogle = () => {
-    // Redirect to Emergent Auth
-    const redirectUrl = encodeURIComponent(`${API_URL}/`);
-    const authUrl = `https://auth.emergentagent.com/?redirect=${redirectUrl}`;
-    // For now, we'll handle this in the welcome screen
-    console.log('Google auth URL:', authUrl);
+  const loginWithGoogle = async (): Promise<{ success: boolean; needsPreferences?: boolean }> => {
+    try {
+      // For now, this will be called from welcome.tsx with proper browser handling
+      // This function just returns the auth URL to be used
+      return { success: false };
+    } catch (error: any) {
+      throw new Error(error.message || 'Google sign-in failed');
+    }
+  };
+
+  const handleGoogleCallback = async (sessionId: string): Promise<{ success: boolean; needsPreferences: boolean }> => {
+    try {
+      const response = await axios.get(`${API_URL}/api/auth/session-data`, {
+        headers: { 'X-Session-ID': sessionId }
+      });
+
+      await AsyncStorage.setItem('session_token', response.data.session_token);
+      setUser(response.data.user);
+      setNeedsPreferences(response.data.needs_preferences);
+
+      return {
+        success: true,
+        needsPreferences: response.data.needs_preferences
+      };
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || 'Failed to complete Google sign-in');
+    }
   };
 
   const continueAsGuest = async () => {
@@ -129,7 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, continueAsGuest, logout, updatePreferences, needsPreferences }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, handleGoogleCallback, continueAsGuest, logout, updatePreferences, needsPreferences }}>
       {children}
     </AuthContext.Provider>
   );
