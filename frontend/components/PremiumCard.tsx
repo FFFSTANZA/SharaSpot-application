@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   gradientCard: {
     backgroundColor: 'transparent',
-    ...Shadows.colored,
+    ...Shadows.primaryGlow,
   },
   glassCard: {
     backgroundColor: Colors.glassLight,

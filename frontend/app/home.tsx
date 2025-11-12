@@ -203,7 +203,7 @@ export default function Home() {
           <Ionicons
             name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"}
             size={14}
-            color={item.available_ports > 0 ? Colors.accentGreen : Colors.error}
+            color={item.available_ports > 0 ? Colors.success : Colors.error}
           />
           <Text style={styles.detailText}>
             {item.available_ports}/{item.total_ports} ports available
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
   },
   uptimeText: {
     ...Typography.labelSmall,
-    color: Colors.accentGreen,
+    color: Colors.success,
   },
   verifiedText: {
     ...Typography.labelSmall,
