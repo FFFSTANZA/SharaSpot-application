@@ -86,6 +86,10 @@ export default function Profile() {
     router.push('/preferences');
   };
 
+  const handleGoHome = () => {
+    router.push('/(tabs)');
+  };
+
   const getTrustLevel = (score: number) => {
     if (score >= 90) return { level: 'Platinum', color: '#9C27B0', icon: 'star' };
     if (score >= 75) return { level: 'Gold', color: '#FFB300', icon: 'trophy' };
@@ -117,13 +121,21 @@ export default function Profile() {
           end={{ x: 1, y: 1 }}
           style={styles.header}
         >
-          {/* Settings Icon */}
-          <TouchableOpacity
-            style={styles.settingsButton}
-            onPress={handleEditProfile}
-          >
-            <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+          {/* Header Actions */}
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={handleGoHome}
+            >
+              <Ionicons name="home" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={handleEditProfile}
+            >
+              <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
 
           {/* Profile Avatar */}
           <View style={styles.avatarContainer}>
@@ -302,13 +314,19 @@ export default function Profile() {
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
-          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={handleLogout}
+            activeOpacity={0.7}
+          >
+            <View style={styles.logoutIconCircle}>
+              <Ionicons name="log-out-outline" size={22} color={Colors.error} />
+            </View>
+            <Text style={styles.logoutText}>Logout</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.error} />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.bottomPadding} />
       </ScrollView>
@@ -342,16 +360,22 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: BorderRadius.xxxl,
     ...Shadows.xl,
   },
-  settingsButton: {
+  headerActions: {
     position: 'absolute',
     top: Spacing.lg,
     right: Spacing.lg,
-    width: 40,
-    height: 40,
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    zIndex: 10,
+  },
+  headerButton: {
+    width: 44,
+    height: 44,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
+    ...Shadows.md,
   },
   avatarContainer: {
     marginBottom: Spacing.md,
@@ -572,17 +596,28 @@ const styles = StyleSheet.create({
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: Spacing.lg,
-    marginTop: Spacing.lg,
-    padding: Spacing.md,
+    justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.errorLight,
+    ...Shadows.xs,
+  },
+  logoutIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.full,
     backgroundColor: Colors.errorLight,
-    gap: Spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   logoutText: {
     ...Typography.titleMedium,
     color: Colors.error,
+    flex: 1,
+    marginLeft: Spacing['3'],
+    fontWeight: '600',
   },
   bottomPadding: {
     height: Spacing.lg,
