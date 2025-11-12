@@ -47,9 +47,9 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         return (
           <LinearGradient
             colors={[
-              'rgba(45, 63, 232, 0.08)',    // More subtle electric blue
-              'rgba(139, 92, 246, 0.08)',   // More subtle purple
-              'rgba(6, 182, 212, 0.04)',    // Very subtle cyan
+              'rgba(191, 255, 0, 0.08)',    // Electric kiwi
+              'rgba(154, 255, 0, 0.08)',    // Chartreuse
+              'rgba(223, 255, 0, 0.04)',    // Neon lime
             ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -72,8 +72,8 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         return (
           <LinearGradient
             colors={[
-              'rgba(45, 63, 232, 0.12)',    // Refined opacity
-              'rgba(139, 92, 246, 0.12)'    // Refined opacity
+              'rgba(191, 255, 0, 0.12)',    // Electric kiwi
+              'rgba(154, 255, 0, 0.12)'     // Chartreuse
             ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -212,11 +212,11 @@ const styles = StyleSheet.create({
   },
   primaryVariant: {
     borderWidth: 1.5,              // HD border thickness
-    borderColor: 'rgba(79, 95, 249, 0.25)', // Refined opacity
+    borderColor: 'rgba(191, 255, 0, 0.25)', // Electric kiwi border
   },
   gradientVariant: {
     borderWidth: 1.5,              // HD border thickness
-    borderColor: 'rgba(79, 95, 249, 0.15)', // More subtle
+    borderColor: 'rgba(191, 255, 0, 0.15)', // Subtle kiwi border
   },
 });
 

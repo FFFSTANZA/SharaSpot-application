@@ -5,47 +5,47 @@
 import { Platform } from 'react-native';
 
 // ============================================================================
-// COLOR SYSTEM - Premium Minimalism & Electric Energy
+// COLOR SYSTEM - Premium Minimalism & Electric Kiwi Energy
 // ============================================================================
 
-// Semantic Color Scales (50-900)
-const electricBlue = {
-  50: '#EEF2FF',
-  100: '#E0E7FF',
-  200: '#C7D2FE',
-  300: '#A5B4FC',
-  400: '#818CF8',
-  500: '#6366F1', // Base
-  600: '#4F5FF9', // Primary
-  700: '#2D3FE8', // Primary Dark
-  800: '#1E2BB8',
-  900: '#1E1B4B',
+// Semantic Color Scales (50-900) - Electric Kiwi Theme
+const electricKiwi = {
+  50: '#F7FFE5',
+  100: '#EFFFCC',
+  200: '#E5FF99',
+  300: '#D4FF66',
+  400: '#C6FF33',
+  500: '#BFFF00', // Base - Electric Lime
+  600: '#A8E600', // Primary
+  700: '#8FCC00', // Primary Dark
+  800: '#76B300',
+  900: '#5D9900',
 };
 
-const electricPurple = {
-  50: '#FAF5FF',
-  100: '#F3E8FF',
-  200: '#E9D5FF',
-  300: '#D8B4FE',
-  400: '#C084FC',
-  500: '#A855F7',
-  600: '#8B5CF6', // Secondary
-  700: '#7C3AED',
-  800: '#6D28D9',
-  900: '#4C1D95',
+const electricChartreuse = {
+  50: '#F4FFE5',
+  100: '#E8FFCC',
+  200: '#D6FF99',
+  300: '#C0FF66',
+  400: '#AAFF33',
+  500: '#9AFF00',
+  600: '#8BE600', // Secondary
+  700: '#7ACC00',
+  800: '#68B300',
+  900: '#579900',
 };
 
-const electricCyan = {
-  50: '#ECFEFF',
-  100: '#CFFAFE',
-  200: '#A5F3FC',
-  300: '#67E8F9',
-  400: '#22D3EE',
-  500: '#06B6D4', // Accent
-  600: '#0891B2',
-  700: '#0E7490',
-  800: '#155E75',
-  900: '#164E63',
+const electricLime = {
+  50: '#FCFFE5',
+  100: '#F9FFCC',
+  200: '#F3FF99',
+  300: '#ECFF66',
+  400: '#E6FF33',
+  500: '#DFFF00', // Accent - Neon Lime
+  600: '#C8E600',
+  700: '#B0CC00',
+  800: '#99B300',
+  900: '#819900',
 };
 
 const neutral = {
@@ -65,56 +65,56 @@ const neutral = {
 
 const semantic = {
   success: {
-    50: '#F0F9FF',      // Sky blue (minimalist, crisp)
-    500: '#0EA5E9',     // Rich sky blue (modern, premium)
-    600: '#0284C7',     // Deep sky blue
-    700: '#0369A1',     // Darkest sky blue
-    950: '#082F49',     // Dark mode variant
+    50: '#F4FFE5',      // Light kiwi (minimalist, crisp)
+    500: '#9AFF00',     // Electric chartreuse (modern, premium)
+    600: '#8BE600',     // Deep chartreuse
+    700: '#7ACC00',     // Darkest chartreuse
+    950: '#2D4D00',     // Dark mode variant
   },
   warning: {
     50: '#FFFBEB',
-    500: '#F59E0B',
-    600: '#D97706',
-    700: '#B45309',
+    500: '#FFDD00',     // Bright yellow (kiwi complementary)
+    600: '#E6C700',
+    700: '#CCB000',
   },
   error: {
     50: '#FEF2F2',
-    500: '#EF4444',
-    600: '#DC2626',
-    700: '#B91C1C',
+    500: '#FF4444',     // Bright red
+    600: '#E63939',
+    700: '#CC2E2E',
   },
   info: {
-    50: '#EFF6FF',
-    500: '#3B82F6',
-    600: '#2563EB',
-    700: '#1D4ED8',
+    50: '#F7FFE5',
+    500: '#BFFF00',     // Electric kiwi for info
+    600: '#A8E600',
+    700: '#8FCC00',
   },
 };
 
 // Light Theme Colors
 export const LightColors = {
   // Primary
-  primary: electricBlue[700],
-  primaryLight: electricBlue[600],
-  primaryDark: electricBlue[800],
-  primarySubtle: electricBlue[50],
+  primary: electricKiwi[700],
+  primaryLight: electricKiwi[600],
+  primaryDark: electricKiwi[800],
+  primarySubtle: electricKiwi[50],
 
   // Secondary
-  secondary: electricPurple[600],
-  secondaryLight: electricPurple[500],
-  secondaryDark: electricPurple[700],
-  secondarySubtle: electricPurple[50],
+  secondary: electricChartreuse[600],
+  secondaryLight: electricChartreuse[500],
+  secondaryDark: electricChartreuse[700],
+  secondarySubtle: electricChartreuse[50],
 
   // Accent
-  accent: electricCyan[500],
-  accentLight: electricCyan[400],
-  accentDark: electricCyan[600],
-  accentSubtle: electricCyan[50],
+  accent: electricLime[500],
+  accentLight: electricLime[400],
+  accentDark: electricLime[600],
+  accentSubtle: electricLime[50],
 
   // Additional Accents
-  accentOrange: '#F97316',
-  accentPink: '#EC4899',
-  accentSky: '#0EA5E9',        // Rich sky blue (minimalist premium)
+  accentYellow: '#FFDD00',
+  accentGreen: '#00FF7F',
+  accentKiwi: '#BFFF00',        // Electric kiwi (premium minimalist)
 
   // Background
   background: neutral[50],
@@ -170,41 +170,41 @@ export const LightColors = {
   glassBorderStrong: 'rgba(255, 255, 255, 0.4)', // Stronger border
   glassShadow: 'rgba(0, 0, 0, 0.05)',            // Internal shadow
 
-  // Gradients - Enhanced for HD
-  gradientPrimary: [electricBlue[700], electricPurple[600]],
-  gradientSecondary: [electricCyan[500], electricBlue[700]],
-  gradientSunset: ['#F97316', '#EC4899', '#C026D3'], // 3-stop gradient
-  gradientSuccess: ['#0EA5E9', '#06B6D4'],       // Sky to cyan (minimalist premium)
-  gradientElectric: [electricBlue[600], electricPurple[500], electricCyan[400]],
+  // Gradients - Enhanced for HD (Electric Kiwi Theme)
+  gradientPrimary: [electricKiwi[700], electricChartreuse[600]],
+  gradientSecondary: [electricLime[500], electricKiwi[700]],
+  gradientSunset: ['#FFDD00', '#BFFF00', '#9AFF00'], // 3-stop gradient (yellow to kiwi)
+  gradientSuccess: ['#9AFF00', '#7FFF00'],       // Chartreuse to lime (minimalist premium)
+  gradientElectric: [electricKiwi[600], electricChartreuse[500], electricLime[400]],
   gradientNight: ['#1E293B', '#0F172A'],         // Dark gradient
-  gradientEnergy: [electricBlue[500], electricPurple[600], electricCyan[500]], // Vibrant
-  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#0EA5E9'], // Multi-stop (minimalist)
+  gradientEnergy: [electricKiwi[500], electricChartreuse[600], electricLime[500]], // Vibrant
+  gradientHero: ['#BFFF00', '#9AFF00', '#DFFF00', '#C6FF33'], // Multi-stop (minimalist kiwi)
 };
 
 // Dark Theme Colors
 export const DarkColors = {
   // Primary
-  primary: electricBlue[500],
-  primaryLight: electricBlue[400],
-  primaryDark: electricBlue[600],
-  primarySubtle: electricBlue[950],
+  primary: electricKiwi[500],
+  primaryLight: electricKiwi[400],
+  primaryDark: electricKiwi[600],
+  primarySubtle: electricKiwi[900],
 
   // Secondary
-  secondary: electricPurple[500],
-  secondaryLight: electricPurple[400],
-  secondaryDark: electricPurple[600],
-  secondarySubtle: electricPurple[950],
+  secondary: electricChartreuse[500],
+  secondaryLight: electricChartreuse[400],
+  secondaryDark: electricChartreuse[600],
+  secondarySubtle: electricChartreuse[900],
 
   // Accent
-  accent: electricCyan[400],
-  accentLight: electricCyan[300],
-  accentDark: electricCyan[500],
-  accentSubtle: electricCyan[950],
+  accent: electricLime[400],
+  accentLight: electricLime[300],
+  accentDark: electricLime[500],
+  accentSubtle: electricLime[900],
 
   // Additional Accents
-  accentOrange: '#FB923C',
-  accentPink: '#F472B6',
-  accentSky: '#38BDF8',        // Lighter sky blue for dark theme
+  accentYellow: '#FFE766',
+  accentGreen: '#66FFAA',
+  accentKiwi: '#D4FF66',        // Lighter kiwi for dark theme
 
   // Background
   background: neutral[950],
@@ -260,15 +260,15 @@ export const DarkColors = {
   glassBorderStrong: 'rgba(148, 163, 184, 0.3)', // Stronger border
   glassShadow: 'rgba(0, 0, 0, 0.2)',             // Internal shadow
 
-  // Gradients - Enhanced for HD
-  gradientPrimary: [electricBlue[500], electricPurple[500]],
-  gradientSecondary: [electricCyan[400], electricBlue[500]],
-  gradientSunset: ['#FB923C', '#F472B6', '#D946EF'], // 3-stop gradient
-  gradientSuccess: ['#38BDF8', '#22D3EE'],       // Light sky to cyan (minimalist)
-  gradientElectric: [electricBlue[500], electricPurple[400], electricCyan[300]],
+  // Gradients - Enhanced for HD (Electric Kiwi Theme)
+  gradientPrimary: [electricKiwi[500], electricChartreuse[500]],
+  gradientSecondary: [electricLime[400], electricKiwi[500]],
+  gradientSunset: ['#FFE766', '#D4FF66', '#AAFF33'], // 3-stop gradient (yellow to kiwi)
+  gradientSuccess: ['#C6FF33', '#9AFF00'],       // Light lime to chartreuse (minimalist)
+  gradientElectric: [electricKiwi[500], electricChartreuse[400], electricLime[300]],
   gradientNight: ['#0F172A', '#020617'],         // Dark gradient
-  gradientEnergy: [electricBlue[400], electricPurple[500], electricCyan[400]], // Vibrant
-  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#0EA5E9'], // Multi-stop (minimalist)
+  gradientEnergy: [electricKiwi[400], electricChartreuse[500], electricLime[400]], // Vibrant
+  gradientHero: ['#BFFF00', '#9AFF00', '#DFFF00', '#C6FF33'], // Multi-stop (minimalist kiwi)
 };
 
 // Default to light theme (can be made dynamic with context)
@@ -573,51 +573,51 @@ export const Shadows = {
     elevation: 24,
   },
 
-  // Colored Glows - Electric Energy (Enhanced for HD)
+  // Colored Glows - Electric Kiwi Energy (Enhanced for HD)
   primaryGlow: {
-    shadowColor: electricBlue[700],
+    shadowColor: electricKiwi[700],
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,     // More vibrant
     shadowRadius: 20,        // Softer glow
     elevation: 8,
   },
   primaryGlowStrong: {
-    shadowColor: electricBlue[700],
+    shadowColor: electricKiwi[700],
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.5,      // Intense glow
     shadowRadius: 32,        // Wider spread
     elevation: 12,
   },
   secondaryGlow: {
-    shadowColor: electricPurple[600],
+    shadowColor: electricChartreuse[600],
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,     // More vibrant
     shadowRadius: 20,        // Softer glow
     elevation: 8,
   },
   secondaryGlowStrong: {
-    shadowColor: electricPurple[600],
+    shadowColor: electricChartreuse[600],
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.5,      // Intense glow
     shadowRadius: 32,        // Wider spread
     elevation: 12,
   },
   accentGlow: {
-    shadowColor: electricCyan[500],
+    shadowColor: electricLime[500],
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,     // More vibrant
     shadowRadius: 20,        // Softer glow
     elevation: 8,
   },
   accentGlowStrong: {
-    shadowColor: electricCyan[500],
+    shadowColor: electricLime[500],
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.5,      // Intense glow
     shadowRadius: 32,        // Wider spread
     elevation: 12,
   },
   successGlow: {
-    shadowColor: semantic.success[500],  // #0EA5E9 sky blue glow (minimalist premium)
+    shadowColor: semantic.success[500],  // #9AFF00 chartreuse glow (minimalist premium)
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,                  // Slightly stronger for visibility
     shadowRadius: 24,                     // Softer, more premium glow
@@ -828,7 +828,7 @@ export const Accessibility = {
 
   // Focus indicators
   focusRingWidth: 2,
-  focusRingColor: electricBlue[600],
+  focusRingColor: electricKiwi[600],
   focusRingOffset: 2,
 };
 

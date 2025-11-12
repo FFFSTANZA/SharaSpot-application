@@ -29,7 +29,7 @@ const AnimatedButton = ({
   iconColor,
   delay = 0,
   gradient = false,
-  gradientColors = ['#6366F1', '#8B5CF6']  // Minimalist indigo to purple gradient
+  gradientColors = ['#BFFF00', '#9AFF00']  // Electric kiwi to chartreuse gradient
 }: any) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -285,9 +285,9 @@ export default function Welcome() {
 
   return (
     <View style={styles.container}>
-      {/* Animated gradient background */}
+      {/* Animated gradient background - Dark slate for kiwi contrast */}
       <LinearGradient
-        colors={['#0F2027', '#203A43', '#2C5364']}
+        colors={['#0A0E10', '#1A1D20', '#0F1419']}
         style={StyleSheet.absoluteFillObject}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -319,12 +319,12 @@ export default function Welcome() {
               <View style={styles.logoGlowOuter}>
                 <View style={styles.logoGlowInner}>
                   <LinearGradient
-                    colors={['#6366F1', '#8B5CF6', '#0EA5E9']}  // Rich indigo to sky blue gradient
+                    colors={['#BFFF00', '#9AFF00', '#DFFF00']}  // Electric kiwi gradient
                     style={styles.logoGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                   >
-                    <Ionicons name="flash" size={60} color="#FFFFFF" />
+                    <Ionicons name="flash" size={60} color="#0A0E10" />
                   </LinearGradient>
                 </View>
               </View>
@@ -350,7 +350,7 @@ export default function Welcome() {
 
                 {/* Main title with shimmer effect */}
                 <LinearGradient
-                  colors={['#FFFFFF', '#E0E7FF', '#FFFFFF']}  // Subtle shimmer gradient
+                  colors={['#FFFFFF', '#F7FFE5', '#FFFFFF']}  // Subtle kiwi shimmer gradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.titleGradient}
@@ -387,7 +387,7 @@ export default function Welcome() {
               style={styles.googleButton}
               textStyle={styles.googleButtonText}
               icon="logo-google"
-              iconColor="#DB4437"
+              iconColor="#BFFF00"
               delay={800}
             >
               Continue with Google
@@ -399,10 +399,10 @@ export default function Welcome() {
               style={styles.emailButton}
               textStyle={styles.emailButtonText}
               icon="mail"
-              iconColor="#FFFFFF"
+              iconColor="#0A0E10"
               delay={1000}
               gradient={true}
-              gradientColors={['#6366F1', '#8B5CF6', '#0EA5E9']}  // Premium indigo gradient
+              gradientColors={['#BFFF00', '#9AFF00', '#DFFF00']}  // Premium kiwi gradient
             >
               Sign in with Email
             </AnimatedButton>
@@ -414,7 +414,7 @@ export default function Welcome() {
               textStyle={styles.signupButtonText}
               delay={1200}
               gradient={true}
-              gradientColors={['#2196F3', '#1976D2', '#42A5F5']}
+              gradientColors={['#9AFF00', '#7ACC00', '#AAFF33']}  // Chartreuse gradient
             >
               Create Account
             </AnimatedButton>
@@ -467,12 +467,12 @@ const styles = StyleSheet.create({
   logoGlowOuter: {
     padding: 20,
     borderRadius: 50,
-    backgroundColor: 'rgba(99, 102, 241, 0.12)',  // Minimalist indigo glow
+    backgroundColor: 'rgba(191, 255, 0, 0.12)',  // Minimalist kiwi glow
   },
   logoGlowInner: {
     padding: 10,
     borderRadius: 40,
-    backgroundColor: 'rgba(99, 102, 241, 0.18)',  // Rich indigo inner glow
+    backgroundColor: 'rgba(191, 255, 0, 0.18)',  // Rich kiwi inner glow
   },
   logoGradient: {
     width: 100,
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#6366F1',  // Premium indigo shadow
+    shadowColor: '#BFFF00',  // Premium kiwi shadow
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,      // Softer for minimalist look
     shadowRadius: 24,        // Wider, more premium glow
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: 2,        // More spacing for premium look
-    textShadowColor: 'rgba(99, 102, 241, 0.3)',  // Subtle indigo shimmer
+    textShadowColor: 'rgba(191, 255, 0, 0.4)',  // Subtle kiwi shimmer
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 16,    // Softer, more diffused glow
   },
@@ -546,14 +546,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   googleButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(191, 255, 0, 0.3)',
   },
   googleButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   emailButton: {
     // Gradient applied via LinearGradient
@@ -561,8 +561,8 @@ const styles = StyleSheet.create({
   emailButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    color: '#0A0E10',
+    textShadowColor: 'rgba(191, 255, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
@@ -572,20 +572,20 @@ const styles = StyleSheet.create({
   signupButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    color: '#0A0E10',
+    textShadowColor: 'rgba(154, 255, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
   guestButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(191, 255, 0, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(191, 255, 0, 0.25)',
   },
   guestButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#E0E0E0',
+    color: '#BFFF00',
   },
   disclaimerBlur: {
     marginTop: 24,
@@ -604,6 +604,6 @@ const styles = StyleSheet.create({
   particle: {
     position: 'absolute',
     borderRadius: 100,
-    backgroundColor: 'rgba(99, 102, 241, 0.15)',  // Minimalist indigo particles
+    backgroundColor: 'rgba(191, 255, 0, 0.15)',  // Minimalist kiwi particles
   },
 });
