@@ -154,22 +154,30 @@ export const LightColors = {
   infoLight: semantic.info[50],
   infoDark: semantic.info[700],
 
-  // Overlays
+  // Overlays - HD Refined
   overlay: 'rgba(15, 23, 42, 0.5)',
-  overlayLight: 'rgba(15, 23, 42, 0.3)',
-  overlayStrong: 'rgba(15, 23, 42, 0.7)',
+  overlayLight: 'rgba(15, 23, 42, 0.25)',        // More subtle
+  overlayMedium: 'rgba(15, 23, 42, 0.4)',        // Mid-range
+  overlayStrong: 'rgba(15, 23, 42, 0.65)',       // Strong but not opaque
+  overlayHeavy: 'rgba(15, 23, 42, 0.8)',         // Very strong
 
-  // Glass Effects
-  glass: 'rgba(255, 255, 255, 0.7)',
-  glassStrong: 'rgba(255, 255, 255, 0.9)',
-  glassBorder: 'rgba(255, 255, 255, 0.3)',
+  // Glass Effects - Premium Glassmorphism
+  glass: 'rgba(255, 255, 255, 0.65)',            // More refined
+  glassSubtle: 'rgba(255, 255, 255, 0.45)',      // Subtle glass
+  glassStrong: 'rgba(255, 255, 255, 0.85)',      // Strong glass
+  glassBorder: 'rgba(255, 255, 255, 0.25)',      // More subtle border
+  glassBorderStrong: 'rgba(255, 255, 255, 0.4)', // Stronger border
+  glassShadow: 'rgba(0, 0, 0, 0.05)',            // Internal shadow
 
-  // Gradients
+  // Gradients - Enhanced for HD
   gradientPrimary: [electricBlue[700], electricPurple[600]],
   gradientSecondary: [electricCyan[500], electricBlue[700]],
-  gradientSunset: ['#F97316', '#EC4899'],
+  gradientSunset: ['#F97316', '#EC4899', '#C026D3'], // 3-stop gradient
   gradientSuccess: ['#10B981', '#06B6D4'],
   gradientElectric: [electricBlue[600], electricPurple[500], electricCyan[400]],
+  gradientNight: ['#1E293B', '#0F172A'],         // Dark gradient
+  gradientEnergy: [electricBlue[500], electricPurple[600], electricCyan[500]], // Vibrant
+  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#10B981'], // Multi-stop
 };
 
 // Dark Theme Colors
@@ -236,54 +244,76 @@ export const DarkColors = {
   infoLight: semantic.info[950],
   infoDark: semantic.info[600],
 
-  // Overlays
+  // Overlays - HD Refined
   overlay: 'rgba(0, 0, 0, 0.5)',
-  overlayLight: 'rgba(0, 0, 0, 0.3)',
-  overlayStrong: 'rgba(0, 0, 0, 0.7)',
+  overlayLight: 'rgba(0, 0, 0, 0.25)',           // More subtle
+  overlayMedium: 'rgba(0, 0, 0, 0.4)',           // Mid-range
+  overlayStrong: 'rgba(0, 0, 0, 0.65)',          // Strong but not opaque
+  overlayHeavy: 'rgba(0, 0, 0, 0.8)',            // Very strong
 
-  // Glass Effects
-  glass: 'rgba(30, 41, 59, 0.7)',
-  glassStrong: 'rgba(30, 41, 59, 0.9)',
-  glassBorder: 'rgba(148, 163, 184, 0.2)',
+  // Glass Effects - Premium Glassmorphism
+  glass: 'rgba(30, 41, 59, 0.65)',               // More refined
+  glassSubtle: 'rgba(30, 41, 59, 0.45)',         // Subtle glass
+  glassStrong: 'rgba(30, 41, 59, 0.85)',         // Strong glass
+  glassBorder: 'rgba(148, 163, 184, 0.15)',      // More subtle border
+  glassBorderStrong: 'rgba(148, 163, 184, 0.3)', // Stronger border
+  glassShadow: 'rgba(0, 0, 0, 0.2)',             // Internal shadow
 
-  // Gradients
+  // Gradients - Enhanced for HD
   gradientPrimary: [electricBlue[500], electricPurple[500]],
   gradientSecondary: [electricCyan[400], electricBlue[500]],
-  gradientSunset: ['#FB923C', '#F472B6'],
+  gradientSunset: ['#FB923C', '#F472B6', '#D946EF'], // 3-stop gradient
   gradientSuccess: ['#34D399', '#22D3EE'],
   gradientElectric: [electricBlue[500], electricPurple[400], electricCyan[300]],
+  gradientNight: ['#0F172A', '#020617'],         // Dark gradient
+  gradientEnergy: [electricBlue[400], electricPurple[500], electricCyan[400]], // Vibrant
+  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#10B981'], // Multi-stop
 };
 
 // Default to light theme (can be made dynamic with context)
 export const Colors = LightColors;
 
 // ============================================================================
-// SPACING SYSTEM - 8pt Grid
+// SPACING SYSTEM - Enhanced 4pt Grid with HD Precision
 // ============================================================================
 
 export const Spacing = {
   '0': 0,
+  '0.5': 2,    // Ultra-fine spacing for HD alignment
   '1': 4,
+  '1.5': 6,    // Fine-tuned spacing
   '2': 8,
+  '2.5': 10,   // Mid-range precision
   '3': 12,
+  '3.5': 14,   // Typography fine-tuning
   '4': 16,
   '5': 20,
   '6': 24,
+  '7': 28,     // Added for better granularity
   '8': 32,
+  '9': 36,     // Improved component spacing
   '10': 40,
+  '11': 44,    // Touch target alignment
   '12': 48,
+  '14': 56,    // Large component spacing
   '16': 64,
+  '18': 72,    // Section spacing
   '20': 80,
   '24': 96,
+  '28': 112,   // Hero spacing
+  '32': 128,   // Ultra-large spacing
 
-  // Semantic Aliases
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-  xxxl: 64,
+  // Semantic Aliases - HD Precision
+  xxs: 2,      // Ultra-fine
+  xs: 4,       // Extra small
+  sm: 8,       // Small
+  md: 16,      // Medium (base)
+  lg: 24,      // Large
+  xl: 32,      // Extra large
+  xxl: 48,     // Double XL
+  xxxl: 64,    // Triple XL
+  huge: 96,    // Huge spacing
+  massive: 128, // Massive spacing
 };
 
 // ============================================================================
@@ -316,162 +346,172 @@ export const FontWeight = {
 };
 
 export const Typography = {
-  // Display - Hero text
+  // Display - Hero text with HD precision
   displayLarge: {
     fontSize: 57,
     fontWeight: FontWeight.bold,
-    lineHeight: 64,
-    letterSpacing: -0.25,
+    lineHeight: 68,        // Improved for better breathing
+    letterSpacing: -0.5,   // Tighter for premium look
   },
   displayMedium: {
     fontSize: 45,
     fontWeight: FontWeight.bold,
-    lineHeight: 52,
-    letterSpacing: 0,
+    lineHeight: 56,        // Better proportion
+    letterSpacing: -0.25,  // Slight tightening
   },
   displaySmall: {
     fontSize: 36,
     fontWeight: FontWeight.bold,
-    lineHeight: 44,
-    letterSpacing: 0,
+    lineHeight: 48,        // More breathing room
+    letterSpacing: -0.15,  // Subtle tightening
   },
 
-  // Headlines
+  // Headlines - Enhanced hierarchy
   headlineLarge: {
     fontSize: 32,
     fontWeight: FontWeight.bold,
-    lineHeight: 40,
-    letterSpacing: 0,
+    lineHeight: 44,        // Improved readability
+    letterSpacing: -0.25,  // Premium tightness
   },
   headlineMedium: {
     fontSize: 28,
     fontWeight: FontWeight.bold,
-    lineHeight: 36,
-    letterSpacing: 0,
+    lineHeight: 38,        // Better proportion
+    letterSpacing: -0.15,  // Subtle refinement
   },
   headlineSmall: {
     fontSize: 24,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 32,
-    letterSpacing: 0,
+    lineHeight: 34,        // More breathing space
+    letterSpacing: 0,      // Neutral
   },
 
-  // Titles
+  // Titles - Perfect for cards and lists
   titleLarge: {
     fontSize: 22,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 28,
-    letterSpacing: 0,
+    lineHeight: 32,        // Improved spacing
+    letterSpacing: 0.15,   // Slight openness
   },
   titleMedium: {
     fontSize: 20,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 28,
-    letterSpacing: 0.15,
+    lineHeight: 30,        // Better proportion
+    letterSpacing: 0.15,   // Maintained
   },
   titleSmall: {
     fontSize: 18,
     fontWeight: FontWeight.medium,
-    lineHeight: 24,
-    letterSpacing: 0.1,
+    lineHeight: 28,        // Improved readability
+    letterSpacing: 0.2,    // More openness
   },
 
-  // Body
+  // Body - Optimized for reading
   bodyLarge: {
-    fontSize: 16,
+    fontSize: 17,          // Slightly larger for HD
     fontWeight: FontWeight.regular,
-    lineHeight: 24,
-    letterSpacing: 0.5,
+    lineHeight: 28,        // 1.65 ratio - optimal reading
+    letterSpacing: 0.3,    // Refined spacing
   },
   bodyMedium: {
-    fontSize: 14,
+    fontSize: 15,          // Improved from 14
     fontWeight: FontWeight.regular,
-    lineHeight: 20,
-    letterSpacing: 0.25,
+    lineHeight: 24,        // 1.6 ratio
+    letterSpacing: 0.2,    // Subtle refinement
   },
   bodySmall: {
-    fontSize: 12,
+    fontSize: 13,          // Improved from 12
     fontWeight: FontWeight.regular,
-    lineHeight: 16,
-    letterSpacing: 0.4,
+    lineHeight: 20,        // Better proportion
+    letterSpacing: 0.25,   // Refined
   },
 
-  // Label
+  // Label - UI elements
   labelLarge: {
-    fontSize: 14,
+    fontSize: 15,          // Improved from 14
     fontWeight: FontWeight.medium,
-    lineHeight: 20,
-    letterSpacing: 0.1,
+    lineHeight: 22,        // Better spacing
+    letterSpacing: 0.3,    // More refined
   },
   labelMedium: {
-    fontSize: 12,
+    fontSize: 13,          // Improved from 12
     fontWeight: FontWeight.medium,
-    lineHeight: 16,
-    letterSpacing: 0.5,
+    lineHeight: 18,        // Better proportion
+    letterSpacing: 0.4,    // Refined
   },
   labelSmall: {
     fontSize: 11,
     fontWeight: FontWeight.medium,
     lineHeight: 16,
-    letterSpacing: 0.5,
+    letterSpacing: 0.5,    // Maintained
   },
 
-  // Legacy aliases for backwards compatibility
+  // Legacy aliases - Enhanced for backwards compatibility
   h1: {
     fontSize: 32,
     fontWeight: FontWeight.bold,
-    lineHeight: 40,
+    lineHeight: 44,        // Improved
+    letterSpacing: -0.25,  // Added refinement
   },
   h2: {
     fontSize: 28,
     fontWeight: FontWeight.bold,
-    lineHeight: 36,
+    lineHeight: 38,        // Improved
+    letterSpacing: -0.15,  // Added refinement
   },
   h3: {
     fontSize: 24,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 32,
+    lineHeight: 34,        // Improved
+    letterSpacing: 0,      // Neutral
   },
   h4: {
     fontSize: 20,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 28,
+    lineHeight: 30,        // Improved
+    letterSpacing: 0.15,   // Added refinement
   },
   body: {
-    fontSize: 16,
+    fontSize: 17,          // Improved
     fontWeight: FontWeight.regular,
-    lineHeight: 24,
+    lineHeight: 28,        // Improved
+    letterSpacing: 0.3,    // Added refinement
   },
   bodySmall: {
-    fontSize: 14,
+    fontSize: 15,          // Improved
     fontWeight: FontWeight.regular,
-    lineHeight: 20,
+    lineHeight: 24,        // Improved
+    letterSpacing: 0.2,    // Added refinement
   },
   caption: {
-    fontSize: 12,
+    fontSize: 13,          // Improved
     fontWeight: FontWeight.regular,
-    lineHeight: 16,
+    lineHeight: 20,        // Improved
+    letterSpacing: 0.25,   // Added refinement
   },
 };
 
 // ============================================================================
-// BORDER RADIUS - Smooth, Premium Feel
+// BORDER RADIUS - Premium HD Curves
 // ============================================================================
 
 export const BorderRadius = {
   none: 0,
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-  full: 9999,
+  xxs: 2,      // Ultra-subtle - fine details
+  xs: 6,       // Subtle curves - small elements
+  sm: 10,      // Small curves - buttons, inputs
+  md: 14,      // Medium curves - cards (more modern than 12)
+  lg: 18,      // Large curves - feature cards
+  xl: 24,      // Extra large - hero sections
+  xxl: 28,     // Double XL - prominent features
+  xxxl: 36,    // Triple XL - major sections
+  huge: 44,    // Huge - immersive elements
+  massive: 56, // Massive - hero backgrounds
+  full: 9999,  // Perfect circles - avatars, badges
 };
 
 // ============================================================================
-// SHADOWS - Elevation System
+// SHADOWS - HD Elevation System with Premium Depth
 // ============================================================================
 
 export const Shadows = {
@@ -485,66 +525,108 @@ export const Shadows = {
   xs: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    shadowOpacity: 0.04,     // More subtle
+    shadowRadius: 3,         // Slightly softer
     elevation: 1,
   },
   sm: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowOpacity: 0.06,     // Refined opacity
+    shadowRadius: 6,         // Softer spread
     elevation: 2,
   },
   md: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,     // Balanced depth
+    shadowRadius: 12,        // More premium blur
     elevation: 4,
   },
   lg: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
+    shadowOpacity: 0.1,      // Clear separation
+    shadowRadius: 20,        // HD blur quality
     elevation: 8,
   },
   xl: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
+    shadowOpacity: 0.12,     // Strong presence
+    shadowRadius: 28,        // Ultra-soft edges
     elevation: 12,
   },
   xxl: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.18,
-    shadowRadius: 32,
+    shadowOpacity: 0.15,     // Maximum depth
+    shadowRadius: 40,        // Premium blur radius
     elevation: 16,
   },
+  xxxl: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 24 },
+    shadowOpacity: 0.18,     // Hero-level depth
+    shadowRadius: 56,        // Ultra-premium blur
+    elevation: 24,
+  },
 
-  // Colored Shadows (Electric Energy)
+  // Colored Glows - Electric Energy (Enhanced for HD)
   primaryGlow: {
     shadowColor: electricBlue[700],
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
+    shadowOpacity: 0.35,     // More vibrant
+    shadowRadius: 20,        // Softer glow
     elevation: 8,
+  },
+  primaryGlowStrong: {
+    shadowColor: electricBlue[700],
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.5,      // Intense glow
+    shadowRadius: 32,        // Wider spread
+    elevation: 12,
   },
   secondaryGlow: {
     shadowColor: electricPurple[600],
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
+    shadowOpacity: 0.35,     // More vibrant
+    shadowRadius: 20,        // Softer glow
     elevation: 8,
+  },
+  secondaryGlowStrong: {
+    shadowColor: electricPurple[600],
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.5,      // Intense glow
+    shadowRadius: 32,        // Wider spread
+    elevation: 12,
   },
   accentGlow: {
     shadowColor: electricCyan[500],
     shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,     // More vibrant
+    shadowRadius: 20,        // Softer glow
+    elevation: 8,
+  },
+  accentGlowStrong: {
+    shadowColor: electricCyan[500],
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.5,      // Intense glow
+    shadowRadius: 32,        // Wider spread
+    elevation: 12,
+  },
+  successGlow: {
+    shadowColor: semantic.success[500],
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
-    shadowRadius: 16,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  errorGlow: {
+    shadowColor: semantic.error[500],
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
     elevation: 8,
   },
 };
@@ -640,58 +722,85 @@ export const Animations = {
 };
 
 // ============================================================================
-// LAYOUT CONSTANTS - Premium Spacing
+// LAYOUT CONSTANTS - HD Precision & Perfect Alignment
 // ============================================================================
 
 export const Layout = {
-  // Screen padding
-  screenHorizontal: Spacing.lg,
-  screenVertical: Spacing.lg,
+  // Screen padding - Enhanced for HD displays
+  screenHorizontal: Spacing.lg,      // 24px
+  screenVertical: Spacing.lg,        // 24px
+  screenHorizontalLarge: Spacing.xl, // 32px for larger screens
+  screenVerticalLarge: Spacing.xl,   // 32px for larger screens
 
-  // Container widths
-  containerMaxWidth: 1200,
-  containerPadding: Spacing.lg,
+  // Container widths - Optimized for readability
+  containerMaxWidth: 1280,           // Wider for modern displays
+  containerMediumWidth: 960,         // Medium content
+  containerSmallWidth: 640,          // Narrow content (reading)
+  containerPadding: Spacing.lg,      // 24px
+  containerPaddingLarge: Spacing.xl, // 32px
 
-  // Component sizing
+  // Component sizing - HD refined
   buttonHeight: {
-    small: 36,
-    medium: 44,
-    large: 52,
-    xlarge: 60,
+    small: 40,     // Increased from 36 for better touch
+    medium: 48,    // Increased from 44 (perfect touch target)
+    large: 56,     // Increased from 52
+    xlarge: 64,    // Increased from 60
   },
   inputHeight: {
-    small: 36,
-    medium: 44,
-    large: 52,
+    small: 40,     // Increased from 36
+    medium: 48,    // Increased from 44
+    large: 56,     // Increased from 52
   },
   iconSize: {
-    xs: 16,
-    sm: 20,
-    md: 24,
-    lg: 32,
-    xl: 40,
-    xxl: 48,
+    xxs: 14,       // Ultra-small icons
+    xs: 18,        // Improved from 16
+    sm: 22,        // Improved from 20
+    md: 26,        // Improved from 24
+    lg: 34,        // Improved from 32
+    xl: 42,        // Improved from 40
+    xxl: 52,       // Improved from 48
+    xxxl: 64,      // Large feature icons
   },
   avatarSize: {
-    xs: 24,
-    sm: 32,
-    md: 40,
-    lg: 48,
-    xl: 64,
-    xxl: 80,
+    xs: 28,        // Improved from 24
+    sm: 36,        // Improved from 32
+    md: 44,        // Improved from 40
+    lg: 52,        // Improved from 48
+    xl: 68,        // Improved from 64
+    xxl: 88,       // Improved from 80
+    xxxl: 112,     // Hero avatars
   },
 
-  // Touch targets (Accessibility)
+  // Touch targets (Accessibility) - Enhanced
   minTouchTarget: 44,
   recommendedTouchTarget: 48,
+  optimalTouchTarget: 52,              // New: optimal for fat fingers
 
-  // Navigation
-  tabBarHeight: 60,
-  headerHeight: 56,
+  // Navigation - Refined heights
+  tabBarHeight: 64,        // Increased from 60 for better spacing
+  headerHeight: 60,        // Increased from 56 for better proportion
 
-  // Cards
-  cardPadding: Spacing.lg,
-  cardGap: Spacing.md,
+  // Cards - Enhanced spacing
+  cardPadding: Spacing.lg,             // 24px
+  cardPaddingLarge: Spacing.xl,        // 32px for prominent cards
+  cardPaddingSmall: Spacing.md,        // 16px for compact cards
+  cardGap: Spacing.md,                 // 16px between card items
+  cardGapLarge: Spacing.lg,            // 24px for more breathing room
+
+  // List items - Perfect alignment
+  listItemHeight: 64,                  // Standard list item
+  listItemHeightCompact: 52,           // Compact list
+  listItemHeightLarge: 80,             // Large list item
+  listItemPadding: Spacing.md,         // 16px horizontal
+  listItemGap: Spacing.sm,             // 8px between items
+
+  // Borders - HD precision
+  borderWidth: {
+    thin: 0.5,     // Ultra-thin (hairline on retina)
+    normal: 1,     // Standard
+    thick: 1.5,    // Emphasized
+    bold: 2,       // Strong borders
+  },
 };
 
 // ============================================================================

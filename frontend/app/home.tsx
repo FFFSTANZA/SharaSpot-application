@@ -9,6 +9,7 @@ import Constants from 'expo-constants';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { AmenitiesIcons } from '../components/AmenitiesIcons';
 import { FilterModal, Filters } from '../components/FilterModal';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants/theme';
 
 // Conditional import for MapView (mobile only)
 let MapView: any = null;
@@ -408,23 +409,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#FFFFFF',
+    padding: Spacing.lg,           // 24px - using theme
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   greeting: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1A1A1A',
+    ...Typography.headlineSmall,   // Enhanced typography
+    color: Colors.textPrimary,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666666',
-    marginTop: 4,
+    ...Typography.bodyMedium,      // Enhanced typography
+    color: Colors.textSecondary,
+    marginTop: Spacing['1'],       // 4px - using theme
   },
   profileButton: {
-    padding: 4,
+    padding: Spacing['1'],         // 4px - using theme
   },
   filterBar: {
     backgroundColor: '#FFFFFF',
@@ -436,30 +436,28 @@ const styles = StyleSheet.create({
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    gap: 8,
+    backgroundColor: Colors.successLight,
+    paddingVertical: Spacing['2.5'],  // 10px - using theme
+    paddingHorizontal: Spacing.md,    // 16px - using theme
+    borderRadius: BorderRadius.full,  // Perfect pill shape
+    gap: Spacing.sm,                  // 8px - using theme
     alignSelf: 'flex-start',
   },
   filterButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2E7D32',
+    ...Typography.labelLarge,         // Enhanced typography (15px)
+    color: Colors.successDark,
   },
   filterBadge: {
-    backgroundColor: '#4CAF50',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    backgroundColor: Colors.success,
+    width: 22,                        // Slightly larger
+    height: 22,                       // Slightly larger
+    borderRadius: BorderRadius.full,  // Perfect circle
     justifyContent: 'center',
     alignItems: 'center',
   },
   filterBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    ...Typography.labelSmall,         // Enhanced typography (11px)
+    color: Colors.textInverse,
   },
   mapContainer: {
     flex: 1,
@@ -481,57 +479,52 @@ const styles = StyleSheet.create({
     paddingBottom: 200,
   },
   chargerCard: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginTop: 16,
-    padding: 16,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: Colors.surface,
+    marginHorizontal: Spacing.md,    // 16px - using theme
+    marginTop: Spacing.md,           // 16px - using theme
+    padding: Spacing.lg,             // 24px - improved padding
+    borderRadius: BorderRadius.lg,   // 18px - more modern curves
+    ...Shadows.md,                   // Enhanced HD shadows
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: Spacing['3'],      // 12px - using theme
   },
   cardIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E8F5E9',
+    width: 44,                       // Improved touch target
+    height: 44,                      // Improved touch target
+    borderRadius: BorderRadius.full, // Perfect circle
+    backgroundColor: Colors.successLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing['3'],       // 12px - using theme
   },
   cardInfo: {
     flex: 1,
   },
   chargerName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
+    ...Typography.titleMedium,      // Enhanced typography (20px)
+    color: Colors.textPrimary,
+    marginBottom: Spacing['1'],     // 4px - using theme
   },
   chargerAddress: {
-    fontSize: 13,
-    color: '#666666',
+    ...Typography.bodySmall,        // Enhanced typography (13px)
+    color: Colors.textSecondary,
   },
   cardDetails: {
     flexDirection: 'row',
-    gap: 16,
-    marginBottom: 12,
+    gap: Spacing.md,                // 16px - using theme
+    marginBottom: Spacing['3'],     // 12px - using theme
   },
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: Spacing['1'],              // 4px - using theme
   },
   detailText: {
-    fontSize: 12,
-    color: '#666666',
+    ...Typography.labelMedium,      // Enhanced typography (13px)
+    color: Colors.textSecondary,
   },
   cardMeta: {
     flexDirection: 'row',
@@ -545,19 +538,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   portBadge: {
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    backgroundColor: Colors.backgroundSecondary,
+    paddingHorizontal: Spacing.sm,    // 8px - using theme
+    paddingVertical: Spacing['1'],    // 4px - using theme
+    borderRadius: BorderRadius.xs,    // 6px - using theme
   },
   portBadgeText: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#666666',
+    ...Typography.labelSmall,         // Enhanced typography (11px)
+    color: Colors.textSecondary,
   },
   moreText: {
-    fontSize: 11,
-    color: '#999999',
+    ...Typography.labelSmall,         // Enhanced typography (11px)
+    color: Colors.textTertiary,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -634,46 +626,36 @@ const styles = StyleSheet.create({
   viewToggle: {
     position: 'absolute',
     bottom: 90,
-    right: 24,
+    right: Spacing.lg,                // 24px - using theme
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2196F3',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 24,
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    backgroundColor: Colors.info,
+    paddingVertical: Spacing['3'],    // 12px - using theme
+    paddingHorizontal: Spacing.lg,    // 24px - improved padding
+    borderRadius: BorderRadius.full,  // Perfect pill shape
+    gap: Spacing.sm,                  // 8px - using theme
+    ...Shadows.lg,                    // Enhanced HD shadows
   },
   viewToggleText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.labelLarge,         // Enhanced typography (15px)
+    color: Colors.textInverse,
   },
   fab: {
     position: 'absolute',
-    bottom: 24,
-    right: 24,
+    bottom: Spacing.lg,               // 24px - using theme
+    right: Spacing.lg,                // 24px - using theme
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 24,
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    backgroundColor: Colors.success,
+    paddingVertical: Spacing['3'],    // 12px - using theme
+    paddingHorizontal: Spacing.lg,    // 24px - improved padding
+    borderRadius: BorderRadius.full,  // Perfect pill shape
+    gap: Spacing.sm,                  // 8px - using theme
+    ...Shadows.lg,                    // Enhanced HD shadows
   },
   fabText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.labelMedium,        // Enhanced typography (13px)
+    color: Colors.textInverse,
   },
   webMapFallback: {
     flex: 1,
