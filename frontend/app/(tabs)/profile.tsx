@@ -199,8 +199,8 @@ export default function Profile() {
             </View>
 
             <View style={styles.statCard}>
-              <View style={[styles.statIconCircle, { backgroundColor: '#10B981' + '15' }]}>
-                <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+              <View style={[styles.statIconCircle, { backgroundColor: '#0EA5E9' + '15' }]}>
+                <Ionicons name="checkmark-circle" size={24} color="#0EA5E9" />
               </View>
               <Text style={styles.statValue}>{stats?.verifications_count || 0}</Text>
               <Text style={styles.statLabel}>Verifications</Text>
@@ -291,8 +291,8 @@ export default function Profile() {
             onPress={() => router.push('/add-charger')}
           >
             <View style={styles.actionLeft}>
-              <View style={[styles.actionIconCircle, { backgroundColor: '#10B981' + '15' }]}>
-                <Ionicons name="add-circle-outline" size={20} color="#10B981" />
+              <View style={[styles.actionIconCircle, { backgroundColor: '#0EA5E9' + '15' }]}>
+                <Ionicons name="add-circle-outline" size={20} color="#0EA5E9" />
               </View>
               <Text style={styles.actionText}>Add Hidden Charger</Text>
             </View>
