@@ -92,28 +92,30 @@ const semantic = {
 
 // Light Theme Colors
 export const LightColors = {
-  // Primary
-  primary: electricBlue[700],
-  primaryLight: electricBlue[600],
-  primaryDark: electricBlue[800],
+  // Primary - Vibrant Electric Blue
+  primary: '#6366F1',           // Main vibrant electric blue
+  primaryLight: '#818CF8',      // Lighter shade
+  primaryDark: '#4F46E5',       // Darker shade
   primarySubtle: electricBlue[50],
+  primaryGradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
 
-  // Secondary
-  secondary: electricPurple[600],
-  secondaryLight: electricPurple[500],
-  secondaryDark: electricPurple[700],
+  // Secondary - Electric Purple
+  secondary: '#8B5CF6',         // Main electric purple
+  secondaryLight: '#A78BFA',    // Lighter shade
+  secondaryDark: '#7C3AED',     // Darker shade
   secondarySubtle: electricPurple[50],
 
-  // Accent
-  accent: electricCyan[500],
+  // Accent - Neon Highlights
+  accent: '#06B6D4',            // Neon cyan
   accentLight: electricCyan[400],
   accentDark: electricCyan[600],
   accentSubtle: electricCyan[50],
 
-  // Additional Accents
-  accentOrange: '#F97316',
+  // Additional Accents - SharaCoin & Energy
+  accentGold: '#F59E0B',        // SharaCoin rewards
+  accentGreen: '#10B981',       // Success/charging
   accentPink: '#EC4899',
-  accentGreen: '#10B981',
+  accentOrange: '#F97316',
 
   // Background
   background: neutral[50],
@@ -182,37 +184,39 @@ export const LightColors = {
 
 // Dark Theme Colors
 export const DarkColors = {
-  // Primary
-  primary: electricBlue[500],
-  primaryLight: electricBlue[400],
-  primaryDark: electricBlue[600],
+  // Primary - Vibrant Electric Blue
+  primary: '#6366F1',           // Main vibrant electric blue
+  primaryLight: '#818CF8',      // Lighter shade
+  primaryDark: '#4F46E5',       // Darker shade
   primarySubtle: electricBlue[950],
+  primaryGradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
 
-  // Secondary
-  secondary: electricPurple[500],
-  secondaryLight: electricPurple[400],
-  secondaryDark: electricPurple[600],
+  // Secondary - Electric Purple
+  secondary: '#8B5CF6',         // Main electric purple
+  secondaryLight: '#A78BFA',    // Lighter shade
+  secondaryDark: '#7C3AED',     // Darker shade
   secondarySubtle: electricPurple[950],
 
-  // Accent
-  accent: electricCyan[400],
+  // Accent - Neon Highlights
+  accent: '#06B6D4',            // Neon cyan
   accentLight: electricCyan[300],
-  accentDark: electricCyan[500],
+  accentDark: electricCyan[600],
   accentSubtle: electricCyan[950],
 
-  // Additional Accents
-  accentOrange: '#FB923C',
+  // Additional Accents - SharaCoin & Energy
+  accentGold: '#F59E0B',        // SharaCoin rewards (brighter in dark)
+  accentGreen: '#10B981',       // Success/charging
   accentPink: '#F472B6',
-  accentGreen: '#34D399',
+  accentOrange: '#FB923C',
 
-  // Background
-  background: neutral[950],
-  backgroundSecondary: neutral[900],
-  backgroundTertiary: neutral[800],
+  // Background - Deep Navy
+  background: '#0F172A',        // Deep navy background
+  backgroundSecondary: '#1E293B', // Surface background
+  backgroundTertiary: '#334155',  // Elevated background
 
   // Surface
-  surface: neutral[900],
-  surfaceElevated: neutral[800],
+  surface: '#1E293B',           // Surface background
+  surfaceElevated: '#334155',   // Elevated surface
   surfaceOverlay: neutral[700],
 
   // Text
@@ -279,41 +283,41 @@ export const Colors = LightColors;
 
 export const Spacing = {
   '0': 0,
-  '0.5': 2,    // Ultra-fine spacing for HD alignment
-  '1': 4,
-  '1.5': 6,    // Fine-tuned spacing
-  '2': 8,
+  '0.5': 2,    // Tesla-inspired ultra-fine spacing for HD precision
+  '1': 4,      // Minimal spacing
+  '1.5': 6,    // Fine-tuned micro spacing
+  '2': 8,      // Small spacing (Tesla/Apple standard)
   '2.5': 10,   // Mid-range precision
-  '3': 12,
+  '3': 12,     // Comfortable micro spacing
   '3.5': 14,   // Typography fine-tuning
-  '4': 16,
-  '5': 20,
-  '6': 24,
-  '7': 28,     // Added for better granularity
-  '8': 32,
-  '9': 36,     // Improved component spacing
-  '10': 40,
+  '4': 16,     // Base spacing unit (Apple standard)
+  '5': 20,     // Comfortable small spacing
+  '6': 24,     // Medium spacing (Tesla favorite)
+  '7': 28,     // Enhanced granularity
+  '8': 32,     // Large spacing
+  '9': 36,     // Component breathing room
+  '10': 40,    // Section spacing
   '11': 44,    // Touch target alignment
-  '12': 48,
+  '12': 48,    // Premium card spacing
   '14': 56,    // Large component spacing
-  '16': 64,
-  '18': 72,    // Section spacing
-  '20': 80,
-  '24': 96,
-  '28': 112,   // Hero spacing
+  '16': 64,    // Extra large spacing
+  '18': 72,    // Section separation
+  '20': 80,    // Hero element spacing
+  '24': 96,    // Large section spacing
+  '28': 112,   // Hero content spacing
   '32': 128,   // Ultra-large spacing
 
-  // Semantic Aliases - HD Precision
-  xxs: 2,      // Ultra-fine
-  xs: 4,       // Extra small
-  sm: 8,       // Small
-  md: 16,      // Medium (base)
-  lg: 24,      // Large
-  xl: 32,      // Extra large
-  xxl: 48,     // Double XL
-  xxxl: 64,    // Triple XL
-  huge: 96,    // Huge spacing
-  massive: 128, // Massive spacing
+  // Semantic Aliases - Premium Tesla/Apple Precision
+  xxs: 2,      // Ultra-fine (hair spacing)
+  xs: 4,       // Extra small (minimal)
+  sm: 8,       // Small (tight)
+  md: 16,      // Medium (base unit - Apple standard)
+  lg: 24,      // Large (comfortable - Tesla favorite)
+  xl: 32,      // Extra large (prominent)
+  xxl: 48,     // Double XL (section spacing)
+  xxxl: 64,    // Triple XL (hero spacing)
+  huge: 96,    // Huge (major sections)
+  massive: 128, // Massive (hero backgrounds)
 };
 
 // ============================================================================
@@ -322,14 +326,24 @@ export const Spacing = {
 
 export const FontFamily = {
   primary: Platform.select({
-    ios: 'System',
+    ios: 'SF Pro Display',    // Apple's premium font
+    android: 'Roboto',        // Material Design standard
+    default: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  }),
+  text: Platform.select({
+    ios: 'SF Pro Text',       // Optimized for smaller sizes
     android: 'Roboto',
-    default: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    default: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif',
+  }),
+  display: Platform.select({
+    ios: 'SF Pro Display',    // For headlines and large text
+    android: 'Roboto',
+    default: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif',
   }),
   mono: Platform.select({
-    ios: 'Menlo',
-    android: 'monospace',
-    default: 'ui-monospace, monospace',
+    ios: 'SF Mono',
+    android: 'Roboto Mono',
+    default: 'ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace',
   }),
 };
 
@@ -346,148 +360,170 @@ export const FontWeight = {
 };
 
 export const Typography = {
-  // Display - Hero text with HD precision
+  // Display - Hero text with premium Apple/Tesla precision
   displayLarge: {
-    fontSize: 57,
+    fontSize: 64,          // Larger, more impactful (Tesla-inspired)
     fontWeight: FontWeight.bold,
-    lineHeight: 68,        // Improved for better breathing
-    letterSpacing: -0.5,   // Tighter for premium look
+    lineHeight: 72,        // Tight leading for impact
+    letterSpacing: -1.5,   // Tight tracking like Apple
+    fontFamily: FontFamily.display,
   },
   displayMedium: {
-    fontSize: 45,
+    fontSize: 52,          // Refined scale
     fontWeight: FontWeight.bold,
-    lineHeight: 56,        // Better proportion
-    letterSpacing: -0.25,  // Slight tightening
+    lineHeight: 60,        // Premium spacing
+    letterSpacing: -1,     // Apple-style tracking
+    fontFamily: FontFamily.display,
   },
   displaySmall: {
-    fontSize: 36,
-    fontWeight: FontWeight.bold,
-    lineHeight: 48,        // More breathing room
-    letterSpacing: -0.15,  // Subtle tightening
+    fontSize: 40,          // More prominent
+    fontWeight: FontWeight.semiBold,
+    lineHeight: 48,        // Balanced spacing
+    letterSpacing: -0.5,   // Subtle tightening
+    fontFamily: FontFamily.display,
   },
 
-  // Headlines - Enhanced hierarchy
+  // Headlines - Tesla-inspired clean hierarchy
   headlineLarge: {
-    fontSize: 32,
+    fontSize: 34,          // Refined from 32
     fontWeight: FontWeight.bold,
-    lineHeight: 44,        // Improved readability
-    letterSpacing: -0.25,  // Premium tightness
+    lineHeight: 42,        // Premium line height
+    letterSpacing: -0.4,   // Tight like Tesla
+    fontFamily: FontFamily.display,
   },
   headlineMedium: {
-    fontSize: 28,
-    fontWeight: FontWeight.bold,
-    lineHeight: 38,        // Better proportion
-    letterSpacing: -0.15,  // Subtle refinement
+    fontSize: 28,          // Standard heading
+    fontWeight: FontWeight.semiBold,
+    lineHeight: 36,        // Clean spacing
+    letterSpacing: -0.2,   // Subtle refinement
+    fontFamily: FontFamily.display,
   },
   headlineSmall: {
-    fontSize: 24,
+    fontSize: 24,          // Clean sub-heading
     fontWeight: FontWeight.semiBold,
-    lineHeight: 34,        // More breathing space
-    letterSpacing: 0,      // Neutral
+    lineHeight: 32,        // Comfortable reading
+    letterSpacing: 0,      // Neutral tracking
+    fontFamily: FontFamily.display,
   },
 
-  // Titles - Perfect for cards and lists
+  // Titles - Premium card/list typography
   titleLarge: {
-    fontSize: 22,
+    fontSize: 22,          // Feature titles
     fontWeight: FontWeight.semiBold,
-    lineHeight: 32,        // Improved spacing
-    letterSpacing: 0.15,   // Slight openness
+    lineHeight: 28,        // Tight for UI elements
+    letterSpacing: 0.35,   // Apple-style openness
+    fontFamily: FontFamily.text,
   },
   titleMedium: {
-    fontSize: 20,
+    fontSize: 18,          // Standard UI titles
     fontWeight: FontWeight.semiBold,
-    lineHeight: 30,        // Better proportion
-    letterSpacing: 0.15,   // Maintained
+    lineHeight: 24,        // Compact spacing
+    letterSpacing: 0.15,   // Balanced
+    fontFamily: FontFamily.text,
   },
   titleSmall: {
-    fontSize: 18,
+    fontSize: 16,          // Small titles
     fontWeight: FontWeight.medium,
-    lineHeight: 28,        // Improved readability
-    letterSpacing: 0.2,    // More openness
+    lineHeight: 22,        // Tight UI spacing
+    letterSpacing: 0.15,   // Subtle openness
+    fontFamily: FontFamily.text,
   },
 
-  // Body - Optimized for reading
+  // Body - Optimized for premium readability
   bodyLarge: {
-    fontSize: 17,          // Slightly larger for HD
+    fontSize: 17,          // Apple's preferred body size
     fontWeight: FontWeight.regular,
-    lineHeight: 28,        // 1.65 ratio - optimal reading
-    letterSpacing: 0.3,    // Refined spacing
+    lineHeight: 28,        // 1.647 ratio - premium reading
+    letterSpacing: -0.4,   // Apple-style tight tracking
+    fontFamily: FontFamily.text,
   },
   bodyMedium: {
-    fontSize: 15,          // Improved from 14
+    fontSize: 15,          // Standard body text
     fontWeight: FontWeight.regular,
-    lineHeight: 24,        // 1.6 ratio
-    letterSpacing: 0.2,    // Subtle refinement
+    lineHeight: 24,        // 1.6 ratio - comfortable
+    letterSpacing: -0.2,   // Subtle tracking
+    fontFamily: FontFamily.text,
   },
   bodySmall: {
-    fontSize: 13,          // Improved from 12
+    fontSize: 13,          // Small body text
     fontWeight: FontWeight.regular,
-    lineHeight: 20,        // Better proportion
-    letterSpacing: 0.25,   // Refined
+    lineHeight: 20,        // Compact but readable
+    letterSpacing: -0.1,   // Minimal tracking
+    fontFamily: FontFamily.text,
   },
 
-  // Label - UI elements
+  // Label - Premium UI elements (Tesla-inspired precision)
   labelLarge: {
-    fontSize: 15,          // Improved from 14
+    fontSize: 15,          // Primary labels
     fontWeight: FontWeight.medium,
-    lineHeight: 22,        // Better spacing
-    letterSpacing: 0.3,    // More refined
+    lineHeight: 20,        // Tight for UI
+    letterSpacing: 0.1,    // Minimal spacing
+    fontFamily: FontFamily.text,
   },
   labelMedium: {
-    fontSize: 13,          // Improved from 12
+    fontSize: 13,          // Standard labels
     fontWeight: FontWeight.medium,
-    lineHeight: 18,        // Better proportion
-    letterSpacing: 0.4,    // Refined
+    lineHeight: 18,        // Compact
+    letterSpacing: 0.2,    // Slight openness
+    fontFamily: FontFamily.text,
   },
   labelSmall: {
-    fontSize: 11,
+    fontSize: 11,          // Micro labels
     fontWeight: FontWeight.medium,
-    lineHeight: 16,
-    letterSpacing: 0.5,    // Maintained
+    lineHeight: 16,        // Minimal spacing
+    letterSpacing: 0.3,    // Compensate for small size
+    fontFamily: FontFamily.text,
   },
 
-  // Legacy aliases - Enhanced for backwards compatibility
+  // Legacy aliases - Premium Tesla/Apple standards
   h1: {
-    fontSize: 32,
+    fontSize: 34,          // Larger, more impactful
     fontWeight: FontWeight.bold,
-    lineHeight: 44,        // Improved
-    letterSpacing: -0.25,  // Added refinement
+    lineHeight: 42,        // Premium spacing
+    letterSpacing: -0.4,   // Tight tracking
+    fontFamily: FontFamily.display,
   },
   h2: {
-    fontSize: 28,
-    fontWeight: FontWeight.bold,
-    lineHeight: 38,        // Improved
-    letterSpacing: -0.15,  // Added refinement
+    fontSize: 28,          // Clean hierarchy
+    fontWeight: FontWeight.semiBold,
+    lineHeight: 36,        // Balanced
+    letterSpacing: -0.2,   // Subtle refinement
+    fontFamily: FontFamily.display,
   },
   h3: {
-    fontSize: 24,
+    fontSize: 24,          // Clear sub-heading
     fontWeight: FontWeight.semiBold,
-    lineHeight: 34,        // Improved
+    lineHeight: 32,        // Comfortable
     letterSpacing: 0,      // Neutral
+    fontFamily: FontFamily.display,
   },
   h4: {
-    fontSize: 20,
+    fontSize: 20,          // Section heading
     fontWeight: FontWeight.semiBold,
-    lineHeight: 30,        // Improved
-    letterSpacing: 0.15,   // Added refinement
+    lineHeight: 28,        // Tight
+    letterSpacing: 0.15,   // Slight openness
+    fontFamily: FontFamily.text,
   },
   body: {
-    fontSize: 17,          // Improved
+    fontSize: 17,          // Apple's preferred size
     fontWeight: FontWeight.regular,
-    lineHeight: 28,        // Improved
-    letterSpacing: 0.3,    // Added refinement
+    lineHeight: 28,        // Premium reading
+    letterSpacing: -0.4,   // Apple-style tracking
+    fontFamily: FontFamily.text,
   },
   bodySmall: {
-    fontSize: 15,          // Improved
+    fontSize: 15,          // Standard body
     fontWeight: FontWeight.regular,
-    lineHeight: 24,        // Improved
-    letterSpacing: 0.2,    // Added refinement
+    lineHeight: 24,        // Comfortable
+    letterSpacing: -0.2,   // Subtle tracking
+    fontFamily: FontFamily.text,
   },
   caption: {
-    fontSize: 13,          // Improved
+    fontSize: 13,          // Small text
     fontWeight: FontWeight.regular,
-    lineHeight: 20,        // Improved
-    letterSpacing: 0.25,   // Added refinement
+    lineHeight: 20,        // Compact
+    letterSpacing: -0.1,   // Minimal tracking
+    fontFamily: FontFamily.text,
   },
 };
 
@@ -496,18 +532,19 @@ export const Typography = {
 // ============================================================================
 
 export const BorderRadius = {
-  none: 0,
-  xxs: 2,      // Ultra-subtle - fine details
-  xs: 6,       // Subtle curves - small elements
-  sm: 10,      // Small curves - buttons, inputs
-  md: 14,      // Medium curves - cards (more modern than 12)
-  lg: 18,      // Large curves - feature cards
-  xl: 24,      // Extra large - hero sections
-  xxl: 28,     // Double XL - prominent features
-  xxxl: 36,    // Triple XL - major sections
-  huge: 44,    // Huge - immersive elements
-  massive: 56, // Massive - hero backgrounds
-  full: 9999,  // Perfect circles - avatars, badges
+  none: 0,     // Sharp edges
+  xxs: 4,      // Minimal curves (Tesla-inspired precision)
+  xs: 8,       // Subtle curves - small elements
+  sm: 12,      // Small curves - buttons (Apple standard)
+  md: 16,      // Medium curves - cards (Tesla favorite)
+  lg: 20,      // Large curves - feature cards (Apple-inspired)
+  xl: 24,      // Extra large - prominent cards
+  xxl: 28,     // Double XL - hero sections
+  xxxl: 32,    // Triple XL - major features (Tesla Model S display)
+  huge: 40,    // Huge - immersive elements
+  massive: 48, // Massive - hero backgrounds
+  ultra: 56,   // Ultra - premium hero elements
+  full: 9999,  // Perfect circles - avatars, badges, pills
 };
 
 // ============================================================================

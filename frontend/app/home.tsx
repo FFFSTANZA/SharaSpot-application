@@ -48,11 +48,11 @@ interface Charger {
 type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
-  1: '#9E9E9E',  // Grey - New Entry
-  2: '#4CAF50',  // Green - Community Verified
-  3: '#2196F3',  // Blue - Reliable
-  4: '#FFB300',  // Gold - Trusted
-  5: '#9C27B0',  // Platinum - Certified Partner
+  1: '#9E9E9E',      // Grey - New Entry
+  2: Colors.primary,  // Electric Blue - Community Verified
+  3: Colors.accent,   // Neon Cyan - Reliable
+  4: Colors.accentGold, // Gold - Trusted
+  5: Colors.secondary,  // Electric Purple - Certified Partner
 };
 
 export default function Home() {
@@ -179,7 +179,7 @@ export default function Home() {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={24} color="#4CAF50" />
+          <Ionicons name="flash" size={24} color={Colors.primary} />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
@@ -194,16 +194,16 @@ export default function Home() {
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <Ionicons name="locate" size={14} color="#666666" />
+          <Ionicons name="locate" size={14} color={Colors.textSecondary} />
           <Text style={styles.detailText}>
             {item.distance} {user?.distance_unit || 'km'} away
           </Text>
         </View>
         <View style={styles.detailRow}>
-          <Ionicons 
-            name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"} 
-            size={14} 
-            color={item.available_ports > 0 ? "#4CAF50" : "#F44336"} 
+          <Ionicons
+            name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"}
+            size={14}
+            color={item.available_ports > 0 ? Colors.accentGreen : Colors.error}
           />
           <Text style={styles.detailText}>
             {item.available_ports}/{item.total_ports} ports available
@@ -250,7 +250,7 @@ export default function Home() {
         <Text style={styles.subtitle}>{chargers.length} charging stations nearby</Text>
       </View>
       <TouchableOpacity style={styles.profileButton} onPress={() => router.push('/profile')}>
-        <Ionicons name="person-circle" size={40} color="#4CAF50" />
+        <Ionicons name="person-circle" size={40} color={Colors.primary} />
       </TouchableOpacity>
     </View>
   );
@@ -311,7 +311,7 @@ export default function Home() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -326,7 +326,7 @@ export default function Home() {
           style={styles.filterButton}
           onPress={() => setFilterModalVisible(true)}
         >
-          <Ionicons name="funnel" size={20} color="#4CAF50" />
+          <Ionicons name="funnel" size={20} color={Colors.primary} />
           <Text style={styles.filterButtonText}>Filters</Text>
           {getActiveFilterCount() > 0 && (
             <View style={styles.filterBadge}>
@@ -348,11 +348,11 @@ export default function Home() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#4CAF50']} />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.primary]} />
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="flash-off" size={64} color="#CCCCCC" />
+              <Ionicons name="flash-off" size={64} color={Colors.borderLight} />
               <Text style={styles.emptyText}>No charging stations found</Text>
               <Text style={styles.emptySubtext}>Try adjusting your filters</Text>
             </View>
@@ -397,13 +397,13 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
   },
   homeHeader: {
     flexDirection: 'row',
@@ -427,11 +427,11 @@ const styles = StyleSheet.create({
     padding: Spacing['1'],         // 4px - using theme
   },
   filterBar: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing['3'],
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   filterButton: {
     flexDirection: 'row',
@@ -469,11 +469,11 @@ const styles = StyleSheet.create({
   markerContainer: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: BorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.surface,
   },
   listContent: {
     paddingBottom: 200,
@@ -530,11 +530,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing['3'],
   },
   portTypes: {
     flexDirection: 'row',
-    gap: 6,
+    gap: Spacing['1.5'],
     alignItems: 'center',
   },
   portBadge: {
@@ -555,72 +555,71 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 12,
+    paddingTop: Spacing['3'],
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: Colors.borderLight,
   },
   footerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: Spacing['1'],
   },
   uptimeText: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#4CAF50',
+    ...Typography.labelSmall,
+    color: Colors.accentGreen,
   },
   verifiedText: {
-    fontSize: 11,
-    color: '#999999',
+    ...Typography.labelSmall,
+    color: Colors.textTertiary,
   },
   sourceTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing['1'],
+    borderRadius: BorderRadius.xs,
   },
   officialTag: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.primarySubtle,
   },
   communityTag: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: Colors.warningLight,
   },
   sourceText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 64,
+    paddingVertical: Spacing.xxxl,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#999999',
-    marginTop: 16,
+    ...Typography.bodyMedium,
+    color: Colors.textTertiary,
+    marginTop: Spacing.md,
     fontWeight: '500',
   },
   emptySubtext: {
-    fontSize: 14,
-    color: '#CCCCCC',
-    marginTop: 8,
+    ...Typography.bodySmall,
+    color: Colors.textDisabled,
+    marginTop: Spacing.sm,
   },
   guestBanner: {
     position: 'absolute',
     bottom: 160,
-    left: 16,
-    right: 16,
-    backgroundColor: '#FFF3E0',
+    left: Spacing.md,
+    right: Spacing.md,
+    backgroundColor: Colors.warningLight,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    gap: 8,
+    padding: Spacing['3'],
+    borderRadius: BorderRadius.xs,
+    gap: Spacing.sm,
   },
   guestBannerText: {
     flex: 1,
-    fontSize: 14,
-    color: '#E65100',
+    ...Typography.bodySmall,
+    color: Colors.warningDark,
     fontWeight: '500',
   },
   viewToggle: {
@@ -659,25 +658,25 @@ const styles = StyleSheet.create({
   },
   webMapFallback: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.background,
   },
   mapPlaceholder: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
+    padding: Spacing.xl,
   },
   mapPlaceholderText: {
-    fontSize: 16,
+    ...Typography.bodyMedium,
     fontWeight: '600',
-    color: '#999999',
-    marginTop: 16,
+    color: Colors.textTertiary,
+    marginTop: Spacing.md,
     textAlign: 'center',
   },
   mapPlaceholderSubtext: {
-    fontSize: 14,
-    color: '#CCCCCC',
-    marginTop: 8,
+    ...Typography.bodySmall,
+    color: Colors.textDisabled,
+    marginTop: Spacing.sm,
     textAlign: 'center',
   },
 });
