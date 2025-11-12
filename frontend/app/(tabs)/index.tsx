@@ -9,7 +9,19 @@ import Constants from 'expo-constants';
 import { VerificationBadge } from '../../components/VerificationBadge';
 import { AmenitiesIcons } from '../../components/AmenitiesIcons';
 import { FilterModal, Filters } from '../../components/FilterModal';
+import { ChargerCardSkeleton } from '../../components/SkeletonLoader';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  FadeIn,
+  Layout,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withRepeat,
+  withSequence,
+} from 'react-native-reanimated';
 
 // Conditional import for MapView (mobile only)
 let MapView: any = null;
@@ -93,7 +105,6 @@ export default function Discover() {
       });
       setChargers(response.data);
     } catch (error: any) {
-      console.error('Load chargers error:', error);
       Alert.alert('Error', 'Failed to load charging stations');
     } finally {
       setLoading(false);
@@ -113,7 +124,10 @@ export default function Discover() {
         'Please sign in to add hidden chargers',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Sign In', onPress: () => handleLogout() },
+          { text: 'Sign In', onPress: async () => {
+            await logout();
+            router.replace('/welcome');
+          }},
         ]
       );
       return;
@@ -171,26 +185,30 @@ export default function Discover() {
     return count;
   };
 
-  const renderChargerCard = ({ item }: { item: Charger }) => (
-    <TouchableOpacity
-      style={styles.chargerCard}
-      onPress={() => handleChargerPress(item)}
-      activeOpacity={0.7}
+  const renderChargerCard = ({ item, index }: { item: Charger, index: number }) => (
+    <Animated.View
+      entering={FadeInDown.delay(index * 50).duration(400).springify()}
+      layout={Layout.springify()}
     >
-      <View style={styles.cardHeader}>
-        <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={24} color="#4CAF50" />
+      <TouchableOpacity
+        style={styles.chargerCard}
+        onPress={() => handleChargerPress(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.cardHeader}>
+          <View style={styles.cardIconCircle}>
+            <Ionicons name="flash" size={24} color="#4CAF50" />
+          </View>
+          <View style={styles.cardInfo}>
+            <Text style={styles.chargerName} numberOfLines={1}>
+              {item.name}
+            </Text>
+            <Text style={styles.chargerAddress} numberOfLines={1}>
+              {item.address}
+            </Text>
+          </View>
+          <VerificationBadge level={item.verification_level} size="small" />
         </View>
-        <View style={styles.cardInfo}>
-          <Text style={styles.chargerName} numberOfLines={1}>
-            {item.name}
-          </Text>
-          <Text style={styles.chargerAddress} numberOfLines={1}>
-            {item.address}
-          </Text>
-        </View>
-        <VerificationBadge level={item.verification_level} size="small" />
-      </View>
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
@@ -240,16 +258,17 @@ export default function Discover() {
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Animated.View>
   );
 
   const renderHeader = () => (
-    <View style={styles.homeHeader}>
+    <Animated.View entering={FadeInUp.duration(500)} style={styles.homeHeader}>
       <View>
         <Text style={styles.greeting}>Hello, {user?.name || 'Guest'}!</Text>
         <Text style={styles.subtitle}>{chargers.length} charging stations nearby</Text>
       </View>
-    </View>
+    </Animated.View>
   );
 
   const renderMapView = () => {
@@ -307,9 +326,26 @@ export default function Discover() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.homeHeader}>
+          <View>
+            <Text style={styles.greeting}>Hello, {user?.name || 'Guest'}!</Text>
+            <Text style={styles.subtitle}>Loading charging stations...</Text>
+          </View>
+        </View>
+        <View style={styles.filterBar}>
+          <View style={styles.filterButton}>
+            <Ionicons name="funnel" size={20} color="#4CAF50" />
+            <Text style={styles.filterButtonText}>Filters</Text>
+          </View>
+        </View>
+        <View style={{ flex: 1 }}>
+          <ChargerCardSkeleton />
+          <ChargerCardSkeleton />
+          <ChargerCardSkeleton />
+          <ChargerCardSkeleton />
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -366,14 +402,16 @@ export default function Discover() {
       )}
 
       {/* View Toggle Button - Lowered Position */}
-      <TouchableOpacity
-        style={styles.viewToggle}
-        onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
-        activeOpacity={0.85}
-      >
-        <Ionicons name={viewMode === 'map' ? 'list' : 'map'} size={22} color="#FFFFFF" />
-        <Text style={styles.viewToggleText}>{viewMode === 'map' ? 'List View' : 'Map View'}</Text>
-      </TouchableOpacity>
+      <Animated.View entering={FadeIn.delay(300)} style={styles.viewToggleWrapper}>
+        <TouchableOpacity
+          style={styles.viewToggle}
+          onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name={viewMode === 'map' ? 'list' : 'map'} size={22} color="#FFFFFF" />
+          <Text style={styles.viewToggleText}>{viewMode === 'map' ? 'List View' : 'Map View'}</Text>
+        </TouchableOpacity>
+      </Animated.View>
 
       {/* Filter Modal */}
       <FilterModal
@@ -615,10 +653,12 @@ const styles = StyleSheet.create({
     ...Typography.bodyMedium,
     color: Colors.warningDark,
   },
-  viewToggle: {
+  viewToggleWrapper: {
     position: 'absolute',
     bottom: Spacing.xxl,
     right: Spacing.xl,
+  },
+  viewToggle: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.primary,

@@ -86,7 +86,6 @@ export default function SmartEcoRouting() {
   const [selectedRoute, setSelectedRoute] = useState<RouteAlternative | null>(null);
   const [chargersAlongRoute, setChargersAlongRoute] = useState<Charger[]>([]);
   const [batteryPercent, setBatteryPercent] = useState(80);
-  const [weatherData, setWeatherData] = useState<any>(null);
   const [viewMode, setViewMode] = useState<'input' | 'results'>('input');
 
   // Mock battery capacity based on vehicle type
@@ -139,7 +138,6 @@ export default function SmartEcoRouting() {
       if (response.data && response.data.routes) {
         setRoutes(response.data.routes);
         setChargersAlongRoute(response.data.chargers_along_route || []);
-        setWeatherData(response.data.weather_data);
         setSelectedRoute(response.data.routes[0]); // Default to eco route
         setViewMode('results');
 
@@ -154,7 +152,6 @@ export default function SmartEcoRouting() {
         }
       }
     } catch (error: any) {
-      console.error('Route calculation error:', error);
       Alert.alert('Error', 'Failed to calculate routes. Please try again.');
     } finally {
       setLoading(false);
@@ -566,14 +563,6 @@ export default function SmartEcoRouting() {
                 color="#FFFFFF" 
               />
               <Text style={styles.routeTypeText}>{getRouteTypeInfo(selectedRoute.type).name}</Text>
-            </View>
-          )}
-
-          {/* Weather info */}
-          {weatherData && (
-            <View style={styles.weatherBadge}>
-              <Ionicons name="partly-sunny" size={16} color="#FF9800" />
-              <Text style={styles.weatherText}>{weatherData.temperature_c}°C</Text>
             </View>
           )}
         </View>

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 
 export default function Login() {
   const router = useRouter();
@@ -13,18 +14,38 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const shakeAnimation = useSharedValue(0);
+
+  const shakeStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: shakeAnimation.value }],
+    };
+  });
+
+  const triggerShake = () => {
+    shakeAnimation.value = withSequence(
+      withTiming(-10, { duration: 50 }),
+      withTiming(10, { duration: 50 }),
+      withTiming(-10, { duration: 50 }),
+      withTiming(10, { duration: 50 }),
+      withTiming(0, { duration: 50 })
+    );
+  };
+
   const handleLogin = async () => {
     if (!email || !password) {
       alert('Please fill in all fields');
+      triggerShake();
       return;
     }
 
     setLoading(true);
     try {
       await login(email, password);
-      router.replace('/home');
+      router.replace('/(tabs)');
     } catch (error: any) {
       alert(error.message);
+      triggerShake();
     } finally {
       setLoading(false);
     }
@@ -46,7 +67,7 @@ export default function Login() {
             <Text style={styles.subtitle}>Sign in to your account</Text>
           </View>
 
-          <View style={styles.form}>
+          <Animated.View style={[styles.form, shakeStyle]}>
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Email</Text>
               <TextInput
@@ -97,7 +118,7 @@ export default function Login() {
                 <Text style={styles.signupLink}>Sign Up</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

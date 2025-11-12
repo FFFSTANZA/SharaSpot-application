@@ -4,20 +4,16 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
+import Animated, { FadeInDown, FadeInUp, ZoomIn } from 'react-native-reanimated';
 
 export default function Welcome() {
   const router = useRouter();
   const { continueAsGuest } = useAuth();
 
-  const handleGoogleSignIn = () => {
-    // For MVP, we'll show info that this opens browser
-    alert('Google Sign-In will open in your browser. For testing, use email/password login.');
-  };
-
   const handleGuest = async () => {
     try {
       await continueAsGuest();
-      router.replace('/home');
+      router.replace('/(tabs)');
     } catch (error: any) {
       alert(error.message);
     }
@@ -26,33 +22,36 @@ export default function Welcome() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.header}>
+        <Animated.View entering={ZoomIn.duration(600).delay(100)} style={styles.header}>
           <Ionicons name="flash" size={80} color={Colors.primary} />
           <Text style={styles.title}>SharaSpot</Text>
           <Text style={styles.subtitle}>Whether you drive, Charge Nearby</Text>
-        </View>
+        </Animated.View>
 
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-            <Ionicons name="logo-google" size={24} color="#DB4437" />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
+          <Animated.View entering={FadeInDown.duration(500).delay(300)} style={{ width: '100%' }}>
+            <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
+              <Ionicons name="mail" size={24} color={Colors.textInverse} />
+              <Text style={styles.emailButtonText}>Sign in with Email</Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
-            <Ionicons name="mail" size={24} color={Colors.textInverse} />
-            <Text style={styles.emailButtonText}>Sign in with Email</Text>
-          </TouchableOpacity>
+          <Animated.View entering={FadeInDown.duration(500).delay(400)} style={{ width: '100%' }}>
+            <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
+              <Text style={styles.signupButtonText}>Create Account</Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
-            <Text style={styles.signupButtonText}>Create Account</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.guestButton} onPress={handleGuest}>
-            <Text style={styles.guestButtonText}>Continue as Guest</Text>
-          </TouchableOpacity>
+          <Animated.View entering={FadeInDown.duration(500).delay(500)} style={{ width: '100%' }}>
+            <TouchableOpacity style={styles.guestButton} onPress={handleGuest}>
+              <Text style={styles.guestButtonText}>Continue as Guest</Text>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
 
-        <Text style={styles.disclaimer}>Guest mode has limited features</Text>
+        <Animated.Text entering={FadeInUp.duration(500).delay(600)} style={styles.disclaimer}>
+          Guest mode has limited features
+        </Animated.Text>
       </View>
     </SafeAreaView>
   );
@@ -84,22 +83,6 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     gap: Spacing.md,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.sm,
-    gap: Spacing['3'],
-    ...Shadows.xs,
-  },
-  googleButtonText: {
-    ...Typography.labelLarge,
-    color: Colors.textPrimary,
   },
   emailButton: {
     flexDirection: 'row',

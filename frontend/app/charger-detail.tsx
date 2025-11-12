@@ -55,7 +55,6 @@ export default function ChargerDetail() {
         setLoading(false);
       }
     } catch (error) {
-      console.error('Load charger error:', error);
       Alert.alert('Error', 'Failed to load charger details');
       setLoading(false);
     }

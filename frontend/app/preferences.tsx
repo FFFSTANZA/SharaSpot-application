@@ -27,13 +27,12 @@ export default function Preferences() {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       setLocationPermission(status);
-      
+
       if (status === 'granted') {
-        const location = await Location.getCurrentPositionAsync({});
-        console.log('User location:', location.coords);
+        await Location.getCurrentPositionAsync({});
       }
     } catch (error) {
-      console.error('Location permission error:', error);
+      // Silent error handling for location permission
     }
   };
 
@@ -50,7 +49,7 @@ export default function Preferences() {
         vehicle_type: vehicleType,
         distance_unit: distanceUnit,
       });
-      router.replace('/home');
+      router.replace('/(tabs)');
     } catch (error: any) {
       alert(error.message);
     } finally {

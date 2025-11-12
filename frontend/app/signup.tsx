@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 
 export default function Signup() {
   const router = useRouter();
@@ -14,14 +15,34 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const shakeAnimation = useSharedValue(0);
+
+  const shakeStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: shakeAnimation.value }],
+    };
+  });
+
+  const triggerShake = () => {
+    shakeAnimation.value = withSequence(
+      withTiming(-10, { duration: 50 }),
+      withTiming(10, { duration: 50 }),
+      withTiming(-10, { duration: 50 }),
+      withTiming(10, { duration: 50 }),
+      withTiming(0, { duration: 50 })
+    );
+  };
+
   const handleSignup = async () => {
     if (!name || !email || !password) {
       alert('Please fill in all fields');
+      triggerShake();
       return;
     }
 
     if (password.length < 6) {
       alert('Password must be at least 6 characters');
+      triggerShake();
       return;
     }
 
@@ -31,6 +52,7 @@ export default function Signup() {
       router.replace('/preferences');
     } catch (error: any) {
       alert(error.message);
+      triggerShake();
     } finally {
       setLoading(false);
     }
@@ -52,7 +74,7 @@ export default function Signup() {
             <Text style={styles.subtitle}>Join SharaSpot today</Text>
           </View>
 
-          <View style={styles.form}>
+          <Animated.View style={[styles.form, shakeStyle]}>
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Full Name</Text>
               <TextInput
@@ -115,7 +137,7 @@ export default function Signup() {
                 <Text style={styles.loginLink}>Sign In</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
