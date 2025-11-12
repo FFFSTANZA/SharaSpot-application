@@ -65,10 +65,11 @@ const neutral = {
 
 const semantic = {
   success: {
-    50: '#ECFDF5',
-    500: '#10B981',
-    600: '#059669',
-    700: '#047857',
+    50: '#F0F9FF',      // Sky blue (minimalist, crisp)
+    500: '#0EA5E9',     // Rich sky blue (modern, premium)
+    600: '#0284C7',     // Deep sky blue
+    700: '#0369A1',     // Darkest sky blue
+    950: '#082F49',     // Dark mode variant
   },
   warning: {
     50: '#FFFBEB',
@@ -113,7 +114,7 @@ export const LightColors = {
   // Additional Accents
   accentOrange: '#F97316',
   accentPink: '#EC4899',
-  accentGreen: '#10B981',
+  accentSky: '#0EA5E9',        // Rich sky blue (minimalist premium)
 
   // Background
   background: neutral[50],
@@ -173,11 +174,11 @@ export const LightColors = {
   gradientPrimary: [electricBlue[700], electricPurple[600]],
   gradientSecondary: [electricCyan[500], electricBlue[700]],
   gradientSunset: ['#F97316', '#EC4899', '#C026D3'], // 3-stop gradient
-  gradientSuccess: ['#10B981', '#06B6D4'],
+  gradientSuccess: ['#0EA5E9', '#06B6D4'],       // Sky to cyan (minimalist premium)
   gradientElectric: [electricBlue[600], electricPurple[500], electricCyan[400]],
   gradientNight: ['#1E293B', '#0F172A'],         // Dark gradient
   gradientEnergy: [electricBlue[500], electricPurple[600], electricCyan[500]], // Vibrant
-  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#10B981'], // Multi-stop
+  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#0EA5E9'], // Multi-stop (minimalist)
 };
 
 // Dark Theme Colors
@@ -203,7 +204,7 @@ export const DarkColors = {
   // Additional Accents
   accentOrange: '#FB923C',
   accentPink: '#F472B6',
-  accentGreen: '#34D399',
+  accentSky: '#38BDF8',        // Lighter sky blue for dark theme
 
   // Background
   background: neutral[950],
@@ -263,11 +264,11 @@ export const DarkColors = {
   gradientPrimary: [electricBlue[500], electricPurple[500]],
   gradientSecondary: [electricCyan[400], electricBlue[500]],
   gradientSunset: ['#FB923C', '#F472B6', '#D946EF'], // 3-stop gradient
-  gradientSuccess: ['#34D399', '#22D3EE'],
+  gradientSuccess: ['#38BDF8', '#22D3EE'],       // Light sky to cyan (minimalist)
   gradientElectric: [electricBlue[500], electricPurple[400], electricCyan[300]],
   gradientNight: ['#0F172A', '#020617'],         // Dark gradient
   gradientEnergy: [electricBlue[400], electricPurple[500], electricCyan[400]], // Vibrant
-  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#10B981'], // Multi-stop
+  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#0EA5E9'], // Multi-stop (minimalist)
 };
 
 // Default to light theme (can be made dynamic with context)
@@ -616,10 +617,10 @@ export const Shadows = {
     elevation: 12,
   },
   successGlow: {
-    shadowColor: semantic.success[500],
+    shadowColor: semantic.success[500],  // #0EA5E9 sky blue glow (minimalist premium)
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    shadowOpacity: 0.35,                  // Slightly stronger for visibility
+    shadowRadius: 24,                     // Softer, more premium glow
     elevation: 8,
   },
   errorGlow: {

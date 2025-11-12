@@ -29,7 +29,7 @@ const AnimatedButton = ({
   iconColor,
   delay = 0,
   gradient = false,
-  gradientColors = ['#4CAF50', '#45a049']
+  gradientColors = ['#6366F1', '#8B5CF6']  // Minimalist indigo to purple gradient
 }: any) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -319,7 +319,7 @@ export default function Welcome() {
               <View style={styles.logoGlowOuter}>
                 <View style={styles.logoGlowInner}>
                   <LinearGradient
-                    colors={['#4CAF50', '#45a049', '#66BB6A']}
+                    colors={['#6366F1', '#8B5CF6', '#0EA5E9']}  // Rich indigo to sky blue gradient
                     style={styles.logoGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
@@ -330,7 +330,7 @@ export default function Welcome() {
               </View>
             </Animated.View>
 
-            {/* Animated title */}
+            {/* Animated title with glassmorphic shimmer effect */}
             <Animated.View
               style={{
                 opacity: titleFadeAnim,
@@ -344,7 +344,20 @@ export default function Welcome() {
                 ],
               }}
             >
-              <Text style={styles.title}>SharaSpot</Text>
+              <View style={styles.titleContainer}>
+                {/* Glass background layer */}
+                <BlurView intensity={30} tint="light" style={styles.titleGlassBackground} />
+
+                {/* Main title with shimmer effect */}
+                <LinearGradient
+                  colors={['#FFFFFF', '#E0E7FF', '#FFFFFF']}  // Subtle shimmer gradient
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.titleGradient}
+                >
+                  <Text style={styles.title}>SharaSpot</Text>
+                </LinearGradient>
+              </View>
             </Animated.View>
 
             {/* Animated subtitle */}
@@ -389,7 +402,7 @@ export default function Welcome() {
               iconColor="#FFFFFF"
               delay={1000}
               gradient={true}
-              gradientColors={['#4CAF50', '#45a049', '#66BB6A']}
+              gradientColors={['#6366F1', '#8B5CF6', '#0EA5E9']}  // Premium indigo gradient
             >
               Sign in with Email
             </AnimatedButton>
@@ -454,12 +467,12 @@ const styles = StyleSheet.create({
   logoGlowOuter: {
     padding: 20,
     borderRadius: 50,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    backgroundColor: 'rgba(99, 102, 241, 0.12)',  // Minimalist indigo glow
   },
   logoGlowInner: {
     padding: 10,
     borderRadius: 40,
-    backgroundColor: 'rgba(76, 175, 80, 0.15)',
+    backgroundColor: 'rgba(99, 102, 241, 0.18)',  // Rich indigo inner glow
   },
   logoGradient: {
     width: 100,
@@ -467,21 +480,39 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#4CAF50',
+    shadowColor: '#6366F1',  // Premium indigo shadow
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
+    shadowOpacity: 0.6,      // Softer for minimalist look
+    shadowRadius: 24,        // Wider, more premium glow
     elevation: 10,
+  },
+  titleContainer: {
+    marginTop: 16,
+    position: 'relative',
+    alignSelf: 'center',
+  },
+  titleGlassBackground: {
+    position: 'absolute',
+    top: -8,
+    left: -16,
+    right: -16,
+    bottom: -8,
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',  // Subtle glass effect
+  },
+  titleGradient: {
+    borderRadius: 20,
+    paddingHorizontal: 8,
   },
   title: {
     fontSize: 48,
     fontWeight: '800',
     color: '#FFFFFF',
-    marginTop: 16,
-    textShadowColor: 'rgba(76, 175, 80, 0.5)',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 10,
-    letterSpacing: 1,
+    letterSpacing: 2,        // More spacing for premium look
+    textShadowColor: 'rgba(99, 102, 241, 0.3)',  // Subtle indigo shimmer
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 16,    // Softer, more diffused glow
   },
   subtitleBlur: {
     marginTop: 12,
@@ -573,6 +604,6 @@ const styles = StyleSheet.create({
   particle: {
     position: 'absolute',
     borderRadius: 100,
-    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+    backgroundColor: 'rgba(99, 102, 241, 0.15)',  // Minimalist indigo particles
   },
 });

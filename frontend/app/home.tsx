@@ -49,7 +49,7 @@ type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
   1: '#9E9E9E',  // Grey - New Entry
-  2: '#4CAF50',  // Green - Community Verified
+  2: '#0EA5E9',  // Sky Blue - Community Verified (minimalist premium)
   3: '#2196F3',  // Blue - Reliable
   4: '#FFB300',  // Gold - Trusted
   5: '#9C27B0',  // Platinum - Certified Partner
@@ -179,7 +179,7 @@ export default function Home() {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={24} color="#4CAF50" />
+          <Ionicons name="flash" size={24} color="#0EA5E9" />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
@@ -200,10 +200,10 @@ export default function Home() {
           </Text>
         </View>
         <View style={styles.detailRow}>
-          <Ionicons 
-            name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"} 
-            size={14} 
-            color={item.available_ports > 0 ? "#4CAF50" : "#F44336"} 
+          <Ionicons
+            name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"}
+            size={14}
+            color={item.available_ports > 0 ? "#0EA5E9" : "#F44336"}
           />
           <Text style={styles.detailText}>
             {item.available_ports}/{item.total_ports} ports available
@@ -250,7 +250,7 @@ export default function Home() {
         <Text style={styles.subtitle}>{chargers.length} charging stations nearby</Text>
       </View>
       <TouchableOpacity style={styles.profileButton} onPress={() => router.push('/profile')}>
-        <Ionicons name="person-circle" size={40} color="#4CAF50" />
+        <Ionicons name="person-circle" size={40} color="#0EA5E9" />
       </TouchableOpacity>
     </View>
   );
@@ -311,7 +311,7 @@ export default function Home() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color="#0EA5E9" />
       </View>
     );
   }
@@ -326,7 +326,7 @@ export default function Home() {
           style={styles.filterButton}
           onPress={() => setFilterModalVisible(true)}
         >
-          <Ionicons name="funnel" size={20} color="#4CAF50" />
+          <Ionicons name="funnel" size={20} color="#0EA5E9" />
           <Text style={styles.filterButtonText}>Filters</Text>
           {getActiveFilterCount() > 0 && (
             <View style={styles.filterBadge}>
@@ -348,7 +348,7 @@ export default function Home() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#4CAF50']} />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#0EA5E9']} />
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
   uptimeText: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#4CAF50',
+    color: '#0EA5E9',
   },
   verifiedText: {
     fontSize: 11,
