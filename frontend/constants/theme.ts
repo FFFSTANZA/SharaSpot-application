@@ -1,349 +1,414 @@
 // Premium Theme System for SharaSpot
-// Inspired by: Tesla, Apple, Stripe, Linear, Airbnb
-// Core Principles: Premium Minimalism, Electric Energy, Trust & Transparency
+// Unique Brand Identity: "Ember Charge" - Warmth Meets Energy
+// Core Principles: Dynamic Energy, Premium Technology, Trusted Navigation
 
 import { Platform } from 'react-native';
 
 // ============================================================================
-// COLOR SYSTEM - Premium Minimalism & Electric Energy
+// COLOR SYSTEM - Unique & Energetic
 // ============================================================================
 
-// Semantic Color Scales (50-900)
-const electricBlue = {
-  50: '#EEF2FF',
-  100: '#E0E7FF',
-  200: '#C7D2FE',
-  300: '#A5B4FC',
-  400: '#818CF8',
-  500: '#6366F1', // Base
-  600: '#4F5FF9', // Primary
-  700: '#2D3FE8', // Primary Dark
-  800: '#1E2BB8',
-  900: '#1E1B4B',
+// Primary Palette - Burnt Orange (Distinctive & Warm Energy)
+// Inspired by glowing embers - sophisticated warmth with electric energy
+const burntOrange = {
+  50: '#FFF7ED',
+  100: '#FFEDD5',
+  200: '#FED7AA',
+  300: '#FDBA74',
+  400: '#FB923C',
+  500: '#F97316',  // Base - Vibrant burnt orange
+  600: '#EA580C',  // Primary - Deep ember
+  700: '#C2410C',  // Primary Dark - Rich burnt tone
+  800: '#9A3412',
+  900: '#7C2D12',
+  950: '#431407',
 };
 
-const electricPurple = {
-  50: '#FAF5FF',
-  100: '#F3E8FF',
-  200: '#E9D5FF',
-  300: '#D8B4FE',
-  400: '#C084FC',
-  500: '#A855F7',
-  600: '#8B5CF6', // Secondary
-  700: '#7C3AED',
-  800: '#6D28D9',
-  900: '#4C1D95',
+// Secondary Palette - Charcoal (Premium & Grounding)
+// Sophisticated dark gray with subtle warmth to complement orange
+const charcoal = {
+  50: '#FAFAFA',
+  100: '#F4F4F5',
+  200: '#E4E4E7',
+  300: '#D4D4D8',
+  400: '#A1A1AA',
+  500: '#71717A',
+  600: '#52525B',  // Secondary
+  700: '#3F3F46',
+  800: '#27272A',
+  900: '#18181B',
+  950: '#09090B',
 };
 
-const electricCyan = {
-  50: '#ECFEFF',
-  100: '#CFFAFE',
-  200: '#A5F3FC',
-  300: '#67E8F9',
-  400: '#22D3EE',
-  500: '#06B6D4', // Accent
-  600: '#0891B2',
-  700: '#0E7490',
-  800: '#155E75',
-  900: '#164E63',
+// Accent Palette - Electric Lime (Energy & Innovation)
+// Vibrant green representing charging/energy - perfect contrast to orange
+const electricLime = {
+  50: '#F7FEE7',
+  100: '#ECFCCB',
+  200: '#D9F99D',
+  300: '#BEF264',
+  400: '#A3E635',
+  500: '#84CC16',  // Accent Base
+  600: '#65A30D',
+  700: '#4D7C0F',
+  800: '#3F6212',
+  900: '#365314',
+  950: '#1A2E05',
 };
 
+// Complementary Palette - Deep Teal (Trust & Technology)
+// Cool counterbalance to warm orange - represents reliability
+const deepTeal = {
+  50: '#F0FDFA',
+  100: '#CCFBF1',
+  200: '#99F6E4',
+  300: '#5EEAD4',
+  400: '#2DD4BF',
+  500: '#14B8A6',
+  600: '#0D9488',  // Complement
+  700: '#0F766E',
+  800: '#115E59',
+  900: '#134E4A',
+  950: '#042F2E',
+};
+
+// Supporting Palette - Warm Amber
+// Rich amber for premium features and highlights
+const warmAmber = {
+  50: '#FFFBEB',
+  100: '#FEF3C7',
+  200: '#FDE68A',
+  300: '#FCD34D',
+  400: '#FBBF24',
+  500: '#F59E0B',
+  600: '#D97706',
+  700: '#B45309',
+  800: '#92400E',
+  900: '#78350F',
+  950: '#451A03',
+};
+
+// Neutral Palette - Warm Grays
+// Slight warm tint to harmonize with orange primary
 const neutral = {
   0: '#FFFFFF',
-  50: '#F8FAFC',
-  100: '#F1F5F9',
-  200: '#E2E8F0',
-  300: '#CBD5E1',
-  400: '#94A3B8',
-  500: '#64748B',
-  600: '#475569',
-  700: '#334155',
-  800: '#1E293B',
-  900: '#0F172A',
-  950: '#020617',
+  50: '#FAFAF9',
+  100: '#F5F5F4',
+  200: '#E7E5E4',
+  300: '#D6D3D1',
+  400: '#A8A29E',
+  500: '#78716C',
+  600: '#57534E',
+  700: '#44403C',
+  800: '#292524',
+  900: '#1C1917',
+  950: '#0C0A09',
 };
 
+// Semantic Colors - Clear & Professional
 const semantic = {
   success: {
-    50: '#ECFDF5',
-    500: '#10B981',
-    600: '#059669',
-    700: '#047857',
+    50: '#F0FDF4',
+    100: '#DCFCE7',
+    500: '#22C55E',
+    600: '#16A34A',
+    700: '#15803D',
+    950: '#052E16',
   },
   warning: {
     50: '#FFFBEB',
+    100: '#FEF3C7',
     500: '#F59E0B',
     600: '#D97706',
     700: '#B45309',
+    950: '#451A03',
   },
   error: {
     50: '#FEF2F2',
+    100: '#FEE2E2',
     500: '#EF4444',
     600: '#DC2626',
     700: '#B91C1C',
+    950: '#450A0A',
   },
   info: {
     50: '#EFF6FF',
+    100: '#DBEAFE',
     500: '#3B82F6',
     600: '#2563EB',
     700: '#1D4ED8',
+    950: '#172554',
   },
 };
 
-// Light Theme Colors
+// Light Theme Colors - Warm & Dynamic
 export const LightColors = {
-  // Primary - Vibrant Electric Blue
-  primary: '#6366F1',           // Main vibrant electric blue
-  primaryLight: '#818CF8',      // Lighter shade
-  primaryDark: '#4F46E5',       // Darker shade
-  primarySubtle: electricBlue[50],
-  primaryGradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+  // Primary - Burnt Orange (Energy & Warmth)
+  primary: burntOrange[600],          // #EA580C - Rich ember
+  primaryLight: burntOrange[500],     // #F97316 - Bright orange
+  primaryDark: burntOrange[700],      // #C2410C - Deep burnt
+  primarySubtle: burntOrange[50],     // #FFF7ED - Warm tint
 
-  // Secondary - Electric Purple
-  secondary: '#8B5CF6',         // Main electric purple
-  secondaryLight: '#A78BFA',    // Lighter shade
-  secondaryDark: '#7C3AED',     // Darker shade
-  secondarySubtle: electricPurple[50],
+  // Secondary - Premium Charcoal
+  secondary: charcoal[700],           // #3F3F46 - Strong contrast
+  secondaryLight: charcoal[600],      // #52525B - Lighter variant
+  secondaryDark: charcoal[800],       // #27272A - Deeper variant
+  secondarySubtle: charcoal[50],      // #FAFAFA - Subtle backgrounds
 
-  // Accent - Neon Highlights
-  accent: '#06B6D4',            // Neon cyan
-  accentLight: electricCyan[400],
-  accentDark: electricCyan[600],
-  accentSubtle: electricCyan[50],
+  // Accent - Electric Lime
+  accent: electricLime[500],          // #84CC16 - Charging/Active
+  accentLight: electricLime[400],     // #A3E635 - Hover
+  accentDark: electricLime[600],      // #65A30D - Active
+  accentSubtle: electricLime[50],     // #F7FEE7 - Subtle tint
 
-  // Additional Accents - SharaCoin & Energy
-  accentGold: '#F59E0B',        // SharaCoin rewards
-  accentGreen: '#10B981',       // Success/charging
-  accentPink: '#EC4899',
-  accentOrange: '#F97316',
+  // Additional Accents - Supporting Colors
+  accentTeal: deepTeal[600],          // #0D9488 - Tech/Trust
+  accentAmber: warmAmber[500],        // #F59E0B - Premium/Rewards
+  accentGold: warmAmber[400],         // #FBBF24 - Highlights
+  accentPurple: '#A78BFA',            // Premium features
+  accentCyan: '#06B6D4',              // Information
+  accentCopper: '#CD7F32',            // Metallic accent
 
-  // Background
-  background: neutral[50],
-  backgroundSecondary: neutral[100],
-  backgroundTertiary: neutral[0],
+  // Background - Clean Warm Foundation
+  background: '#FFFFFF',              // Pure white base
+  backgroundSecondary: neutral[50],   // #FAFAF9 - Warm sections
+  backgroundTertiary: neutral[100],   // #F5F5F4 - Subtle gray
 
-  // Surface
-  surface: neutral[0],
-  surfaceElevated: neutral[0],
-  surfaceOverlay: neutral[0],
+  // Surface - Card Layers
+  surface: '#FFFFFF',                 // Clean white surfaces
+  surfaceElevated: '#FFFFFF',         // Elevated elements
+  surfaceOverlay: 'rgba(255, 255, 255, 0.96)',
+  surfaceTinted: 'rgba(255, 247, 237, 0.6)',  // Warm orange tint
 
-  // Text
-  textPrimary: neutral[900],
-  textSecondary: neutral[600],
-  textTertiary: neutral[500],
-  textDisabled: neutral[400],
-  textInverse: neutral[0],
+  // Text - Sharp Contrast with Warmth
+  textPrimary: neutral[900],          // #1C1917 - Main text
+  textSecondary: neutral[600],        // #57534E - Secondary
+  textTertiary: neutral[500],         // #78716C - Hints
+  textDisabled: neutral[400],         // #A8A29E - Disabled
+  textInverse: '#FFFFFF',             // White on dark
+  textAccent: burntOrange[600],       // Orange highlights
 
-  // Border
-  border: neutral[200],
-  borderLight: neutral[100],
-  borderStrong: neutral[300],
+  // Border - Warm Subtle Definition
+  border: neutral[200],               // #E7E5E4 - Default
+  borderLight: neutral[100],          // #F5F5F4 - Subtle
+  borderStrong: neutral[300],         // #D6D3D1 - Emphasized
+  borderAccent: burntOrange[200],     // #FED7AA - Accent borders
 
-  // States
-  success: semantic.success[500],
-  successLight: semantic.success[50],
-  successDark: semantic.success[700],
+  // States - Clear Feedback
+  success: electricLime[600],         // #65A30D - Using accent for consistency
+  successLight: electricLime[50],
+  successDark: electricLime[700],
 
-  warning: semantic.warning[500],
-  warningLight: semantic.warning[50],
-  warningDark: semantic.warning[700],
+  warning: warmAmber[500],            // #F59E0B - Warm warning
+  warningLight: warmAmber[50],
+  warningDark: warmAmber[700],
 
-  error: semantic.error[500],
+  error: semantic.error[600],         // #DC2626 - Clear error
   errorLight: semantic.error[50],
   errorDark: semantic.error[700],
 
-  info: semantic.info[500],
-  infoLight: semantic.info[50],
-  infoDark: semantic.info[700],
+  info: deepTeal[600],                // #0D9488 - Calm info
+  infoLight: deepTeal[50],
+  infoDark: deepTeal[700],
 
-  // Overlays - HD Refined
-  overlay: 'rgba(15, 23, 42, 0.5)',
-  overlayLight: 'rgba(15, 23, 42, 0.25)',        // More subtle
-  overlayMedium: 'rgba(15, 23, 42, 0.4)',        // Mid-range
-  overlayStrong: 'rgba(15, 23, 42, 0.65)',       // Strong but not opaque
-  overlayHeavy: 'rgba(15, 23, 42, 0.8)',         // Very strong
+  // Special States
+  charging: electricLime[500],        // #84CC16 - Active charging
+  chargingGlow: electricLime[400],    // #A3E635 - Glow effect
+  available: deepTeal[500],           // #14B8A6 - Available
+  occupied: burntOrange[500],         // #F97316 - In use
 
-  // Glass Effects - Premium Glassmorphism
-  glass: 'rgba(255, 255, 255, 0.65)',            // More refined
-  glassSubtle: 'rgba(255, 255, 255, 0.45)',      // Subtle glass
-  glassStrong: 'rgba(255, 255, 255, 0.85)',      // Strong glass
-  glassBorder: 'rgba(255, 255, 255, 0.25)',      // More subtle border
-  glassBorderStrong: 'rgba(255, 255, 255, 0.4)', // Stronger border
-  glassShadow: 'rgba(0, 0, 0, 0.05)',            // Internal shadow
+  // Overlays - Professional Depth
+  overlay: 'rgba(0, 0, 0, 0.5)',
+  overlayLight: 'rgba(0, 0, 0, 0.25)',
+  overlayHeavy: 'rgba(0, 0, 0, 0.7)',
+  overlayWarm: 'rgba(234, 88, 12, 0.08)',  // Warm orange overlay
 
-  // Gradients - Enhanced for HD
-  gradientPrimary: [electricBlue[700], electricPurple[600]],
-  gradientSecondary: [electricCyan[500], electricBlue[700]],
-  gradientSunset: ['#F97316', '#EC4899', '#C026D3'], // 3-stop gradient
-  gradientSuccess: ['#10B981', '#06B6D4'],
-  gradientElectric: [electricBlue[600], electricPurple[500], electricCyan[400]],
-  gradientNight: ['#1E293B', '#0F172A'],         // Dark gradient
-  gradientEnergy: [electricBlue[500], electricPurple[600], electricCyan[500]], // Vibrant
-  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#10B981'], // Multi-stop
+  // Glass Effects - Modern Warm Glass
+  glass: 'rgba(255, 255, 255, 0.75)',
+  glassSubtle: 'rgba(255, 255, 255, 0.6)',
+  glassStrong: 'rgba(255, 255, 255, 0.9)',
+  glassBorder: 'rgba(255, 255, 255, 0.18)',
+  glassWarm: 'rgba(255, 247, 237, 0.8)',   // Warm tinted glass
+
+  // Gradients - Dynamic & Memorable
+  gradientPrimary: [burntOrange[500], burntOrange[700]],      // Ember glow
+  gradientCharge: [electricLime[400], electricLime[600]],     // Charging gradient
+  gradientPremium: [burntOrange[600], charcoal[700]],         // Premium dark
+  gradientEnergy: ['#EA580C', '#84CC16'],                     // Orange to green
+  gradientEmber: ['#F97316', '#EA580C', '#C2410C'],           // Burning ember
+  gradientSunrise: ['#FED7AA', '#FDBA74', '#FB923C'],         // Warm morning
+  gradientSpeed: ['#EA580C', '#FB923C', '#FBBF24'],           // Fast charging
+  gradientNight: [charcoal[800], charcoal[950]],              // Dark mode base
+  gradientWarmth: ['#FFF7ED', '#FFEDD5', '#FED7AA'],          // Warm background
+  gradientFire: ['#FBBF24', '#F97316', '#EA580C'],            // Fire energy
+  gradientTech: [deepTeal[500], burntOrange[500]],            // Tech meets energy
 };
 
-// Dark Theme Colors
+// Dark Theme Colors - Sophisticated Night Mode with Warm Glow
 export const DarkColors = {
-  // Primary - Vibrant Electric Blue
-  primary: '#6366F1',           // Main vibrant electric blue
-  primaryLight: '#818CF8',      // Lighter shade
-  primaryDark: '#4F46E5',       // Darker shade
-  primarySubtle: electricBlue[950],
-  primaryGradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+  // Primary - Glowing Ember
+  primary: burntOrange[500],          // #F97316 - Bright ember
+  primaryLight: burntOrange[400],     // #FB923C - Lighter glow
+  primaryDark: burntOrange[600],      // #EA580C - Deeper ember
+  primarySubtle: burntOrange[950],    // #431407 - Subtle tint
 
-  // Secondary - Electric Purple
-  secondary: '#8B5CF6',         // Main electric purple
-  secondaryLight: '#A78BFA',    // Lighter shade
-  secondaryDark: '#7C3AED',     // Darker shade
-  secondarySubtle: electricPurple[950],
+  // Secondary - Lighter Charcoal
+  secondary: charcoal[500],           // #71717A - Softer in dark
+  secondaryLight: charcoal[400],      // #A1A1AA - Lighter
+  secondaryDark: charcoal[600],       // #52525B - Deeper
+  secondarySubtle: charcoal[950],     // #09090B - Subtle backgrounds
 
-  // Accent - Neon Highlights
-  accent: '#06B6D4',            // Neon cyan
-  accentLight: electricCyan[300],
-  accentDark: electricCyan[600],
-  accentSubtle: electricCyan[950],
+  // Accent - Bright Lime Glow
+  accent: electricLime[400],          // #A3E635 - Bright in dark
+  accentLight: electricLime[300],     // #BEF264 - Hover
+  accentDark: electricLime[500],      // #84CC16 - Active
+  accentSubtle: electricLime[950],    // #1A2E05 - Subtle tint
 
-  // Additional Accents - SharaCoin & Energy
-  accentGold: '#F59E0B',        // SharaCoin rewards (brighter in dark)
-  accentGreen: '#10B981',       // Success/charging
-  accentPink: '#F472B6',
-  accentOrange: '#FB923C',
+  // Additional Accents - Night Mode
+  accentTeal: deepTeal[400],          // #2DD4BF - Bright teal
+  accentAmber: warmAmber[400],        // #FBBF24 - Warm gold
+  accentGold: warmAmber[300],         // #FCD34D - Bright gold
+  accentPurple: '#C4B5FD',            // Lighter purple
+  accentCyan: '#22D3EE',              // Brighter cyan
+  accentCopper: '#E89E6B',            // Bright copper
 
-  // Background - Deep Navy
-  background: '#0F172A',        // Deep navy background
-  backgroundSecondary: '#1E293B', // Surface background
-  backgroundTertiary: '#334155',  // Elevated background
+  // Background - Rich Dark with Warmth
+  background: '#0A0908',              // Almost black with warm tint
+  backgroundSecondary: neutral[900],  // #1C1917 - Elevated
+  backgroundTertiary: neutral[800],   // #292524 - Cards
 
-  // Surface
-  surface: '#1E293B',           // Surface background
-  surfaceElevated: '#334155',   // Elevated surface
-  surfaceOverlay: neutral[700],
+  // Surface - Dark Layers
+  surface: '#121110',                 // Slightly lighter than background
+  surfaceElevated: neutral[800],      // #292524 - Raised
+  surfaceOverlay: 'rgba(28, 25, 23, 0.96)',
+  surfaceTinted: 'rgba(67, 20, 7, 0.12)',  // Warm orange tint
 
-  // Text
-  textPrimary: neutral[50],
-  textSecondary: neutral[400],
-  textTertiary: neutral[500],
-  textDisabled: neutral[600],
-  textInverse: neutral[900],
+  // Text - Optimized Contrast
+  textPrimary: '#F5F5F4',             // Soft white
+  textSecondary: neutral[400],        // #A8A29E - Secondary
+  textTertiary: neutral[500],         // #78716C - Hints
+  textDisabled: neutral[600],         // #57534E - Disabled
+  textInverse: neutral[950],          // Dark on light
+  textAccent: burntOrange[400],       // Orange highlights
 
-  // Border
-  border: neutral[800],
-  borderLight: neutral[850],
-  borderStrong: neutral[700],
+  // Border - Subtle Dark with Warmth
+  border: 'rgba(168, 162, 158, 0.15)',     // Subtle border
+  borderLight: 'rgba(168, 162, 158, 0.08)', // Very subtle
+  borderStrong: 'rgba(168, 162, 158, 0.25)', // Emphasized
+  borderAccent: 'rgba(249, 115, 22, 0.3)',  // Orange glow
 
-  // States
-  success: semantic.success[500],
-  successLight: semantic.success[950],
-  successDark: semantic.success[600],
+  // States - Dark Adjusted
+  success: electricLime[500],
+  successLight: electricLime[950],
+  successDark: electricLime[600],
 
-  warning: semantic.warning[500],
-  warningLight: semantic.warning[950],
-  warningDark: semantic.warning[600],
+  warning: warmAmber[400],
+  warningLight: warmAmber[950],
+  warningDark: warmAmber[600],
 
   error: semantic.error[500],
   errorLight: semantic.error[950],
   errorDark: semantic.error[600],
 
-  info: semantic.info[500],
-  infoLight: semantic.info[950],
-  infoDark: semantic.info[600],
+  info: deepTeal[400],
+  infoLight: deepTeal[950],
+  infoDark: deepTeal[600],
 
-  // Overlays - HD Refined
-  overlay: 'rgba(0, 0, 0, 0.5)',
-  overlayLight: 'rgba(0, 0, 0, 0.25)',           // More subtle
-  overlayMedium: 'rgba(0, 0, 0, 0.4)',           // Mid-range
-  overlayStrong: 'rgba(0, 0, 0, 0.65)',          // Strong but not opaque
-  overlayHeavy: 'rgba(0, 0, 0, 0.8)',            // Very strong
+  // Special States
+  charging: electricLime[400],        // #A3E635 - Bright charging
+  chargingGlow: electricLime[300],    // #BEF264 - Intense glow
+  available: deepTeal[400],           // #2DD4BF - Available
+  occupied: burntOrange[400],         // #FB923C - In use
 
-  // Glass Effects - Premium Glassmorphism
-  glass: 'rgba(30, 41, 59, 0.65)',               // More refined
-  glassSubtle: 'rgba(30, 41, 59, 0.45)',         // Subtle glass
-  glassStrong: 'rgba(30, 41, 59, 0.85)',         // Strong glass
-  glassBorder: 'rgba(148, 163, 184, 0.15)',      // More subtle border
-  glassBorderStrong: 'rgba(148, 163, 184, 0.3)', // Stronger border
-  glassShadow: 'rgba(0, 0, 0, 0.2)',             // Internal shadow
+  // Overlays - Dark Mode
+  overlay: 'rgba(0, 0, 0, 0.75)',
+  overlayLight: 'rgba(0, 0, 0, 0.5)',
+  overlayHeavy: 'rgba(0, 0, 0, 0.85)',
+  overlayWarm: 'rgba(249, 115, 22, 0.12)',  // Warm glow overlay
 
-  // Gradients - Enhanced for HD
-  gradientPrimary: [electricBlue[500], electricPurple[500]],
-  gradientSecondary: [electricCyan[400], electricBlue[500]],
-  gradientSunset: ['#FB923C', '#F472B6', '#D946EF'], // 3-stop gradient
-  gradientSuccess: ['#34D399', '#22D3EE'],
-  gradientElectric: [electricBlue[500], electricPurple[400], electricCyan[300]],
-  gradientNight: ['#0F172A', '#020617'],         // Dark gradient
-  gradientEnergy: [electricBlue[400], electricPurple[500], electricCyan[400]], // Vibrant
-  gradientHero: ['#6366F1', '#8B5CF6', '#06B6D4', '#10B981'], // Multi-stop
+  // Glass Effects - Dark Glass with Glow
+  glass: 'rgba(28, 25, 23, 0.7)',
+  glassSubtle: 'rgba(28, 25, 23, 0.5)',
+  glassStrong: 'rgba(28, 25, 23, 0.85)',
+  glassBorder: 'rgba(168, 162, 158, 0.12)',
+  glassWarm: 'rgba(67, 20, 7, 0.3)',       // Warm ember glass
+
+  // Gradients - Night Versions with Glow
+  gradientPrimary: [burntOrange[400], burntOrange[600]],      // Ember glow
+  gradientCharge: [electricLime[300], electricLime[500]],     // Charging
+  gradientPremium: [burntOrange[500], charcoal[800]],         // Premium dark
+  gradientEnergy: ['#FB923C', '#A3E635'],                     // Orange to green
+  gradientEmber: ['#FB923C', '#F97316', '#EA580C'],           // Night ember
+  gradientNight: [neutral[900], neutral[950]],                // Deep dark
+  gradientNeon: ['#FB923C', '#FDBA74', '#FCD34D'],            // Neon glow
+  gradientMidnight: [charcoal[900], deepTeal[900]],           // Blue-black
+  gradientFire: ['#FCD34D', '#FB923C', '#F97316'],            // Fire glow
+  gradientCoal: ['#292524', '#0A0908'],                       // Hot coal
 };
 
-// Default to light theme (can be made dynamic with context)
+// Default to light theme
 export const Colors = LightColors;
 
 // ============================================================================
-// SPACING SYSTEM - Enhanced 4pt Grid with HD Precision
+// SPACING SYSTEM - Apple-inspired 4pt Grid
 // ============================================================================
 
 export const Spacing = {
   '0': 0,
-  '0.5': 2,    // Tesla-inspired ultra-fine spacing for HD precision
-  '1': 4,      // Minimal spacing
-  '1.5': 6,    // Fine-tuned micro spacing
-  '2': 8,      // Small spacing (Tesla/Apple standard)
-  '2.5': 10,   // Mid-range precision
-  '3': 12,     // Comfortable micro spacing
-  '3.5': 14,   // Typography fine-tuning
-  '4': 16,     // Base spacing unit (Apple standard)
-  '5': 20,     // Comfortable small spacing
-  '6': 24,     // Medium spacing (Tesla favorite)
-  '7': 28,     // Enhanced granularity
-  '8': 32,     // Large spacing
-  '9': 36,     // Component breathing room
-  '10': 40,    // Section spacing
-  '11': 44,    // Touch target alignment
-  '12': 48,    // Premium card spacing
-  '14': 56,    // Large component spacing
-  '16': 64,    // Extra large spacing
-  '18': 72,    // Section separation
-  '20': 80,    // Hero element spacing
-  '24': 96,    // Large section spacing
-  '28': 112,   // Hero content spacing
-  '32': 128,   // Ultra-large spacing
+  '1': 4,      // Minimal
+  '2': 8,      // Tight
+  '3': 12,     // Compact
+  '4': 16,     // Default
+  '5': 20,     // Comfortable
+  '6': 24,     // Spacious
+  '8': 32,     // Large
+  '10': 40,    // Extra large
+  '12': 48,    // Huge
+  '16': 64,    // Massive
+  '20': 80,    // Hero
+  '24': 96,    // Giant
+  '32': 128,   // Ultra
 
-  // Semantic Aliases - Premium Tesla/Apple Precision
-  xxs: 2,      // Ultra-fine (hair spacing)
-  xs: 4,       // Extra small (minimal)
-  sm: 8,       // Small (tight)
-  md: 16,      // Medium (base unit - Apple standard)
-  lg: 24,      // Large (comfortable - Tesla favorite)
-  xl: 32,      // Extra large (prominent)
-  xxl: 48,     // Double XL (section spacing)
-  xxxl: 64,    // Triple XL (hero spacing)
-  huge: 96,    // Huge (major sections)
-  massive: 128, // Massive (hero backgrounds)
+  // Semantic Aliases
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+  xxxl: 64,
+
+  // Component Specific
+  cardPadding: 16,
+  cardGap: 12,
+  sectionGap: 24,
+  screenPadding: 20,
 };
 
 // ============================================================================
-// TYPOGRAPHY SYSTEM - Premium Hierarchy
+// TYPOGRAPHY SYSTEM - Clean & Readable
 // ============================================================================
 
 export const FontFamily = {
   primary: Platform.select({
-    ios: 'SF Pro Display',    // Apple's premium font
-    android: 'Roboto',        // Material Design standard
-    default: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    ios: 'SF Pro Display',
+    android: 'Roboto',
+    default: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
   }),
   text: Platform.select({
-    ios: 'SF Pro Text',       // Optimized for smaller sizes
+    ios: 'SF Pro Text',
     android: 'Roboto',
-    default: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif',
-  }),
-  display: Platform.select({
-    ios: 'SF Pro Display',    // For headlines and large text
-    android: 'Roboto',
-    default: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif',
+    default: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
   }),
   mono: Platform.select({
     ios: 'SF Mono',
     android: 'Roboto Mono',
-    default: 'ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace',
+    default: 'ui-monospace, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace',
+  }),
+  display: Platform.select({
+    ios: 'SF Pro Display',
+    android: 'Roboto',
+    default: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   }),
 };
 
@@ -360,195 +425,171 @@ export const FontWeight = {
 };
 
 export const Typography = {
-  // Display - Hero text with premium Apple/Tesla precision
+  // Display - Hero Typography
   displayLarge: {
-    fontSize: 64,          // Larger, more impactful (Tesla-inspired)
+    fontSize: 57,
     fontWeight: FontWeight.bold,
-    lineHeight: 72,        // Tight leading for impact
-    letterSpacing: -1.5,   // Tight tracking like Apple
+    lineHeight: 64,
+    letterSpacing: -0.25,
     fontFamily: FontFamily.display,
   },
   displayMedium: {
-    fontSize: 52,          // Refined scale
+    fontSize: 45,
     fontWeight: FontWeight.bold,
-    lineHeight: 60,        // Premium spacing
-    letterSpacing: -1,     // Apple-style tracking
+    lineHeight: 52,
+    letterSpacing: 0,
     fontFamily: FontFamily.display,
   },
   displaySmall: {
-    fontSize: 40,          // More prominent
+    fontSize: 36,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 48,        // Balanced spacing
-    letterSpacing: -0.5,   // Subtle tightening
+    lineHeight: 44,
+    letterSpacing: 0,
     fontFamily: FontFamily.display,
   },
 
-  // Headlines - Tesla-inspired clean hierarchy
+  // Headlines - Section Headers
   headlineLarge: {
-    fontSize: 34,          // Refined from 32
+    fontSize: 32,
     fontWeight: FontWeight.bold,
-    lineHeight: 42,        // Premium line height
-    letterSpacing: -0.4,   // Tight like Tesla
-    fontFamily: FontFamily.display,
+    lineHeight: 40,
+    letterSpacing: 0,
+    fontFamily: FontFamily.primary,
   },
   headlineMedium: {
-    fontSize: 28,          // Standard heading
+    fontSize: 28,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 36,        // Clean spacing
-    letterSpacing: -0.2,   // Subtle refinement
-    fontFamily: FontFamily.display,
+    lineHeight: 36,
+    letterSpacing: 0,
+    fontFamily: FontFamily.primary,
   },
   headlineSmall: {
-    fontSize: 24,          // Clean sub-heading
+    fontSize: 24,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 32,        // Comfortable reading
-    letterSpacing: 0,      // Neutral tracking
-    fontFamily: FontFamily.display,
+    lineHeight: 32,
+    letterSpacing: 0,
+    fontFamily: FontFamily.primary,
   },
 
-  // Titles - Premium card/list typography
+  // Titles - Component Headers
   titleLarge: {
-    fontSize: 22,          // Feature titles
+    fontSize: 22,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 28,        // Tight for UI elements
-    letterSpacing: 0.35,   // Apple-style openness
+    lineHeight: 28,
+    letterSpacing: 0,
     fontFamily: FontFamily.text,
   },
   titleMedium: {
-    fontSize: 18,          // Standard UI titles
+    fontSize: 16,
     fontWeight: FontWeight.semiBold,
-    lineHeight: 24,        // Compact spacing
-    letterSpacing: 0.15,   // Balanced
+    lineHeight: 24,
+    letterSpacing: 0.15,
     fontFamily: FontFamily.text,
   },
   titleSmall: {
-    fontSize: 16,          // Small titles
+    fontSize: 14,
     fontWeight: FontWeight.medium,
-    lineHeight: 22,        // Tight UI spacing
-    letterSpacing: 0.15,   // Subtle openness
+    lineHeight: 20,
+    letterSpacing: 0.1,
     fontFamily: FontFamily.text,
   },
 
-  // Body - Optimized for premium readability
+  // Body - Content Text
   bodyLarge: {
-    fontSize: 17,          // Apple's preferred body size
+    fontSize: 16,
     fontWeight: FontWeight.regular,
-    lineHeight: 28,        // 1.647 ratio - premium reading
-    letterSpacing: -0.4,   // Apple-style tight tracking
+    lineHeight: 24,
+    letterSpacing: 0.5,
     fontFamily: FontFamily.text,
   },
   bodyMedium: {
-    fontSize: 15,          // Standard body text
+    fontSize: 14,
     fontWeight: FontWeight.regular,
-    lineHeight: 24,        // 1.6 ratio - comfortable
-    letterSpacing: -0.2,   // Subtle tracking
+    lineHeight: 20,
+    letterSpacing: 0.25,
     fontFamily: FontFamily.text,
   },
   bodySmall: {
-    fontSize: 13,          // Small body text
+    fontSize: 12,
     fontWeight: FontWeight.regular,
-    lineHeight: 20,        // Compact but readable
-    letterSpacing: -0.1,   // Minimal tracking
+    lineHeight: 16,
+    letterSpacing: 0.4,
     fontFamily: FontFamily.text,
   },
 
-  // Label - Premium UI elements (Tesla-inspired precision)
+  // Label - UI Elements
   labelLarge: {
-    fontSize: 15,          // Primary labels
+    fontSize: 14,
     fontWeight: FontWeight.medium,
-    lineHeight: 20,        // Tight for UI
-    letterSpacing: 0.1,    // Minimal spacing
+    lineHeight: 20,
+    letterSpacing: 0.1,
     fontFamily: FontFamily.text,
   },
   labelMedium: {
-    fontSize: 13,          // Standard labels
+    fontSize: 12,
     fontWeight: FontWeight.medium,
-    lineHeight: 18,        // Compact
-    letterSpacing: 0.2,    // Slight openness
+    lineHeight: 16,
+    letterSpacing: 0.5,
     fontFamily: FontFamily.text,
   },
   labelSmall: {
-    fontSize: 11,          // Micro labels
+    fontSize: 11,
     fontWeight: FontWeight.medium,
-    lineHeight: 16,        // Minimal spacing
-    letterSpacing: 0.3,    // Compensate for small size
+    lineHeight: 16,
+    letterSpacing: 0.5,
     fontFamily: FontFamily.text,
   },
 
-  // Legacy aliases - Premium Tesla/Apple standards
-  h1: {
-    fontSize: 34,          // Larger, more impactful
-    fontWeight: FontWeight.bold,
-    lineHeight: 42,        // Premium spacing
-    letterSpacing: -0.4,   // Tight tracking
-    fontFamily: FontFamily.display,
-  },
-  h2: {
-    fontSize: 28,          // Clean hierarchy
-    fontWeight: FontWeight.semiBold,
-    lineHeight: 36,        // Balanced
-    letterSpacing: -0.2,   // Subtle refinement
-    fontFamily: FontFamily.display,
-  },
-  h3: {
-    fontSize: 24,          // Clear sub-heading
-    fontWeight: FontWeight.semiBold,
-    lineHeight: 32,        // Comfortable
-    letterSpacing: 0,      // Neutral
-    fontFamily: FontFamily.display,
-  },
-  h4: {
-    fontSize: 20,          // Section heading
-    fontWeight: FontWeight.semiBold,
-    lineHeight: 28,        // Tight
-    letterSpacing: 0.15,   // Slight openness
-    fontFamily: FontFamily.text,
-  },
-  body: {
-    fontSize: 17,          // Apple's preferred size
-    fontWeight: FontWeight.regular,
-    lineHeight: 28,        // Premium reading
-    letterSpacing: -0.4,   // Apple-style tracking
-    fontFamily: FontFamily.text,
-  },
-  bodySmall: {
-    fontSize: 15,          // Standard body
-    fontWeight: FontWeight.regular,
-    lineHeight: 24,        // Comfortable
-    letterSpacing: -0.2,   // Subtle tracking
-    fontFamily: FontFamily.text,
-  },
+  // Supporting Styles
   caption: {
-    fontSize: 13,          // Small text
+    fontSize: 12,
     fontWeight: FontWeight.regular,
-    lineHeight: 20,        // Compact
-    letterSpacing: -0.1,   // Minimal tracking
+    lineHeight: 16,
+    letterSpacing: 0.4,
+    fontFamily: FontFamily.text,
+  },
+  overline: {
+    fontSize: 10,
+    fontWeight: FontWeight.medium,
+    lineHeight: 16,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase' as const,
+    fontFamily: FontFamily.text,
+  },
+  button: {
+    fontSize: 14,
+    fontWeight: FontWeight.semiBold,
+    lineHeight: 20,
+    letterSpacing: 0.5,
     fontFamily: FontFamily.text,
   },
 };
 
 // ============================================================================
-// BORDER RADIUS - Premium HD Curves
+// BORDER RADIUS - Smooth Curves
 // ============================================================================
 
 export const BorderRadius = {
-  none: 0,     // Sharp edges
-  xxs: 4,      // Minimal curves (Tesla-inspired precision)
-  xs: 8,       // Subtle curves - small elements
-  sm: 12,      // Small curves - buttons (Apple standard)
-  md: 16,      // Medium curves - cards (Tesla favorite)
-  lg: 20,      // Large curves - feature cards (Apple-inspired)
-  xl: 24,      // Extra large - prominent cards
-  xxl: 28,     // Double XL - hero sections
-  xxxl: 32,    // Triple XL - major features (Tesla Model S display)
-  huge: 40,    // Huge - immersive elements
-  massive: 48, // Massive - hero backgrounds
-  ultra: 56,   // Ultra - premium hero elements
-  full: 9999,  // Perfect circles - avatars, badges, pills
+  none: 0,
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+  full: 9999,
+
+  // Component Specific
+  button: 12,
+  card: 16,
+  input: 12,
+  modal: 24,
+  chip: 9999,
 };
 
 // ============================================================================
-// SHADOWS - HD Elevation System with Premium Depth
+// SHADOWS - Subtle Depth with Warm Glow
 // ============================================================================
 
 export const Shadows = {
@@ -562,310 +603,220 @@ export const Shadows = {
   xs: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,     // More subtle
-    shadowRadius: 3,         // Slightly softer
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
     elevation: 1,
   },
   sm: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,     // Refined opacity
-    shadowRadius: 6,         // Softer spread
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
     elevation: 2,
   },
   md: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,     // Balanced depth
-    shadowRadius: 12,        // More premium blur
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 4,
   },
   lg: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,      // Clear separation
-    shadowRadius: 20,        // HD blur quality
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
     elevation: 8,
   },
   xl: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,     // Strong presence
-    shadowRadius: 28,        // Ultra-soft edges
+    shadowOpacity: 0.14,
+    shadowRadius: 24,
     elevation: 12,
   },
   xxl: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.15,     // Maximum depth
-    shadowRadius: 40,        // Premium blur radius
-    elevation: 16,
-  },
-  xxxl: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 24 },
-    shadowOpacity: 0.18,     // Hero-level depth
-    shadowRadius: 56,        // Ultra-premium blur
-    elevation: 24,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.16,
+    shadowRadius: 40,
+    elevation: 20,
   },
 
-  // Colored Glows - Electric Energy (Enhanced for HD)
+  // Colored Glows - Ember & Energy
   primaryGlow: {
-    shadowColor: electricBlue[700],
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,     // More vibrant
-    shadowRadius: 20,        // Softer glow
-    elevation: 8,
-  },
-  primaryGlowStrong: {
-    shadowColor: electricBlue[700],
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.5,      // Intense glow
-    shadowRadius: 32,        // Wider spread
-    elevation: 12,
-  },
-  secondaryGlow: {
-    shadowColor: electricPurple[600],
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,     // More vibrant
-    shadowRadius: 20,        // Softer glow
-    elevation: 8,
-  },
-  secondaryGlowStrong: {
-    shadowColor: electricPurple[600],
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.5,      // Intense glow
-    shadowRadius: 32,        // Wider spread
-    elevation: 12,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 4,
   },
   accentGlow: {
-    shadowColor: electricCyan[500],
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,     // More vibrant
-    shadowRadius: 20,        // Softer glow
-    elevation: 8,
+    shadowColor: '#84CC16',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  accentGlowStrong: {
-    shadowColor: electricCyan[500],
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.5,      // Intense glow
-    shadowRadius: 32,        // Wider spread
-    elevation: 12,
+  emberGlow: {
+    shadowColor: '#F97316',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 6,
   },
-  successGlow: {
-    shadowColor: semantic.success[500],
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  errorGlow: {
-    shadowColor: semantic.error[500],
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 8,
+  warmGlow: {
+    shadowColor: '#FDBA74',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 4,
   },
 };
 
 // ============================================================================
-// ANIMATION SYSTEM - Electric Energy
+// ANIMATION - Smooth & Natural
 // ============================================================================
 
-// Timing
 export const AnimationDuration = {
   instant: 0,
   fast: 150,
   normal: 250,
-  moderate: 350,
-  slow: 500,
-  slower: 700,
-  slowest: 1000,
+  slow: 350,
+  slower: 500,
+  slowest: 700,
 };
 
-// Easing Curves (Tesla/Apple inspired)
 export const AnimationEasing = {
-  // Standard curves
   linear: 'linear',
   easeIn: 'ease-in',
   easeOut: 'ease-out',
   easeInOut: 'ease-in-out',
-
-  // Custom curves (for web - use with Animated.timing)
-  sharp: [0.4, 0.0, 0.6, 1.0], // Quick entry
-  smooth: [0.4, 0.0, 0.2, 1.0], // Standard smooth
-  emphasized: [0.0, 0.0, 0.2, 1.0], // Emphasized
-  decelerated: [0.0, 0.0, 0.0, 1.0], // Slow end
-  accelerated: [0.4, 0.0, 1.0, 1.0], // Fast end
-
-  // Apple-like curves
-  appleSmooth: [0.25, 0.1, 0.25, 1.0],
-  appleSnappy: [0.42, 0.0, 0.58, 1.0],
-
-  // Tesla-inspired (quick, responsive)
-  teslaQuick: [0.32, 0.0, 0.67, 0.0],
-  teslaSmooth: [0.65, 0.0, 0.35, 1.0],
+  
+  // Custom curves (for web animations)
+  smooth: [0.4, 0.0, 0.2, 1.0],
+  snappy: [0.32, 0.0, 0.67, 0.0],
+  bounce: [0.68, -0.55, 0.265, 1.55],
+  emphasized: [0.2, 0.0, 0, 1.0],
+  standard: [0.4, 0.0, 0.6, 1.0],
 };
 
-// Spring Configurations (for react-native-reanimated)
 export const SpringConfig = {
   gentle: {
-    damping: 15,
-    mass: 1,
-    stiffness: 120,
-    overshootClamping: false,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
-  },
-  smooth: {
     damping: 20,
     mass: 1,
-    stiffness: 180,
-    overshootClamping: false,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
+    stiffness: 100,
+  },
+  responsive: {
+    damping: 15,
+    mass: 1,
+    stiffness: 150,
   },
   snappy: {
-    damping: 18,
-    mass: 0.5,
-    stiffness: 250,
-    overshootClamping: false,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
+    damping: 20,
+    mass: 1,
+    stiffness: 200,
   },
   bouncy: {
     damping: 10,
     mass: 1,
-    stiffness: 200,
-    overshootClamping: false,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
+    stiffness: 180,
   },
-  tight: {
-    damping: 25,
-    mass: 1,
-    stiffness: 300,
-    overshootClamping: true,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
-  },
-};
-
-// Legacy aliases
-export const Animations = {
-  fast: AnimationDuration.fast,
-  normal: AnimationDuration.normal,
-  slow: AnimationDuration.slow,
 };
 
 // ============================================================================
-// LAYOUT CONSTANTS - HD Precision & Perfect Alignment
+// LAYOUT - Consistent Structure
 // ============================================================================
 
 export const Layout = {
-  // Screen padding - Enhanced for HD displays
-  screenHorizontal: Spacing.lg,      // 24px
-  screenVertical: Spacing.lg,        // 24px
-  screenHorizontalLarge: Spacing.xl, // 32px for larger screens
-  screenVerticalLarge: Spacing.xl,   // 32px for larger screens
+  // Screen padding
+  screenHorizontal: Spacing['5'],  // 20px
+  screenVertical: Spacing['6'],    // 24px
+  screenTop: Spacing['4'],         // 16px
+  screenBottom: Spacing['6'],      // 24px
 
-  // Container widths - Optimized for readability
-  containerMaxWidth: 1280,           // Wider for modern displays
-  containerMediumWidth: 960,         // Medium content
-  containerSmallWidth: 640,          // Narrow content (reading)
-  containerPadding: Spacing.lg,      // 24px
-  containerPaddingLarge: Spacing.xl, // 32px
-
-  // Component sizing - HD refined
+  // Component sizing
   buttonHeight: {
-    small: 40,     // Increased from 36 for better touch
-    medium: 48,    // Increased from 44 (perfect touch target)
-    large: 56,     // Increased from 52
-    xlarge: 64,    // Increased from 60
+    small: 36,
+    medium: 44,
+    large: 52,
+    xlarge: 56,
   },
   inputHeight: {
-    small: 40,     // Increased from 36
-    medium: 48,    // Increased from 44
-    large: 56,     // Increased from 52
+    small: 36,
+    medium: 44,
+    large: 52,
   },
   iconSize: {
-    xxs: 14,       // Ultra-small icons
-    xs: 18,        // Improved from 16
-    sm: 22,        // Improved from 20
-    md: 26,        // Improved from 24
-    lg: 34,        // Improved from 32
-    xl: 42,        // Improved from 40
-    xxl: 52,       // Improved from 48
-    xxxl: 64,      // Large feature icons
+    xs: 16,
+    sm: 20,
+    md: 24,
+    lg: 32,
+    xl: 40,
+    xxl: 48,
   },
   avatarSize: {
-    xs: 28,        // Improved from 24
-    sm: 36,        // Improved from 32
-    md: 44,        // Improved from 40
-    lg: 52,        // Improved from 48
-    xl: 68,        // Improved from 64
-    xxl: 88,       // Improved from 80
-    xxxl: 112,     // Hero avatars
+    xs: 24,
+    sm: 32,
+    md: 40,
+    lg: 48,
+    xl: 64,
+    xxl: 80,
+    xxxl: 96,
   },
 
-  // Touch targets (Accessibility) - Enhanced
+  // Touch targets
   minTouchTarget: 44,
   recommendedTouchTarget: 48,
-  optimalTouchTarget: 52,              // New: optimal for fat fingers
+  
+  // Navigation
+  tabBarHeight: 64,
+  headerHeight: 56,
+  bottomSheetHandle: 32,
 
-  // Navigation - Refined heights
-  tabBarHeight: 64,        // Increased from 60 for better spacing
-  headerHeight: 60,        // Increased from 56 for better proportion
+  // Cards & Containers
+  cardPadding: Spacing['4'],     // 16px
+  cardGap: Spacing['3'],         // 12px
+  containerMaxWidth: 1200,
+  contentMaxWidth: 720,
 
-  // Cards - Enhanced spacing
-  cardPadding: Spacing.lg,             // 24px
-  cardPaddingLarge: Spacing.xl,        // 32px for prominent cards
-  cardPaddingSmall: Spacing.md,        // 16px for compact cards
-  cardGap: Spacing.md,                 // 16px between card items
-  cardGapLarge: Spacing.lg,            // 24px for more breathing room
+  // Spacing Scales
+  gap: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 24,
+    xxl: 32,
+  },
 
-  // List items - Perfect alignment
-  listItemHeight: 64,                  // Standard list item
-  listItemHeightCompact: 52,           // Compact list
-  listItemHeightLarge: 80,             // Large list item
-  listItemPadding: Spacing.md,         // 16px horizontal
-  listItemGap: Spacing.sm,             // 8px between items
-
-  // Borders - HD precision
+  // Borders
   borderWidth: {
-    thin: 0.5,     // Ultra-thin (hairline on retina)
-    normal: 1,     // Standard
-    thick: 1.5,    // Emphasized
-    bold: 2,       // Strong borders
+    thin: 0.5,
+    normal: 1,
+    thick: 2,
+    heavy: 3,
   },
 };
 
 // ============================================================================
-// ACCESSIBILITY - Inclusive Design
+// Z-INDEX - Layer Management
 // ============================================================================
 
-export const Accessibility = {
-  // Minimum contrast ratios (WCAG AA)
-  minContrastNormal: 4.5, // Normal text
-  minContrastLarge: 3.0, // Large text (18pt+)
-  minContrastUI: 3.0, // UI components
-
-  // Touch targets
-  minTouchSize: 44,
-  recommendedTouchSize: 48,
-
-  // Text sizing
-  minTextSize: 12,
-  bodyTextSize: 16,
-  largeTextSize: 18,
-
-  // Animation preferences
-  reduceMotion: false, // Should be read from system preferences
-
-  // Focus indicators
-  focusRingWidth: 2,
-  focusRingColor: electricBlue[600],
-  focusRingOffset: 2,
+export const ZIndex = {
+  base: 0,
+  raised: 10,
+  dropdown: 1000,
+  sticky: 1100,
+  fixed: 1200,
+  overlay: 1250,
+  modalBackdrop: 1300,
+  modal: 1400,
+  popover: 1500,
+  tooltip: 1600,
+  toast: 1700,
+  notification: 1800,
+  max: 9999,
 };
 
 // ============================================================================
@@ -873,51 +824,26 @@ export const Accessibility = {
 // ============================================================================
 
 export const Breakpoints = {
-  mobile: 0,
-  tablet: 768,
-  desktop: 1024,
-  wide: 1280,
-  ultrawide: 1536,
+  xs: 0,
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  xxl: 1536,
 };
 
 // ============================================================================
-// Z-INDEX SYSTEM - Layer Management
+// OPACITY - Consistent Transparency
 // ============================================================================
 
-export const ZIndex = {
-  base: 0,
-  dropdown: 1000,
-  sticky: 1100,
-  fixed: 1200,
-  modalBackdrop: 1300,
-  modal: 1400,
-  popover: 1500,
-  tooltip: 1600,
-  toast: 1700,
-  max: 9999,
-};
-
-// ============================================================================
-// TRANSITIONS - Smooth Interactions
-// ============================================================================
-
-export const Transitions = {
-  fade: {
-    duration: AnimationDuration.normal,
-    easing: AnimationEasing.smooth,
-  },
-  slide: {
-    duration: AnimationDuration.normal,
-    easing: AnimationEasing.emphasized,
-  },
-  scale: {
-    duration: AnimationDuration.fast,
-    easing: AnimationEasing.sharp,
-  },
-  collapse: {
-    duration: AnimationDuration.moderate,
-    easing: AnimationEasing.emphasized,
-  },
+export const Opacity = {
+  transparent: 0,
+  subtle: 0.05,
+  light: 0.1,
+  medium: 0.25,
+  strong: 0.5,
+  heavy: 0.75,
+  opaque: 1,
 };
 
 // ============================================================================
@@ -934,15 +860,24 @@ export const Theme = {
   fontWeight: FontWeight,
   borderRadius: BorderRadius,
   shadows: Shadows,
-  animations: Animations,
   animationDuration: AnimationDuration,
   animationEasing: AnimationEasing,
   springConfig: SpringConfig,
   layout: Layout,
-  accessibility: Accessibility,
-  breakpoints: Breakpoints,
   zIndex: ZIndex,
-  transitions: Transitions,
+  breakpoints: Breakpoints,
+  opacity: Opacity,
 };
 
 export default Theme;
+
+// ============================================================================
+// TYPE EXPORTS (for TypeScript users)
+// ============================================================================
+
+export type ThemeColors = typeof LightColors;
+export type ThemeSpacing = typeof Spacing;
+export type ThemeTypography = typeof Typography;
+export type ThemeBorderRadius = typeof BorderRadius;
+export type ThemeShadows = typeof Shadows;
+export type ThemeLayout = typeof Layout;
