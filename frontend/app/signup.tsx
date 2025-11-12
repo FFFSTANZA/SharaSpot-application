@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Keyb
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 export default function Signup() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function Signup() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           <View style={styles.header}>
@@ -57,7 +58,7 @@ export default function Signup() {
               <TextInput
                 style={styles.input}
                 placeholder="John Doe"
-                placeholderTextColor="#999999"
+                placeholderTextColor={Colors.textTertiary}
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
@@ -69,7 +70,7 @@ export default function Signup() {
               <TextInput
                 style={styles.input}
                 placeholder="your@email.com"
-                placeholderTextColor="#999999"
+                placeholderTextColor={Colors.textTertiary}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -84,14 +85,14 @@ export default function Signup() {
                 <TextInput
                   style={styles.passwordInput}
                   placeholder="At least 6 characters"
-                  placeholderTextColor="#999999"
+                  placeholderTextColor={Colors.textTertiary}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#999999" />
+                  <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color={Colors.textTertiary} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -102,7 +103,7 @@ export default function Signup() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color={Colors.textInverse} />
               ) : (
                 <Text style={styles.signupButtonText}>Create Account</Text>
               )}
@@ -124,78 +125,76 @@ export default function Signup() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
   },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 32,
-    paddingTop: 16,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.md,
   },
   backButton: {
-    marginBottom: 32,
+    marginBottom: Spacing.xl,
   },
   header: {
-    marginBottom: 48,
+    marginBottom: Spacing.xxl,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 8,
+    ...Typography.headlineLarge,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666666',
+    ...Typography.bodyMedium,
+    color: Colors.textSecondary,
   },
   form: {
-    gap: 24,
+    gap: Spacing.lg,
   },
   inputContainer: {
-    gap: 8,
+    gap: Spacing.sm,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    ...Typography.labelMedium,
+    color: Colors.textPrimary,
   },
   input: {
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    color: '#1A1A1A',
+    backgroundColor: Colors.backgroundSecondary,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    ...Typography.bodyMedium,
+    color: Colors.textPrimary,
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.backgroundSecondary,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
   },
   passwordInput: {
     flex: 1,
-    fontSize: 16,
-    color: '#1A1A1A',
+    ...Typography.bodyMedium,
+    color: Colors.textPrimary,
   },
   signupButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.secondary,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: Spacing.sm,
+    ...Shadows.md,
   },
   signupButtonDisabled: {
     opacity: 0.6,
   },
   signupButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.labelLarge,
+    color: Colors.textInverse,
   },
   loginPrompt: {
     flexDirection: 'row',
@@ -203,12 +202,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginText: {
-    fontSize: 14,
-    color: '#666666',
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
   },
   loginLink: {
-    fontSize: 14,
+    ...Typography.bodySmall,
     fontWeight: '600',
-    color: '#4CAF50',
+    color: Colors.primary,
   },
 });

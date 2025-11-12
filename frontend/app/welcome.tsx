@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'r
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 export default function Welcome() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function Welcome() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Ionicons name="flash" size={80} color="#4CAF50" />
+          <Ionicons name="flash" size={80} color={Colors.primary} />
           <Text style={styles.title}>SharaSpot</Text>
           <Text style={styles.subtitle}>Whether you drive, Charge Nearby</Text>
         </View>
@@ -38,7 +39,7 @@ export default function Welcome() {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
-            <Ionicons name="mail" size={24} color="#FFFFFF" />
+            <Ionicons name="mail" size={24} color={Colors.textInverse} />
             <Text style={styles.emailButtonText}>Sign in with Email</Text>
           </TouchableOpacity>
 
@@ -60,87 +61,85 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 32,
+    paddingHorizontal: Spacing.xl,
     justifyContent: 'center',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 64,
+    marginBottom: Spacing.xxxl,
   },
   title: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginTop: 16,
+    ...Typography.displaySmall,
+    color: Colors.textPrimary,
+    marginTop: Spacing.md,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666666',
-    marginTop: 8,
+    ...Typography.bodyMedium,
+    color: Colors.textSecondary,
+    marginTop: Spacing.sm,
   },
   buttonsContainer: {
-    gap: 16,
+    gap: Spacing.md,
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 12,
+    borderColor: Colors.border,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    gap: Spacing['3'],
+    ...Shadows.xs,
   },
   googleButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    ...Typography.labelLarge,
+    color: Colors.textPrimary,
   },
   emailButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4CAF50',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 12,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    gap: Spacing['3'],
+    ...Shadows.md,
   },
   emailButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.labelLarge,
+    color: Colors.textInverse,
   },
   signupButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#2196F3',
-    paddingVertical: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.secondary,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    ...Shadows.md,
   },
   signupButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.labelLarge,
+    color: Colors.textInverse,
   },
   guestButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: Spacing.md,
   },
   guestButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666666',
+    ...Typography.labelLarge,
+    color: Colors.textSecondary,
   },
   disclaimer: {
     textAlign: 'center',
-    fontSize: 14,
-    color: '#999999',
-    marginTop: 24,
+    ...Typography.bodySmall,
+    color: Colors.textTertiary,
+    marginTop: Spacing.lg,
   },
 });
