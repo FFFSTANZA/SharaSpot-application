@@ -26,10 +26,10 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
-          marginTop: 4,
+          marginTop: 2,
         },
         tabBarIconStyle: {
-          marginTop: 4,
+          marginTop: 0,
         },
       }}
     >
@@ -38,10 +38,10 @@ export default function TabLayout() {
         options={{
           title: 'Discover',
           tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons 
-              name={focused ? 'compass' : 'compass-outline'} 
-              size={focused ? 28 : 24} 
-              color={color} 
+            <Ionicons
+              name={focused ? 'compass' : 'compass-outline'}
+              size={26}
+              color={color}
             />
           ),
         }}
@@ -51,10 +51,10 @@ export default function TabLayout() {
         options={{
           title: 'Eco Route',
           tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons 
-              name={focused ? 'navigate-circle' : 'navigate-circle-outline'} 
-              size={focused ? 32 : 28} 
-              color={color} 
+            <Ionicons
+              name={focused ? 'navigate-circle' : 'navigate-circle-outline'}
+              size={26}
+              color={color}
             />
           ),
         }}
@@ -64,10 +64,10 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons 
-              name={focused ? 'person-circle' : 'person-circle-outline'} 
-              size={focused ? 28 : 24} 
-              color={color} 
+            <Ionicons
+              name={focused ? 'person-circle' : 'person-circle-outline'}
+              size={26}
+              color={color}
             />
           ),
         }}

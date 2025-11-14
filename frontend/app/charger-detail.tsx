@@ -169,7 +169,7 @@ export default function ChargerDetail() {
         <View style={styles.mainInfo}>
           <View style={styles.titleRow}>
             <View style={styles.iconCircle}>
-              <Ionicons name="flash" size={32} color="#4CAF50" />
+              <Ionicons name="flash" size={28} color="#4CAF50" />
             </View>
             <View style={styles.titleContent}>
               <Text style={styles.name}>{charger.name}</Text>
@@ -433,7 +433,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E0E0E0',
   },
   headerBackButton: {
-    padding: 8,
+    padding: 12,
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 18,
@@ -453,13 +457,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#E8F5E9',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   titleContent: {
     flex: 1,
@@ -563,16 +567,18 @@ const styles = StyleSheet.create({
   },
   actionsRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
   },
   actionButton: {
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 8,
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 10,
     borderRadius: 12,
     gap: 6,
+    minHeight: 90,
   },
   activeButton: {
     backgroundColor: '#4CAF50',
@@ -584,13 +590,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF9800',
   },
   actionButtonText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     color: '#FFFFFF',
     textAlign: 'center',
   },
   actionReward: {
-    fontSize: 11,
+    fontSize: 12,
+    fontWeight: '500',
     color: '#FFFFFF',
     opacity: 0.9,
   },
