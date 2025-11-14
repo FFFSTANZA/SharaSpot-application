@@ -328,15 +328,15 @@ async def get_chargers(
     user = await get_user_from_session(session_token, authorization)
     if not user:
         raise HTTPException(401, "Not authenticated")
-    # Enhanced mock chargers data with all new fields
+    # Enhanced mock chargers data with all new fields - Tamil Nadu region
     now = datetime.now(timezone.utc)
     mock_chargers = [
         {
             "id": str(uuid.uuid4()),
-            "name": "Tesla Supercharger - Downtown",
-            "address": "123 Main St, City Center",
-            "latitude": 37.7749,
-            "longitude": -122.4194,
+            "name": "Ather Grid - Anna Nagar",
+            "address": "Anna Nagar, Chennai, Tamil Nadu",
+            "latitude": 13.0878,
+            "longitude": 80.2088,
             "port_types": ["Type 2", "CCS"],
             "available_ports": 6,
             "total_ports": 8,
@@ -356,10 +356,10 @@ async def get_chargers(
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "ChargePoint Station - Mall",
-            "address": "456 Shopping Blvd",
-            "latitude": 37.7849,
-            "longitude": -122.4094,
+            "name": "Tata Power Charging - Phoenix Marketcity",
+            "address": "Velachery, Chennai, Tamil Nadu",
+            "latitude": 12.9916,
+            "longitude": 80.2206,
             "port_types": ["Type 2", "CHAdeMO"],
             "available_ports": 2,
             "total_ports": 4,
@@ -379,10 +379,10 @@ async def get_chargers(
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "EVgo Fast Charging",
-            "address": "789 Highway Exit 15",
-            "latitude": 37.7649,
-            "longitude": -122.4294,
+            "name": "ChargeZone - Coimbatore",
+            "address": "RS Puram, Coimbatore, Tamil Nadu",
+            "latitude": 11.0168,
+            "longitude": 76.9558,
             "port_types": ["CCS", "CHAdeMO"],
             "available_ports": 0,
             "total_ports": 3,
@@ -402,10 +402,10 @@ async def get_chargers(
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "Electrify America",
-            "address": "321 Park Avenue",
-            "latitude": 37.7549,
-            "longitude": -122.4394,
+            "name": "Ather Grid - T Nagar",
+            "address": "T Nagar, Chennai, Tamil Nadu",
+            "latitude": 13.0418,
+            "longitude": 80.2341,
             "port_types": ["Type 2", "CCS"],
             "available_ports": 4,
             "total_ports": 6,
@@ -425,10 +425,10 @@ async def get_chargers(
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "Hidden Gem Charging - Local Cafe",
-            "address": "789 Quiet Street",
-            "latitude": 37.7599,
-            "longitude": -122.4144,
+            "name": "Hidden Gem - Adyar Cafe",
+            "address": "Adyar, Chennai, Tamil Nadu",
+            "latitude": 13.0067,
+            "longitude": 80.2574,
             "port_types": ["Type 2"],
             "available_ports": 1,
             "total_ports": 2,
@@ -448,10 +448,10 @@ async def get_chargers(
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "Community Charger - Park & Ride",
-            "address": "555 Transit Way",
-            "latitude": 37.7699,
-            "longitude": -122.4244,
+            "name": "Community Charger - Madurai Junction",
+            "address": "Madurai Junction, Madurai, Tamil Nadu",
+            "latitude": 9.9252,
+            "longitude": 78.1198,
             "port_types": ["Type 2", "Type 1"],
             "available_ports": 3,
             "total_ports": 4,

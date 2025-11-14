@@ -115,9 +115,9 @@ export default function SmartEcoRouting() {
       const token = await AsyncStorage.getItem('session_token');
       const batteryCapacity = getBatteryCapacity();
 
-      // Mock coordinates (San Francisco area) - in production, use geocoding
-      const mockOrigin = { lat: 37.7749, lng: -122.4194 };
-      const mockDestination = { lat: 37.8049, lng: -122.3894 };
+      // Mock coordinates (Chennai, Tamil Nadu) - in production, use geocoding
+      const mockOrigin = { lat: 13.0827, lng: 80.2707 };
+      const mockDestination = { lat: 13.0418, lng: 80.2341 };
 
       const response = await axios.post(
         `${API_URL}/api/routing/here/calculate`,
