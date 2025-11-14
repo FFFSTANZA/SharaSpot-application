@@ -269,8 +269,8 @@ export default function Discover() {
     }
 
     const initialRegion = {
-      latitude: chargers[0]?.latitude || 37.7749,
-      longitude: chargers[0]?.longitude || -122.4194,
+      latitude: chargers[0]?.latitude || 13.0827,
+      longitude: chargers[0]?.longitude || 80.2707,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     };
