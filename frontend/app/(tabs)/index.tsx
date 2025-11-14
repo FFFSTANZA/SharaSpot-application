@@ -179,7 +179,7 @@ export default function Discover() {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={24} color="#4CAF50" />
+          <Ionicons name="flash" size={22} color="#4CAF50" />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
@@ -194,16 +194,16 @@ export default function Discover() {
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <Ionicons name="locate" size={14} color="#666666" />
+          <Ionicons name="locate" size={16} color="#666666" />
           <Text style={styles.detailText}>
             {item.distance} {user?.distance_unit || 'km'} away
           </Text>
         </View>
         <View style={styles.detailRow}>
-          <Ionicons 
-            name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"} 
-            size={14} 
-            color={item.available_ports > 0 ? "#4CAF50" : "#F44336"} 
+          <Ionicons
+            name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"}
+            size={16}
+            color={item.available_ports > 0 ? "#4CAF50" : "#F44336"}
           />
           <Text style={styles.detailText}>
             {item.available_ports}/{item.total_ports} ports available
@@ -223,7 +223,7 @@ export default function Discover() {
           )}
         </View>
         {item.amenities && item.amenities.length > 0 && (
-          <AmenitiesIcons amenities={item.amenities} size={14} />
+          <AmenitiesIcons amenities={item.amenities} size={16} />
         )}
       </View>
 
@@ -425,12 +425,13 @@ const styles = StyleSheet.create({
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: Colors.successLight,
     paddingVertical: 10,
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.full,
     gap: Spacing.sm,
-    alignSelf: 'flex-start',
+    minHeight: 44,
   },
   filterButtonText: {
     ...Typography.labelLarge,
@@ -483,8 +484,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing['3'],
   },
   cardIconCircle: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.primarySubtle,
     justifyContent: 'center',
@@ -515,7 +516,7 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
   detailText: {
     ...Typography.bodySmall,

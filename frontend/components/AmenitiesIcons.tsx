@@ -38,11 +38,15 @@ export const AmenitiesIcons: React.FC<AmenitiesIconsProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
+    alignItems: 'center',
   },
   iconWrapper: {
     backgroundColor: '#F5F5F5',
     padding: 6,
     borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

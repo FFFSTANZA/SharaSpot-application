@@ -211,7 +211,7 @@ export default function SmartEcoRouting() {
         {/* Header */}
         <View style={styles.routeHeader}>
           <View style={[styles.routeIconCircle, { backgroundColor: typeInfo.color + '20' }]}>
-            <Ionicons name={typeInfo.icon as any} size={20} color={typeInfo.color} />
+            <Ionicons name={typeInfo.icon as any} size={22} color={typeInfo.color} />
           </View>
           <View style={styles.routeInfo}>
             <Text style={styles.routeName}>{typeInfo.name}</Text>
@@ -284,16 +284,16 @@ export default function SmartEcoRouting() {
         <View style={styles.additionalStats}>
           {route.summary.traffic_delay_min > 0 && (
             <View style={styles.infoChip}>
-              <Ionicons name="car" size={12} color="#FF9800" />
+              <Ionicons name="car" size={14} color="#FF9800" />
               <Text style={styles.infoChipText}>+{Math.round(route.summary.traffic_delay_min)}m traffic</Text>
             </View>
           )}
           <View style={styles.infoChip}>
-            <Ionicons name="trending-up" size={12} color="#2196F3" />
+            <Ionicons name="trending-up" size={14} color="#2196F3" />
             <Text style={styles.infoChipText}>↑{route.elevation_gain_m}m</Text>
           </View>
           <View style={styles.infoChip}>
-            <Ionicons name="flash" size={12} color="#4CAF50" />
+            <Ionicons name="flash" size={14} color="#4CAF50" />
             <Text style={styles.infoChipText}>{route.summary.chargers_available} chargers</Text>
           </View>
         </View>
@@ -602,7 +602,7 @@ export default function SmartEcoRouting() {
                 {chargersAlongRoute.slice(0, 3).map((charger) => (
                   <View key={charger.id} style={styles.chargerItem}>
                     <View style={styles.chargerIconCircle}>
-                      <Ionicons name="flash" size={16} color="#4CAF50" />
+                      <Ionicons name="flash" size={18} color="#4CAF50" />
                     </View>
                     <View style={styles.chargerItemInfo}>
                       <Text style={styles.chargerItemName}>{charger.name}</Text>
@@ -954,9 +954,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   routeIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -983,8 +983,10 @@ const styles = StyleSheet.create({
     borderTopColor: '#E0E0E0',
   },
   statItem: {
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
+    gap: 6,
   },
   statValue: {
     fontSize: 13,
@@ -1001,6 +1003,7 @@ const styles = StyleSheet.create({
   scoreHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
     gap: 6,
   },
   scoreLabel: {
@@ -1061,14 +1064,17 @@ const styles = StyleSheet.create({
   infoChip: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: 12,
-    gap: 4,
+    gap: 6,
+    minHeight: 28,
   },
   infoChipText: {
-    fontSize: 11,
+    fontSize: 12,
+    fontWeight: '500',
     color: '#666666',
   },
   chargersSection: {
@@ -1098,9 +1104,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F0F0F0',
   },
   chargerIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#E8F5E9',
     justifyContent: 'center',
     alignItems: 'center',
