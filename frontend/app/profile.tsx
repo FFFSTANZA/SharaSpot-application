@@ -143,7 +143,10 @@ export default function Profile() {
 
       {/* Profile Tab */}
       {selectedTab === 'profile' && (
-        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 24 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        >
           <View style={styles.profileHeader}>
             <View style={styles.avatarPlaceholder}>
               <Ionicons name="person" size={48} color="#FFFFFF" />
@@ -203,7 +206,10 @@ export default function Profile() {
 
       {/* Wallet Tab */}
       {selectedTab === 'wallet' && (
-        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 24 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        >
           <View style={styles.walletSummary}>
             <View style={styles.walletStat}>
               <Text style={styles.walletStatValue}>{transactions?.total_coins || 0}</Text>
@@ -273,7 +279,7 @@ export default function Profile() {
 
       {/* Settings Tab */}
       {selectedTab === 'settings' && (
-        <ScrollView>
+        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Appearance</Text>
             <View style={styles.settingRow}>
