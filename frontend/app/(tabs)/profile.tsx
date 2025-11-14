@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,7 +20,6 @@ import Constants from 'expo-constants';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
-const { width } = Dimensions.get('window');
 
 interface ProfileStats {
   shara_coins: number;
@@ -34,6 +33,7 @@ interface ProfileStats {
 export default function Profile() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const { width: windowWidth } = useWindowDimensions();
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -203,7 +203,7 @@ export default function Profile() {
 
           {/* Stats Grid */}
           <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { width: (windowWidth - 60) / 2 }]}>
               <View style={[styles.statIconCircle, { backgroundColor: Colors.primary + '15' }]}>
                 <Ionicons name="flash" size={24} color={Colors.primary} />
               </View>
@@ -211,7 +211,7 @@ export default function Profile() {
               <Text style={styles.statLabel}>Chargers Added</Text>
             </View>
 
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { width: (windowWidth - 60) / 2 }]}>
               <View style={[styles.statIconCircle, { backgroundColor: Colors.success + '15' }]}>
                 <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
               </View>
@@ -219,7 +219,7 @@ export default function Profile() {
               <Text style={styles.statLabel}>Verifications</Text>
             </View>
 
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { width: (windowWidth - 60) / 2 }]}>
               <View style={[styles.statIconCircle, { backgroundColor: Colors.accentCyan + '15' }]}>
                 <Ionicons name="camera" size={24} color={Colors.accentCyan} />
               </View>
@@ -227,7 +227,7 @@ export default function Profile() {
               <Text style={styles.statLabel}>Photos</Text>
             </View>
 
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { width: (windowWidth - 60) / 2 }]}>
               <View style={[styles.statIconCircle, { backgroundColor: Colors.warning + '15' }]}>
                 <Ionicons name="alert-circle" size={24} color={Colors.warning} />
               </View>
@@ -466,7 +466,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   statCard: {
-    width: (width - 60) / 2,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,

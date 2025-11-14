@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -63,7 +64,12 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   onApply,
   currentFilters,
 }) => {
+  const { height: windowHeight } = useWindowDimensions();
   const [filters, setFilters] = useState<Filters>(currentFilters);
+
+  // Calculate responsive sizes
+  const isSmallScreen = windowHeight < 700;
+  const maxModalHeight = windowHeight * (isSmallScreen ? 0.85 : 0.90);
 
   const handleApply = () => {
     onApply(filters);
@@ -84,17 +90,17 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.overlay}>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { maxHeight: maxModalHeight }]}>
+          <View style={[styles.header, isSmallScreen && styles.headerSmall]}>
             <Text style={styles.title}>Filters</Text>
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close" size={28} color="#1A1A1A" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.content}>
+          <ScrollView style={[styles.content, isSmallScreen && styles.contentSmall]}>
             {/* Verification Level */}
-            <View style={styles.section}>
+            <View style={[styles.section, isSmallScreen && styles.sectionSmall]}>
               <Text style={styles.sectionTitle}>Verification Level</Text>
               <View style={styles.optionsGrid}>
                 {VERIFICATION_LEVELS.map((option) => (
@@ -120,7 +126,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             </View>
 
             {/* Port Type */}
-            <View style={styles.section}>
+            <View style={[styles.section, isSmallScreen && styles.sectionSmall]}>
               <Text style={styles.sectionTitle}>Port Type</Text>
               <View style={styles.optionsGrid}>
                 {PORT_TYPES.map((option) => (
@@ -146,7 +152,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             </View>
 
             {/* Amenities */}
-            <View style={styles.section}>
+            <View style={[styles.section, isSmallScreen && styles.sectionSmall]}>
               <Text style={styles.sectionTitle}>Amenities</Text>
               <View style={styles.optionsGrid}>
                 {AMENITIES.map((option) => (
@@ -172,7 +178,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             </View>
 
             {/* Distance */}
-            <View style={styles.section}>
+            <View style={[styles.section, isSmallScreen && styles.sectionSmall]}>
               <Text style={styles.sectionTitle}>Distance Range</Text>
               <View style={styles.optionsGrid}>
                 {DISTANCE_RANGES.map((option) => (
@@ -222,7 +228,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '90%',
   },
   header: {
     flexDirection: 'row',
@@ -232,6 +237,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
+  headerSmall: {
+    padding: 16,
+  },
   title: {
     fontSize: 24,
     fontWeight: '700',
@@ -240,8 +248,14 @@ const styles = StyleSheet.create({
   content: {
     padding: 24,
   },
+  contentSmall: {
+    padding: 16,
+  },
   section: {
     marginBottom: 32,
+  },
+  sectionSmall: {
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 16,

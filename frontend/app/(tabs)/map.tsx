@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
-  Dimensions,
+  useWindowDimensions,
   KeyboardAvoidingView,
   Keyboard,
 } from 'react-native';
@@ -35,7 +35,6 @@ if (Platform.OS !== 'web') {
 }
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
-const { width, height } = Dimensions.get('window');
 
 interface RouteAlternative {
   id: string;
@@ -76,8 +75,9 @@ interface Charger {
 
 export default function SmartEcoRouting() {
   const { user } = useAuth();
+  const { height: windowHeight } = useWindowDimensions();
   const mapRef = useRef<any>(null);
-  
+
   // State
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
@@ -541,7 +541,7 @@ export default function SmartEcoRouting() {
     <SafeAreaView style={styles.container}>
       <View style={styles.resultsContainer}>
         {/* Map Section */}
-        <View style={styles.mapSection}>
+        <View style={[styles.mapSection, { height: windowHeight * 0.35 }]}>
           {renderMap()}
           
           {/* Back button */}
@@ -810,7 +810,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mapSection: {
-    height: height * 0.35,
     position: 'relative',
   },
   map: {
