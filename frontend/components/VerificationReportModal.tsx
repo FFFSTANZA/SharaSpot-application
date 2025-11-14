@@ -8,6 +8,7 @@ import {
   ScrollView,
   SafeAreaView,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { VerificationBadge } from './VerificationBadge';
@@ -38,6 +39,13 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   onClose,
   charger,
 }) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
+  // Calculate responsive sizes
+  const isSmallScreen = windowWidth < 380;
+  const photoSize = isSmallScreen ? windowWidth * 0.28 : 100; // 28% of screen width on small screens
+  const maxModalHeight = windowHeight * 0.9; // 90% of screen height
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -95,7 +103,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.overlay}>
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { maxHeight: maxModalHeight }]}>
           <View style={styles.header}>
             <Text style={styles.title}>Verification Report</Text>
             <TouchableOpacity onPress={onClose}>
@@ -103,7 +111,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.content}>
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={true}>
             {/* Current Level */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Current Verification Level</Text>
@@ -120,18 +128,18 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             {/* Statistics */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Statistics</Text>
-              <View style={styles.statsGrid}>
-                <View style={styles.statCard}>
+              <View style={[styles.statsGrid, isSmallScreen && styles.statsGridSmall]}>
+                <View style={[styles.statCard, isSmallScreen && styles.statCardSmall]}>
                   <Ionicons name="people" size={24} color="#2196F3" />
                   <Text style={styles.statValue}>{charger.verified_by_count}</Text>
                   <Text style={styles.statLabel}>Verifiers</Text>
                 </View>
-                <View style={styles.statCard}>
+                <View style={[styles.statCard, isSmallScreen && styles.statCardSmall]}>
                   <Ionicons name="trending-up" size={24} color="#4CAF50" />
                   <Text style={styles.statValue}>{charger.uptime_percentage.toFixed(1)}%</Text>
                   <Text style={styles.statLabel}>Uptime</Text>
                 </View>
-                <View style={styles.statCard}>
+                <View style={[styles.statCard, isSmallScreen && styles.statCardSmall]}>
                   <Ionicons name="time" size={24} color="#FF9800" />
                   <Text style={styles.statValue}>
                     {charger.last_verified
@@ -195,7 +203,11 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                 <Text style={styles.sectionTitle}>Community Photos</Text>
                 <View style={styles.photosGrid}>
                   {charger.photos.map((photo: string, index: number) => (
-                    <Image key={index} source={{ uri: photo }} style={styles.photo} />
+                    <Image
+                      key={index}
+                      source={{ uri: photo }}
+                      style={[styles.photo, { width: photoSize, height: photoSize }]}
+                    />
                   ))}
                 </View>
               </View>
@@ -251,7 +263,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '90%',
+    // maxHeight is now dynamic and set inline
   },
   header: {
     flexDirection: 'row',
@@ -298,14 +310,25 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
+  },
+  statsGridSmall: {
+    justifyContent: 'space-between',
   },
   statCard: {
     flex: 1,
+    minWidth: 100,
     backgroundColor: '#F8F9FA',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
+  },
+  statCardSmall: {
+    flex: 0,
+    flexBasis: '30%',
+    minWidth: 90,
+    padding: 12,
   },
   statValue: {
     fontSize: 20,
@@ -378,8 +401,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   photo: {
-    width: 100,
-    height: 100,
+    // width and height are now dynamic and set inline
     borderRadius: 8,
   },
   sourceCard: {

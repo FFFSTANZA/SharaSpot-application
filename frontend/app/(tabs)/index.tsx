@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, Alert, RefreshControl, Platform, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, Alert, RefreshControl, Platform, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -24,7 +24,6 @@ if (Platform.OS !== 'web') {
 }
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
-const { width, height } = Dimensions.get('window');
 
 interface Charger {
   id: string;
@@ -58,6 +57,7 @@ const VERIFICATION_COLORS = {
 export default function Discover() {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { height: windowHeight } = useWindowDimensions();
   const [chargers, setChargers] = useState<Charger[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -305,6 +305,11 @@ export default function Discover() {
     );
   };
 
+  // Calculate responsive positioning based on screen height
+  const viewToggleBottom = Spacing.xxl; // 48px
+  const guestBannerBottom = user?.is_guest ? viewToggleBottom + 72 : 0; // 72px for button height + spacing
+  const listPaddingBottom = user?.is_guest ? guestBannerBottom + 80 : viewToggleBottom + 80;
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -343,7 +348,7 @@ export default function Discover() {
           data={chargers}
           renderItem={renderChargerCard}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: listPaddingBottom }]}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#4CAF50']} />
           }
@@ -359,7 +364,7 @@ export default function Discover() {
 
       {/* Guest Banner */}
       {user?.is_guest && (
-        <View style={styles.guestBanner}>
+        <View style={[styles.guestBanner, { bottom: guestBannerBottom }]}>
           <Ionicons name="information-circle" size={20} color="#FF9800" />
           <Text style={styles.guestBannerText}>Guest mode - Sign in to add chargers</Text>
         </View>
@@ -367,7 +372,7 @@ export default function Discover() {
 
       {/* View Toggle Button - Lowered Position */}
       <TouchableOpacity
-        style={styles.viewToggle}
+        style={[styles.viewToggle, { bottom: viewToggleBottom }]}
         onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
         activeOpacity={0.85}
       >
@@ -465,7 +470,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.surface,
   },
   listContent: {
-    paddingBottom: 200,
+    // paddingBottom is now dynamic and set inline
   },
   chargerCard: {
     backgroundColor: Colors.surface,
@@ -599,7 +604,7 @@ const styles = StyleSheet.create({
   },
   guestBanner: {
     position: 'absolute',
-    bottom: 140,
+    // bottom is now dynamic and set inline
     left: Spacing.md,
     right: Spacing.md,
     backgroundColor: Colors.warningLight,
@@ -617,7 +622,7 @@ const styles = StyleSheet.create({
   },
   viewToggle: {
     position: 'absolute',
-    bottom: Spacing.xxl,
+    // bottom is now dynamic and set inline
     right: Spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',
