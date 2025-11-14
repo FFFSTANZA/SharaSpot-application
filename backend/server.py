@@ -638,8 +638,7 @@ async def verify_charger(
         "coins_earned": coins_reward,
         "new_level": new_level
     }
-# Include router
-app.include_router(api_router)
+
 # CORS
 app.add_middleware(
     CORSMiddleware,
@@ -1171,4 +1170,7 @@ async def calculate_here_routes(
     except Exception as e:
         logging.error(f"Route calculation error: {str(e)}")
         raise HTTPException(500, f"Failed to calculate routes: {str(e)}")
+
+# Include router - MUST be after all route definitions
+app.include_router(api_router)
 
