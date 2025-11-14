@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   ScrollView,
   SafeAreaView,
   Image,
+  Animated,
+  Easing,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { VerificationBadge } from './VerificationBadge';
@@ -199,6 +201,63 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   const bestTime = getBestTimeToVisit();
   const insights = getInsights();
 
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scoreScaleAnim = useRef(new Animated.Value(0)).current;
+  const scoreRotateAnim = useRef(new Animated.Value(0)).current;
+  const insightsFadeAnim = useRef(new Animated.Value(0)).current;
+  const trendsFadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Trigger animations when modal opens
+  useEffect(() => {
+    if (visible) {
+      // Reset animations
+      fadeAnim.setValue(0);
+      scoreScaleAnim.setValue(0);
+      scoreRotateAnim.setValue(0);
+      insightsFadeAnim.setValue(0);
+      trendsFadeAnim.setValue(0);
+
+      // Stagger animations for smooth sequence
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.parallel([
+          Animated.spring(scoreScaleAnim, {
+            toValue: 1,
+            tension: 50,
+            friction: 7,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scoreRotateAnim, {
+            toValue: 1,
+            duration: 800,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.timing(insightsFadeAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(trendsFadeAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible]);
+
+  const scoreRotation = scoreRotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     try {
@@ -306,14 +365,24 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             </View>
 
             {/* Reliability Score */}
-            <View style={styles.section}>
+            <Animated.View style={[styles.section, { opacity: fadeAnim }]}>
               <Text style={styles.sectionTitle}>Reliability Analysis</Text>
               <View style={styles.reliabilityCard}>
                 <View style={styles.reliabilityHeader}>
-                  <View style={styles.scoreCircle}>
+                  <Animated.View
+                    style={[
+                      styles.scoreCircle,
+                      {
+                        transform: [
+                          { scale: scoreScaleAnim },
+                          { rotate: scoreRotation },
+                        ],
+                      },
+                    ]}
+                  >
                     <Text style={styles.scoreNumber}>{reliabilityScore}</Text>
                     <Text style={styles.scoreMax}>/100</Text>
-                  </View>
+                  </Animated.View>
                   <View style={styles.scoreInfo}>
                     <Text style={styles.scoreTitle}>Reliability Score</Text>
                     <Text style={styles.scoreDescription}>
@@ -326,11 +395,26 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                   </View>
                 </View>
               </View>
-            </View>
+            </Animated.View>
 
             {/* Key Insights */}
             {insights.length > 0 && (
-              <View style={styles.section}>
+              <Animated.View
+                style={[
+                  styles.section,
+                  {
+                    opacity: insightsFadeAnim,
+                    transform: [
+                      {
+                        translateY: insightsFadeAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [20, 0],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
                 <Text style={styles.sectionTitle}>Key Insights</Text>
                 <View style={styles.insightsContainer}>
                   {insights.map((insight, index) => (
@@ -339,11 +423,26 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                     </View>
                   ))}
                 </View>
-              </View>
+              </Animated.View>
             )}
 
             {/* Trends Analysis */}
-            <View style={styles.section}>
+            <Animated.View
+              style={[
+                styles.section,
+                {
+                  opacity: trendsFadeAnim,
+                  transform: [
+                    {
+                      translateY: trendsFadeAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [20, 0],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
               <Text style={styles.sectionTitle}>Verification Trends</Text>
               <View style={styles.trendsContainer}>
                 {[trends.last24h, trends.last7d, trends.last30d].map((trend, index) => {
@@ -377,7 +476,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                   );
                 })}
               </View>
-            </View>
+            </Animated.View>
 
             {/* Statistics */}
             <View style={styles.section}>
@@ -511,9 +610,14 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
     maxHeight: '90%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 20,
   },
   header: {
     flexDirection: 'row',
@@ -546,9 +650,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8F9FA',
-    padding: 16,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 16,
     gap: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   levelInfo: {
     flex: 1,
@@ -565,9 +674,14 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     backgroundColor: '#F8F9FA',
-    padding: 16,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 16,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   statValue: {
     fontSize: 20,
@@ -642,13 +756,18 @@ const styles = StyleSheet.create({
   photo: {
     width: 100,
     height: 100,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   sourceCard: {
     backgroundColor: '#F8F9FA',
-    padding: 16,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 16,
     gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   sourceRow: {
     flexDirection: 'row',
@@ -665,9 +784,9 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   sourceTag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 16,
   },
   officialTag: {
     backgroundColor: '#E3F2FD',
@@ -685,10 +804,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     backgroundColor: '#E3F2FD',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 16,
     alignSelf: 'flex-start',
+    shadowColor: '#2196F3',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
   },
   adminText: {
     fontSize: 12,
@@ -697,8 +821,13 @@ const styles = StyleSheet.create({
   },
   reliabilityCard: {
     backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 18,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   reliabilityHeader: {
     flexDirection: 'row',
@@ -743,10 +872,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     backgroundColor: '#E8F5E9',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
     alignSelf: 'flex-start',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
   },
   bestTimeText: {
     fontSize: 12,
@@ -758,10 +892,15 @@ const styles = StyleSheet.create({
   },
   insightCard: {
     backgroundColor: '#E3F2FD',
-    padding: 12,
-    borderRadius: 8,
-    borderLeftWidth: 3,
+    padding: 14,
+    borderRadius: 12,
+    borderLeftWidth: 4,
     borderLeftColor: '#2196F3',
+    shadowColor: '#2196F3',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 1,
   },
   insightText: {
     fontSize: 13,
@@ -775,9 +914,14 @@ const styles = StyleSheet.create({
   trendCard: {
     flex: 1,
     backgroundColor: '#F8F9FA',
-    padding: 12,
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 16,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   trendPeriod: {
     fontSize: 11,
