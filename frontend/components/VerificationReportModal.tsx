@@ -38,15 +38,33 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   onClose,
   charger,
 }) => {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  // Ensure charger has default values to prevent crashes
+  const safeCharger = {
+    verification_level: charger?.verification_level || 1,
+    verified_by_count: charger?.verified_by_count || 0,
+    uptime_percentage: charger?.uptime_percentage || 0,
+    last_verified: charger?.last_verified || null,
+    verification_history: charger?.verification_history || [],
+    photos: charger?.photos || [],
+    source_type: charger?.source_type || 'community',
+    created_at: charger?.created_at || null,
+    ...charger,
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return 'N/A';
+    }
   };
 
   const getActionIcon = (action: string) => {
@@ -92,6 +110,28 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
     return `User ${userId.substring(0, 4)}...`;
   };
 
+  // Don't render if charger is null
+  if (!charger && visible) {
+    return (
+      <Modal visible={visible} animationType="slide" transparent={true}>
+        <View style={styles.overlay}>
+          <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+              <Text style={styles.title}>Verification Report</Text>
+              <TouchableOpacity onPress={onClose}>
+                <Ionicons name="close" size={28} color="#1A1A1A" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.emptyState}>
+              <Ionicons name="alert-circle-outline" size={64} color="#CCCCCC" />
+              <Text style={styles.emptyText}>No charger data available</Text>
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
+    );
+  }
+
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.overlay}>
@@ -108,10 +148,10 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Current Verification Level</Text>
               <View style={styles.levelCard}>
-                <VerificationBadge level={charger.verification_level} size="large" />
+                <VerificationBadge level={safeCharger.verification_level} size="large" />
                 <View style={styles.levelInfo}>
                   <Text style={styles.levelDescription}>
-                    {LEVEL_DESCRIPTIONS[charger.verification_level as keyof typeof LEVEL_DESCRIPTIONS]}
+                    {LEVEL_DESCRIPTIONS[safeCharger.verification_level as keyof typeof LEVEL_DESCRIPTIONS]}
                   </Text>
                 </View>
               </View>
@@ -123,19 +163,19 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
                   <Ionicons name="people" size={24} color="#2196F3" />
-                  <Text style={styles.statValue}>{charger.verified_by_count}</Text>
+                  <Text style={styles.statValue}>{safeCharger.verified_by_count}</Text>
                   <Text style={styles.statLabel}>Verifiers</Text>
                 </View>
                 <View style={styles.statCard}>
                   <Ionicons name="trending-up" size={24} color="#4CAF50" />
-                  <Text style={styles.statValue}>{charger.uptime_percentage.toFixed(1)}%</Text>
+                  <Text style={styles.statValue}>{safeCharger.uptime_percentage.toFixed(1)}%</Text>
                   <Text style={styles.statLabel}>Uptime</Text>
                 </View>
                 <View style={styles.statCard}>
                   <Ionicons name="time" size={24} color="#FF9800" />
                   <Text style={styles.statValue}>
-                    {charger.last_verified
-                      ? formatDate(charger.last_verified).split(',')[0]
+                    {safeCharger.last_verified
+                      ? formatDate(safeCharger.last_verified).split(',')[0]
                       : 'N/A'}
                   </Text>
                   <Text style={styles.statLabel}>Last Check</Text>
@@ -146,9 +186,9 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             {/* Verification History */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Verification History</Text>
-              {charger.verification_history && charger.verification_history.length > 0 ? (
+              {safeCharger.verification_history && safeCharger.verification_history.length > 0 ? (
                 <View style={styles.timeline}>
-                  {charger.verification_history.slice(-10).reverse().map((action: VerificationAction, index: number) => (
+                  {safeCharger.verification_history.slice(-10).reverse().map((action: VerificationAction, index: number) => (
                     <View key={index} style={styles.timelineItem}>
                       <View
                         style={[
@@ -190,11 +230,11 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             </View>
 
             {/* Community Photos */}
-            {charger.photos && charger.photos.length > 0 && (
+            {safeCharger.photos && safeCharger.photos.length > 0 && (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Community Photos</Text>
                 <View style={styles.photosGrid}>
-                  {charger.photos.map((photo: string, index: number) => (
+                  {safeCharger.photos.map((photo: string, index: number) => (
                     <Image key={index} source={{ uri: photo }} style={styles.photo} />
                   ))}
                 </View>
@@ -210,23 +250,23 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                   <View
                     style={[
                       styles.sourceTag,
-                      charger.source_type === 'official'
+                      safeCharger.source_type === 'official'
                         ? styles.officialTag
                         : styles.communityTag,
                     ]}
                   >
                     <Text style={styles.sourceText}>
-                      {charger.source_type === 'official' ? 'Official' : 'Community'}
+                      {safeCharger.source_type === 'official' ? 'Official' : 'Community'}
                     </Text>
                   </View>
                 </View>
                 <View style={styles.sourceRow}>
                   <Text style={styles.sourceLabel}>Added:</Text>
                   <Text style={styles.sourceValue}>
-                    {charger.created_at ? formatDate(charger.created_at) : 'N/A'}
+                    {formatDate(safeCharger.created_at)}
                   </Text>
                 </View>
-                {charger.source_type === 'official' && (
+                {safeCharger.source_type === 'official' && (
                   <View style={styles.adminBadge}>
                     <Ionicons name="shield-checkmark" size={16} color="#2196F3" />
                     <Text style={styles.adminText}>Admin Verified</Text>
