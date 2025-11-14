@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.surface,
   },
   listContent: {
-    paddingBottom: 120,
+    paddingBottom: 180,
   },
   chargerCard: {
     backgroundColor: Colors.surface,
