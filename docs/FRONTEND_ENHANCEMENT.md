@@ -1021,7 +1021,7 @@ export const trackScreen = async (screenName: string) => {
 trackEvent('charger_added', {
   charger_id: '123',
   port_type: 'Type 2',
-  location: 'San Francisco',
+  location: 'Chennai, Tamil Nadu',
 });
 
 trackScreen('Discover');

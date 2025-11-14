@@ -166,14 +166,14 @@ SharaSpot has a **strong foundation** as an EV charging aggregator with communit
 ### 5. **Go-to-Market Strategy**
 
 #### **Phase 1: Local Launch (Months 1-3)**
-**Target:** San Francisco Bay Area
+**Target:** Tamil Nadu Region (Chennai Metro)
 - Partner with 5-10 local EV clubs
-- Guerrilla marketing at Tesla Superchargers
+- Guerrilla marketing at EV charging stations
 - Offer early adopter perks (lifetime premium)
 - Goal: 1,000 active users
 
 #### **Phase 2: Regional Expansion (Months 4-6)**
-**Target:** California
+**Target:** Tamil Nadu State
 - PR campaign (TechCrunch, Electrek coverage)
 - Partnerships with EV dealerships
 - Referral program (invite friends → earn coins)

@@ -404,7 +404,7 @@ export default function SmartEcoRouting() {
               </View>
               <Text style={styles.headerTitle}>Smart Eco-Routing</Text>
               <Text style={styles.headerSubtitle}>
-                Powered by HERE API • AI-optimized for EV efficiency
+                AI-optimized routing for maximum EV efficiency
               </Text>
             </View>
 
@@ -458,7 +458,7 @@ export default function SmartEcoRouting() {
                   <Ionicons name="location" size={20} color="#2196F3" />
                   <TextInput
                     style={styles.input}
-                    placeholder="Starting point (e.g., Downtown SF)"
+                    placeholder="Starting point (e.g., T Nagar, Chennai)"
                     value={origin}
                     onChangeText={setOrigin}
                     placeholderTextColor="#999999"
@@ -475,7 +475,7 @@ export default function SmartEcoRouting() {
                   <Ionicons name="flag" size={20} color="#F44336" />
                   <TextInput
                     style={styles.input}
-                    placeholder="Destination (e.g., Oakland)"
+                    placeholder="Destination (e.g., Anna Nagar)"
                     value={destination}
                     onChangeText={setDestination}
                     placeholderTextColor="#999999"
