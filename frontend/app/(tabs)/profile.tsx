@@ -50,6 +50,13 @@ export default function Profile() {
       setStats(response.data);
     } catch (error: any) {
       console.error('Failed to load stats:', error);
+      if (error.response?.status === 404) {
+        Alert.alert('Profile Data Unavailable', 'Unable to load profile statistics. The API endpoint may be unavailable.');
+      } else if (error.response?.status === 401) {
+        Alert.alert('Session Expired', 'Please log in again to view your profile.');
+      } else if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
+        Alert.alert('Connection Error', 'Unable to connect to the server. Please check your network connection.');
+      }
       // Set default stats if API fails
       setStats({
         shara_coins: 0,

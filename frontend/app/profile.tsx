@@ -41,18 +41,25 @@ export default function Profile() {
   const loadProfileData = async () => {
     try {
       const token = await AsyncStorage.getItem('session_token');
-      
+
       const statsResponse = await axios.get(`${API_URL}/api/profile/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(statsResponse.data);
-      
+
       const transactionsResponse = await axios.get(`${API_URL}/api/wallet/transactions`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTransactions(transactionsResponse.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Load profile error:', error);
+      if (error.response?.status === 404) {
+        Alert.alert('Profile Not Found', 'Unable to load profile data. The API endpoint may be unavailable.');
+      } else if (error.response?.status === 401) {
+        Alert.alert('Session Expired', 'Please log in again to view your profile.');
+      } else {
+        Alert.alert('Error', error.response?.data?.detail || 'Failed to load profile data. Please check your connection.');
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);

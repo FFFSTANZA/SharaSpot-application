@@ -54,10 +54,15 @@ export default function ChargerDetail() {
         setCharger(response.data);
         setLoading(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Load charger error:', error);
-      Alert.alert('Error', 'Failed to load charger details');
+      if (error.response?.status === 404) {
+        Alert.alert('Charger Not Found', 'This charging station could not be found. It may have been removed or the link is incorrect.');
+      } else {
+        Alert.alert('Error', error.response?.data?.detail || 'Failed to load charger details. Please check your connection and try again.');
+      }
       setLoading(false);
+      setCharger(null);
     }
   };
 
