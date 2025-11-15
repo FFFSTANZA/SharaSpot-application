@@ -194,7 +194,7 @@ export default function AddCharger() {
         [
           {
             text: 'View Chargers',
-            onPress: () => router.replace('/home'),
+            onPress: () => router.replace('/(tabs)'),
           }
         ]
       );

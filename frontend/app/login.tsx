@@ -22,7 +22,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
-      router.replace('/home');
+      router.replace('/(tabs)');
     } catch (error: any) {
       alert(error.message);
     } finally {

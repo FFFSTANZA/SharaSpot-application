@@ -9,6 +9,7 @@ import Constants from 'expo-constants';
 import { VerificationBadge } from '../../components/VerificationBadge';
 import { AmenitiesIcons } from '../../components/AmenitiesIcons';
 import { FilterModal, Filters } from '../../components/FilterModal';
+import { VerificationReportModal } from '../../components/VerificationReportModal';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 // Conditional import for MapView (mobile only)
@@ -63,6 +64,8 @@ export default function Discover() {
   const [refreshing, setRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [selectedChargerForReport, setSelectedChargerForReport] = useState<Charger | null>(null);
   const [filters, setFilters] = useState<Filters>({
     verificationLevel: null,
     portType: null,
@@ -189,7 +192,15 @@ export default function Discover() {
             {item.address}
           </Text>
         </View>
-        <VerificationBadge level={item.verification_level} size="small" />
+        <TouchableOpacity
+          onPress={() => {
+            setSelectedChargerForReport(item);
+            setReportModalVisible(true);
+          }}
+          activeOpacity={0.7}
+        >
+          <VerificationBadge level={item.verification_level} size="small" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.cardDetails}>
@@ -381,6 +392,13 @@ export default function Discover() {
         onClose={() => setFilterModalVisible(false)}
         onApply={handleFilterApply}
         currentFilters={filters}
+      />
+
+      {/* Verification Report Modal */}
+      <VerificationReportModal
+        visible={reportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        charger={selectedChargerForReport}
       />
     </SafeAreaView>
   );
