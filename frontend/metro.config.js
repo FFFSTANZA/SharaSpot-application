@@ -1,15 +1,18 @@
 // metro.config.js
 const { getDefaultConfig } = require("expo/metro-config");
-const path = require('path');
-const { FileStore } = require('metro-cache');
 
 const config = getDefaultConfig(__dirname);
 
-// Use a stable on-disk store (shared across web/android)
-const root = process.env.METRO_CACHE_ROOT || path.join(__dirname, '.metro-cache');
-config.cacheStores = [
-  new FileStore({ root: path.join(root, 'cache') }),
-];
+// IMPORTANT: Persistent cache disabled to prevent stale bundle issues
+// The FileStore cache was causing the app to display mixed old/new versions
+// because cached bundles persisted between Metro restarts.
+// Metro will now use default in-memory caching only.
+//
+// If you need to re-enable persistent caching for performance, use with caution:
+// const path = require('path');
+// const { FileStore } = require('metro-cache');
+// const root = process.env.METRO_CACHE_ROOT || path.join(__dirname, '.metro-cache');
+// config.cacheStores = [new FileStore({ root: path.join(root, 'cache') })];
 
 
 // // Exclude unnecessary directories from file watching
