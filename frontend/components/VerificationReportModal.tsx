@@ -19,8 +19,11 @@ interface VerificationAction {
   action: string;
   timestamp: string;
   notes?: string;
-  charging_duration?: number;  // in minutes
   wait_time?: number;  // in minutes
+  cleanliness_rating?: number;  // 1-5 stars
+  charging_speed_rating?: number;  // 1-5 stars
+  amenities_rating?: number;  // 1-5 stars
+  would_recommend?: boolean;
 }
 
 interface TrendData {
@@ -432,15 +435,14 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
     peakHours: string;
     quietHours: string;
     avgWaitTime: number;
-    avgChargingDuration: number;
     hourlyData: Array<{ hour: number; count: number; successRate: number }>;
   } => {
     const history = safeCharger.verification_history || [];
-    const hourlyStats: { [key: number]: { total: number; active: number; waitTimes: number[]; durations: number[] } } = {};
+    const hourlyStats: { [key: number]: { total: number; active: number; waitTimes: number[] } } = {};
 
     // Initialize all hours
     for (let i = 0; i < 24; i++) {
-      hourlyStats[i] = { total: 0, active: 0, waitTimes: [], durations: [] };
+      hourlyStats[i] = { total: 0, active: 0, waitTimes: [] };
     }
 
     // Collect data by hour
@@ -451,9 +453,6 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
         hourlyStats[hour].active++;
         if (action.wait_time !== undefined && action.wait_time !== null) {
           hourlyStats[hour].waitTimes.push(action.wait_time);
-        }
-        if (action.charging_duration !== undefined && action.charging_duration !== null) {
-          hourlyStats[hour].durations.push(action.charging_duration);
         }
       }
     });
@@ -474,12 +473,6 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
       ? Math.round(allWaitTimes.reduce((sum, time) => sum + time, 0) / allWaitTimes.length)
       : 0;
 
-    // Calculate average charging duration
-    const allDurations = Object.values(hourlyStats).flatMap(stats => stats.durations);
-    const avgChargingDuration = allDurations.length > 0
-      ? Math.round(allDurations.reduce((sum, dur) => sum + dur, 0) / allDurations.length)
-      : 45;  // default 45 minutes
-
     // Prepare hourly data for visualization
     const hourlyData = Object.entries(hourlyStats).map(([hour, stats]) => ({
       hour: parseInt(hour),
@@ -498,8 +491,60 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
       peakHours: formatHour(peakHour),
       quietHours: formatHour(quietHour),
       avgWaitTime,
-      avgChargingDuration,
       hourlyData
+    };
+  };
+
+  // Get community ratings analytics
+  const getCommunityRatings = (): {
+    avgCleanliness: number;
+    avgChargingSpeed: number;
+    avgAmenities: number;
+    recommendationRate: number;
+    totalRatings: number;
+  } => {
+    const history = safeCharger.verification_history || [];
+    const ratings = history.filter(
+      action => action.cleanliness_rating || action.charging_speed_rating || action.amenities_rating
+    );
+
+    if (ratings.length === 0) {
+      return {
+        avgCleanliness: 0,
+        avgChargingSpeed: 0,
+        avgAmenities: 0,
+        recommendationRate: 0,
+        totalRatings: 0
+      };
+    }
+
+    const cleanlinessRatings = ratings.filter(r => r.cleanliness_rating).map(r => r.cleanliness_rating!);
+    const speedRatings = ratings.filter(r => r.charging_speed_rating).map(r => r.charging_speed_rating!);
+    const amenitiesRatings = ratings.filter(r => r.amenities_rating).map(r => r.amenities_rating!);
+    const recommendations = history.filter(r => r.would_recommend !== undefined && r.would_recommend !== null);
+
+    const avgCleanliness = cleanlinessRatings.length > 0
+      ? cleanlinessRatings.reduce((sum, r) => sum + r, 0) / cleanlinessRatings.length
+      : 0;
+
+    const avgChargingSpeed = speedRatings.length > 0
+      ? speedRatings.reduce((sum, r) => sum + r, 0) / speedRatings.length
+      : 0;
+
+    const avgAmenities = amenitiesRatings.length > 0
+      ? amenitiesRatings.reduce((sum, r) => sum + r, 0) / amenitiesRatings.length
+      : 0;
+
+    const recommendationRate = recommendations.length > 0
+      ? (recommendations.filter(r => r.would_recommend).length / recommendations.length) * 100
+      : 0;
+
+    return {
+      avgCleanliness: Math.round(avgCleanliness * 10) / 10,
+      avgChargingSpeed: Math.round(avgChargingSpeed * 10) / 10,
+      avgAmenities: Math.round(avgAmenities * 10) / 10,
+      recommendationRate: Math.round(recommendationRate),
+      totalRatings: ratings.length
     };
   };
 
@@ -560,6 +605,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   const expectations = getExpectations();
   const peakAnalysis = getPeakHoursAnalysis();
   const availabilityPrediction = getAvailabilityPrediction();
+  const communityRatings = getCommunityRatings();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -855,6 +901,96 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               </View>
             </Animated.View>
 
+            {/* Community Ratings */}
+            {communityRatings.totalRatings > 0 && (
+              <Animated.View
+                style={[
+                  styles.section,
+                  styles.ratingsSection,
+                  { opacity: fadeAnim }
+                ]}
+              >
+                <View style={styles.ratingsSectionHeader}>
+                  <Ionicons name="star" size={22} color="#FFB300" />
+                  <Text style={styles.sectionTitle}>Community Ratings</Text>
+                  <View style={styles.ratingsCount}>
+                    <Text style={styles.ratingsCountText}>{communityRatings.totalRatings} ratings</Text>
+                  </View>
+                </View>
+
+                <View style={styles.ratingsGrid}>
+                  {communityRatings.avgCleanliness > 0 && (
+                    <View style={styles.ratingCard}>
+                      <Ionicons name="sparkles" size={32} color="#9C27B0" />
+                      <View style={styles.ratingStars}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Ionicons
+                            key={star}
+                            name={star <= Math.round(communityRatings.avgCleanliness) ? 'star' : 'star-outline'}
+                            size={16}
+                            color="#FFB300"
+                          />
+                        ))}
+                      </View>
+                      <Text style={styles.ratingValue}>{communityRatings.avgCleanliness.toFixed(1)}</Text>
+                      <Text style={styles.ratingLabel}>Cleanliness</Text>
+                    </View>
+                  )}
+
+                  {communityRatings.avgChargingSpeed > 0 && (
+                    <View style={styles.ratingCard}>
+                      <Ionicons name="flash" size={32} color="#4CAF50" />
+                      <View style={styles.ratingStars}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Ionicons
+                            key={star}
+                            name={star <= Math.round(communityRatings.avgChargingSpeed) ? 'star' : 'star-outline'}
+                            size={16}
+                            color="#FFB300"
+                          />
+                        ))}
+                      </View>
+                      <Text style={styles.ratingValue}>{communityRatings.avgChargingSpeed.toFixed(1)}</Text>
+                      <Text style={styles.ratingLabel}>Charging Speed</Text>
+                    </View>
+                  )}
+
+                  {communityRatings.avgAmenities > 0 && (
+                    <View style={styles.ratingCard}>
+                      <Ionicons name="restaurant" size={32} color="#FF9800" />
+                      <View style={styles.ratingStars}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Ionicons
+                            key={star}
+                            name={star <= Math.round(communityRatings.avgAmenities) ? 'star' : 'star-outline'}
+                            size={16}
+                            color="#FFB300"
+                          />
+                        ))}
+                      </View>
+                      <Text style={styles.ratingValue}>{communityRatings.avgAmenities.toFixed(1)}</Text>
+                      <Text style={styles.ratingLabel}>Amenities</Text>
+                    </View>
+                  )}
+                </View>
+
+                {communityRatings.recommendationRate > 0 && (
+                  <View style={styles.recommendationCard}>
+                    <View style={styles.recommendationIcon}>
+                      <Ionicons name="thumbs-up" size={28} color="#4CAF50" />
+                    </View>
+                    <View style={styles.recommendationContent}>
+                      <Text style={styles.recommendationValue}>{communityRatings.recommendationRate}%</Text>
+                      <Text style={styles.recommendationLabel}>Would Recommend</Text>
+                    </View>
+                    <View style={styles.recommendationBadge}>
+                      <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    </View>
+                  </View>
+                )}
+              </Animated.View>
+            )}
+
             {/* Usage Patterns & Wait Times */}
             <Animated.View
               style={[
@@ -862,19 +998,16 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                 { opacity: fadeAnim }
               ]}
             >
-              <Text style={styles.sectionTitle}>Usage Patterns & Wait Times</Text>
-              <View style={styles.usageGrid}>
-                <View style={styles.usageCard}>
-                  <Ionicons name="time-outline" size={28} color="#9C27B0" />
-                  <Text style={styles.usageValue}>{peakAnalysis.avgWaitTime} min</Text>
-                  <Text style={styles.usageLabel}>Avg Wait Time</Text>
+              <Text style={styles.sectionTitle}>Usage Patterns</Text>
+              {peakAnalysis.avgWaitTime > 0 && (
+                <View style={styles.waitTimeCard}>
+                  <Ionicons name="time-outline" size={32} color="#9C27B0" />
+                  <View style={styles.waitTimeInfo}>
+                    <Text style={styles.waitTimeValue}>{peakAnalysis.avgWaitTime} min</Text>
+                    <Text style={styles.waitTimeLabel}>Average Wait Time</Text>
+                  </View>
                 </View>
-                <View style={styles.usageCard}>
-                  <Ionicons name="battery-charging" size={28} color="#4CAF50" />
-                  <Text style={styles.usageValue}>{peakAnalysis.avgChargingDuration} min</Text>
-                  <Text style={styles.usageLabel}>Avg Charging</Text>
-                </View>
-              </View>
+              )}
               <View style={styles.peakTimesContainer}>
                 <View style={styles.peakTimeRow}>
                   <Ionicons name="arrow-up-circle" size={20} color="#F44336" />
@@ -1986,5 +2119,140 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#1A1A1A',
+  },
+  ratingsSection: {
+    backgroundColor: '#FFFEF7',
+    borderWidth: 1,
+    borderColor: '#FFE082',
+  },
+  ratingsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  ratingsCount: {
+    marginLeft: 'auto',
+    backgroundColor: '#FFF8E1',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  ratingsCountText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#F57C00',
+  },
+  ratingsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  ratingCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  ratingStars: {
+    flexDirection: 'row',
+    gap: 2,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  ratingValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginTop: 4,
+  },
+  ratingLabel: {
+    fontSize: 11,
+    color: '#666666',
+    marginTop: 4,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  recommendationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    padding: 18,
+    borderRadius: 14,
+    gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  recommendationIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  recommendationContent: {
+    flex: 1,
+  },
+  recommendationValue: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 2,
+  },
+  recommendationLabel: {
+    fontSize: 13,
+    color: '#1B5E20',
+    fontWeight: '600',
+  },
+  recommendationBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#C8E6C9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  waitTimeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    padding: 18,
+    borderRadius: 14,
+    gap: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  waitTimeInfo: {
+    flex: 1,
+  },
+  waitTimeValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 4,
+  },
+  waitTimeLabel: {
+    fontSize: 13,
+    color: '#666666',
+    fontWeight: '600',
   },
 });

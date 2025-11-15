@@ -20,6 +20,7 @@ import Constants from 'expo-constants';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { AmenitiesIcons } from '../components/AmenitiesIcons';
 import { VerificationReportModal } from '../components/VerificationReportModal';
+import { EnhancedVerificationModal, VerificationData } from '../components/EnhancedVerificationModal';
 import { useAuth } from '../contexts/AuthContext';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -33,6 +34,7 @@ export default function ChargerDetail() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [verificationModalVisible, setVerificationModalVisible] = useState(false);
 
   useEffect(() => {
     loadChargerDetails();
@@ -82,7 +84,7 @@ export default function ChargerDetail() {
     }
   };
 
-  const handleVerifyAction = async (action: string) => {
+  const handleOpenVerificationModal = () => {
     if (user?.is_guest) {
       Alert.alert(
         'Sign In Required',
@@ -94,24 +96,36 @@ export default function ChargerDetail() {
       );
       return;
     }
+    setVerificationModalVisible(true);
+  };
 
-    setActionLoading(action);
+  const handleVerificationSubmit = async (data: VerificationData) => {
+    setVerificationModalVisible(false);
+    setActionLoading(data.action);
+
     try {
       const token = await SessionManager.getToken();
       const response = await axios.post(
         `${API_URL}/api/chargers/${charger.id}/verify`,
-        { action, notes: '' },
+        data,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const coins = response.data.coins_earned;
+      const totalCoins = response.data.coins_earned;
+      const baseCoins = response.data.base_coins;
+      const bonusCoins = response.data.bonus_coins;
+      const bonusReasons = response.data.bonus_reasons || [];
       const newLevel = response.data.new_level;
 
-      Alert.alert(
-        'Verified! 🎉',
-        `🪙 +${coins} SharaCoins earned!\n\nStation level: L${newLevel}`,
-        [{ text: 'OK', onPress: () => loadChargerDetails() }]
-      );
+      let message = `🪙 +${totalCoins} SharaCoins earned!`;
+      if (bonusCoins > 0) {
+        message += `\n\n✨ Bonus: +${bonusCoins} (${bonusReasons.join(', ')})`;
+      }
+      message += `\n\nStation level: L${newLevel}`;
+
+      Alert.alert('Verified! 🎉', message, [
+        { text: 'OK', onPress: () => loadChargerDetails() },
+      ]);
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to verify charger');
     } finally {
@@ -212,60 +226,35 @@ export default function ChargerDetail() {
           </TouchableOpacity>
         </View>
 
-        {/* Community Actions */}
+        {/* Community Verification */}
         {!user?.is_guest && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Community Verification</Text>
-            <Text style={styles.sectionDescription}>Help verify this station's status</Text>
-            <View style={styles.actionsRow}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.activeButton]}
-                onPress={() => handleVerifyAction('active')}
-                disabled={actionLoading !== null}
-              >
-                {actionLoading === 'active' ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
-                    <Text style={styles.actionButtonText}>Active</Text>
-                    <Text style={styles.actionReward}>+2 🪙</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.notWorkingButton]}
-                onPress={() => handleVerifyAction('not_working')}
-                disabled={actionLoading !== null}
-              >
-                {actionLoading === 'not_working' ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Ionicons name="close-circle" size={24} color="#FFFFFF" />
-                    <Text style={styles.actionButtonText}>Not Working</Text>
-                    <Text style={styles.actionReward}>+2 🪙</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.partialButton]}
-                onPress={() => handleVerifyAction('partial')}
-                disabled={actionLoading !== null}
-              >
-                {actionLoading === 'partial' ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Ionicons name="battery-half" size={24} color="#FFFFFF" />
-                    <Text style={styles.actionButtonText}>Partial</Text>
-                    <Text style={styles.actionReward}>+2 🪙</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.sectionDescription}>
+              Help the community by verifying this station's status
+            </Text>
+            <TouchableOpacity
+              style={styles.verifyStationButton}
+              onPress={handleOpenVerificationModal}
+              disabled={actionLoading !== null}
+            >
+              {actionLoading !== null ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
+                  <View style={styles.verifyButtonIcon}>
+                    <Ionicons name="shield-checkmark" size={28} color="#FFFFFF" />
+                  </View>
+                  <View style={styles.verifyButtonContent}>
+                    <Text style={styles.verifyButtonTitle}>Verify This Station</Text>
+                    <Text style={styles.verifyButtonSubtitle}>
+                      Earn up to 6 🪙 with detailed feedback
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         )}
 
@@ -395,6 +384,14 @@ export default function ChargerDetail() {
         visible={reportModalVisible}
         onClose={() => setReportModalVisible(false)}
         charger={charger}
+      />
+
+      {/* Enhanced Verification Modal */}
+      <EnhancedVerificationModal
+        visible={verificationModalVisible}
+        onClose={() => setVerificationModalVisible(false)}
+        onSubmit={handleVerificationSubmit}
+        chargerName={charger?.name || ''}
       />
     </SafeAreaView>
   );
@@ -600,6 +597,41 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFFFFF',
     opacity: 0.9,
+  },
+  verifyStationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    padding: 20,
+    borderRadius: 16,
+    gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  verifyButtonIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  verifyButtonContent: {
+    flex: 1,
+  },
+  verifyButtonTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  verifyButtonSubtitle: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.9)',
   },
   statsContainer: {
     flexDirection: 'row',

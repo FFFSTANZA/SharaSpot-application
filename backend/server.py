@@ -63,6 +63,12 @@ class VerificationAction(BaseModel):
     action: str  # "active", "not_working", "partial"
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     notes: Optional[str] = None
+    # Enhanced feedback fields
+    wait_time: Optional[int] = None  # in minutes
+    cleanliness_rating: Optional[int] = None  # 1-5 stars
+    charging_speed_rating: Optional[int] = None  # 1-5 stars
+    amenities_rating: Optional[int] = None  # 1-5 stars
+    would_recommend: Optional[bool] = None
 class Charger(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
@@ -99,6 +105,12 @@ class ChargerCreateRequest(BaseModel):
 class VerificationActionRequest(BaseModel):
     action: str  # "active", "not_working", "partial"
     notes: Optional[str] = None
+    # Enhanced feedback fields (optional)
+    wait_time: Optional[int] = None  # in minutes
+    cleanliness_rating: Optional[int] = None  # 1-5 stars
+    charging_speed_rating: Optional[int] = None  # 1-5 stars
+    amenities_rating: Optional[int] = None  # 1-5 stars
+    would_recommend: Optional[bool] = None
 class CoinTransaction(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
@@ -382,26 +394,49 @@ def generate_mock_verification_history(level: int, verified_by_count: int, now: 
         # 65% chance of having notes
         notes = random.choice(notes_options) if random.random() > 0.35 else None
 
-        # Add charging duration and wait time data
-        charging_duration = None
+        # Add detailed feedback data
         wait_time = None
+        cleanliness_rating = None
+        charging_speed_rating = None
+        amenities_rating = None
+        would_recommend = None
 
         if action == 'active':
-            # Active stations have realistic charging durations (15-120 minutes)
-            charging_duration = random.randint(15, 120)
             # Wait time based on time of day (0-30 minutes)
             if 8 <= hour <= 10 or 17 <= hour <= 19:  # Peak hours
                 wait_time = random.randint(0, 30)
             else:
                 wait_time = random.randint(0, 10)
 
+            # 70% chance of providing detailed ratings for active verifications
+            if random.random() < 0.7:
+                # Higher level stations get better ratings
+                if level >= 4:
+                    cleanliness_rating = random.randint(4, 5)
+                    charging_speed_rating = random.randint(4, 5)
+                    amenities_rating = random.randint(4, 5)
+                    would_recommend = random.random() < 0.9
+                elif level >= 3:
+                    cleanliness_rating = random.randint(3, 5)
+                    charging_speed_rating = random.randint(3, 5)
+                    amenities_rating = random.randint(3, 5)
+                    would_recommend = random.random() < 0.75
+                else:
+                    cleanliness_rating = random.randint(2, 4)
+                    charging_speed_rating = random.randint(2, 4)
+                    amenities_rating = random.randint(2, 4)
+                    would_recommend = random.random() < 0.6
+
         history.append({
             "user_id": user_id,
             "action": action,
             "timestamp": timestamp,
             "notes": notes,
-            "charging_duration": charging_duration,  # in minutes
-            "wait_time": wait_time  # in minutes
+            "wait_time": wait_time,
+            "cleanliness_rating": cleanliness_rating,
+            "charging_speed_rating": charging_speed_rating,
+            "amenities_rating": amenities_rating,
+            "would_recommend": would_recommend
         })
 
     # Sort by timestamp descending (newest first)
@@ -673,11 +708,16 @@ async def verify_charger(
     charger = await db.chargers.find_one({"id": charger_id})
     if not charger:
         raise HTTPException(404, "Charger not found")
-    # Create verification action
+    # Create verification action with enhanced feedback
     action = VerificationAction(
         user_id=user.id,
         action=request.action,
-        notes=request.notes
+        notes=request.notes,
+        wait_time=request.wait_time,
+        cleanliness_rating=request.cleanliness_rating,
+        charging_speed_rating=request.charging_speed_rating,
+        amenities_rating=request.amenities_rating,
+        would_recommend=request.would_recommend
     )
     # Update charger
     verification_history = charger.get("verification_history", [])
@@ -711,24 +751,65 @@ async def verify_charger(
             "uptime_percentage": uptime
         }}
     )
-    # Reward user with SharaCoins (2 for verification)
+    # Reward user with SharaCoins (2 for basic verification, +3 bonus for detailed feedback)
     coins_reward = 2
+    bonus_coins = 0
+    bonus_reasons = []
+
+    # Check if user provided detailed feedback
+    detailed_fields = [
+        request.cleanliness_rating,
+        request.charging_speed_rating,
+        request.amenities_rating,
+        request.would_recommend
+    ]
+
+    # Count how many detailed fields were provided
+    detailed_count = sum(1 for field in detailed_fields if field is not None)
+
+    if detailed_count >= 3:
+        # Full detailed feedback: +3 bonus coins
+        bonus_coins = 3
+        bonus_reasons.append("Complete feedback")
+    elif detailed_count >= 2:
+        # Partial detailed feedback: +2 bonus coins
+        bonus_coins = 2
+        bonus_reasons.append("Detailed feedback")
+    elif detailed_count >= 1:
+        # Some detailed feedback: +1 bonus coin
+        bonus_coins = 1
+        bonus_reasons.append("Extra feedback")
+
+    # Bonus for wait time info
+    if request.wait_time is not None:
+        bonus_coins += 1
+        bonus_reasons.append("Wait time info")
+
+    total_coins = coins_reward + bonus_coins
+
     await db.users.update_one(
         {"id": user.id},
-        {"$inc": {"shara_coins": coins_reward, "verifications_count": 1}}
+        {"$inc": {"shara_coins": total_coins, "verifications_count": 1}}
     )
-    
+
     # Log coin transaction
+    description = f"Verified charger as {request.action}: {charger['name']}"
+    if bonus_reasons:
+        description += f" ({', '.join(bonus_reasons)})"
+
     await log_coin_transaction(
         user.id,
         "verify_charger",
-        coins_reward,
-        f"Verified charger as {request.action}: {charger['name']}"
+        total_coins,
+        description
     )
-    
+
     return {
         "message": "Verification recorded",
-        "coins_earned": coins_reward,
+        "coins_earned": total_coins,
+        "base_coins": coins_reward,
+        "bonus_coins": bonus_coins,
+        "bonus_reasons": bonus_reasons,
         "new_level": new_level
     }
 
