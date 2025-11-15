@@ -19,6 +19,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="add-charger" />
         <Stack.Screen name="charger-detail" />
+        <Stack.Screen name="verify-station" />
         <Stack.Screen name="profile" />
       </Stack>
     </AuthProvider>

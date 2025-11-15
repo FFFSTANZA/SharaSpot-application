@@ -12,7 +12,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SessionManager } from '../utils/secureStorage';
 import axios from 'axios';
@@ -20,7 +20,6 @@ import Constants from 'expo-constants';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { AmenitiesIcons } from '../components/AmenitiesIcons';
 import { VerificationReportModal } from '../components/VerificationReportModal';
-import { EnhancedVerificationModal, VerificationData } from '../components/EnhancedVerificationModal';
 import { useAuth } from '../contexts/AuthContext';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -32,13 +31,18 @@ export default function ChargerDetail() {
   
   const [charger, setCharger] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [reportModalVisible, setReportModalVisible] = useState(false);
-  const [verificationModalVisible, setVerificationModalVisible] = useState(false);
 
   useEffect(() => {
     loadChargerDetails();
   }, []);
+
+  // Reload charger details when screen comes back into focus (e.g., after verification)
+  useFocusEffect(
+    React.useCallback(() => {
+      loadChargerDetails();
+    }, [])
+  );
 
   const loadChargerDetails = async () => {
     try {
@@ -96,50 +100,15 @@ export default function ChargerDetail() {
       );
       return;
     }
-    setVerificationModalVisible(true);
-  };
 
-  const handleVerificationSubmit = async (data: VerificationData) => {
-    setVerificationModalVisible(false);
-    setActionLoading(data.action);
-
-    try {
-      const token = await SessionManager.getToken();
-      const response = await axios.post(
-        `${API_URL}/api/chargers/${charger.id}/verify`,
-        data,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      const totalCoins = response.data.coins_earned;
-      const baseCoins = response.data.base_coins;
-      const bonusCoins = response.data.bonus_coins;
-      const bonusReasons = response.data.bonus_reasons || [];
-      const newLevel = response.data.new_level;
-
-      // Celebratory message based on coins earned
-      let title = 'Verified! 🎉';
-      if (totalCoins >= 9) title = 'Perfect Verification! 🏆';
-      else if (totalCoins >= 7) title = 'Excellent Work! ✨';
-      else if (totalCoins >= 5) title = 'Great Job! 🌟';
-
-      let message = `🪙 +${totalCoins} SharaCoins earned!`;
-      if (bonusCoins > 0) {
-        message += `\n\n✨ Bonus: +${bonusCoins} (${bonusReasons.join(', ')})`;
-      }
-      if (totalCoins >= 9) {
-        message += `\n\n🏆 Maximum rewards unlocked!`;
-      }
-      message += `\n\nStation level: L${newLevel}`;
-
-      Alert.alert(title, message, [
-        { text: 'OK', onPress: () => loadChargerDetails() },
-      ]);
-    } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to verify charger');
-    } finally {
-      setActionLoading(null);
-    }
+    // Navigate to the verify station screen
+    router.push({
+      pathname: '/verify-station',
+      params: {
+        chargerId: charger.id,
+        chargerName: charger.name,
+      },
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -245,24 +214,17 @@ export default function ChargerDetail() {
             <TouchableOpacity
               style={styles.verifyStationButton}
               onPress={handleOpenVerificationModal}
-              disabled={actionLoading !== null}
             >
-              {actionLoading !== null ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <>
-                  <View style={styles.verifyButtonIcon}>
-                    <Ionicons name="shield-checkmark" size={28} color="#FFFFFF" />
-                  </View>
-                  <View style={styles.verifyButtonContent}>
-                    <Text style={styles.verifyButtonTitle}>Verify This Station</Text>
-                    <Text style={styles.verifyButtonSubtitle}>
-                      Earn up to 9 🪙 with detailed feedback
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
-                </>
-              )}
+              <View style={styles.verifyButtonIcon}>
+                <Ionicons name="shield-checkmark" size={28} color="#FFFFFF" />
+              </View>
+              <View style={styles.verifyButtonContent}>
+                <Text style={styles.verifyButtonTitle}>Verify This Station</Text>
+                <Text style={styles.verifyButtonSubtitle}>
+                  Earn up to 9 🪙 with detailed feedback
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         )}
@@ -393,14 +355,6 @@ export default function ChargerDetail() {
         visible={reportModalVisible}
         onClose={() => setReportModalVisible(false)}
         charger={charger}
-      />
-
-      {/* Enhanced Verification Modal */}
-      <EnhancedVerificationModal
-        visible={verificationModalVisible}
-        onClose={() => setVerificationModalVisible(false)}
-        onSubmit={handleVerificationSubmit}
-        chargerName={charger?.name || ''}
       />
     </SafeAreaView>
   );
