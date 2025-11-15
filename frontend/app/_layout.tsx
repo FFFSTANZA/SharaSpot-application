@@ -1,6 +1,10 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 import { AuthProvider } from '../contexts/AuthContext';
+import { Buffer } from 'buffer';
+
+// Polyfill Buffer globally for React Native
+global.Buffer = Buffer;
 
 export default function RootLayout() {
   return (
