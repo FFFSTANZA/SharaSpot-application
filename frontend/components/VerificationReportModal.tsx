@@ -305,10 +305,134 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
     return insights;
   };
 
+  // Calculate risk assessment
+  const getRiskAssessment = (): {
+    level: 'low' | 'medium' | 'high';
+    score: number;
+    label: string;
+    color: string;
+    backgroundColor: string;
+    recommendation: string;
+  } => {
+    const reliabilityScore = getReliabilityScore();
+    const trends = calculateTrends();
+    const history = safeCharger.verification_history || [];
+
+    // Calculate risk factors
+    let riskScore = 100 - reliabilityScore; // Base risk from reliability
+
+    // Increase risk if recent failures
+    if (trends.last24h.notWorkingCount > 0) riskScore += 20;
+    if (trends.last7d.notWorkingCount > 2) riskScore += 10;
+
+    // Increase risk if no recent data
+    const daysSinceLastVerified = safeCharger.last_verified
+      ? Math.floor((new Date().getTime() - new Date(safeCharger.last_verified).getTime()) / (1000 * 60 * 60 * 24))
+      : 999;
+    if (daysSinceLastVerified > 30) riskScore += 15;
+
+    // Decrease risk if high verification count
+    if (safeCharger.verified_by_count >= 20) riskScore -= 10;
+    if (safeCharger.verification_level >= 4) riskScore -= 15;
+
+    riskScore = Math.max(0, Math.min(100, riskScore));
+
+    if (riskScore < 25) {
+      return {
+        level: 'low',
+        score: riskScore,
+        label: 'Low Risk - Highly Reliable',
+        color: '#2E7D32',
+        backgroundColor: '#E8F5E9',
+        recommendation: 'Safe to visit anytime. This station is consistently reliable.'
+      };
+    } else if (riskScore < 60) {
+      return {
+        level: 'medium',
+        score: riskScore,
+        label: 'Medium Risk - Generally Reliable',
+        color: '#F57C00',
+        backgroundColor: '#FFF3E0',
+        recommendation: 'Usually works well. Check recent status before visiting.'
+      };
+    } else {
+      return {
+        level: 'high',
+        score: riskScore,
+        label: 'High Risk - Verify First',
+        color: '#D32F2F',
+        backgroundColor: '#FFEBEE',
+        recommendation: 'Exercise caution. Contact station or verify status before traveling.'
+      };
+    }
+  };
+
+  // Compare to network average
+  const getNetworkComparison = (): {
+    betterThanAverage: boolean;
+    percentile: number;
+    message: string;
+  } => {
+    const reliabilityScore = getReliabilityScore();
+    // Simulated network average - in production, this would come from backend
+    const networkAverage = 75;
+    const percentile = Math.min(95, Math.round((reliabilityScore / 100) * 95));
+
+    return {
+      betterThanAverage: reliabilityScore > networkAverage,
+      percentile,
+      message: reliabilityScore > networkAverage
+        ? `${percentile}th percentile - Better than ${percentile}% of stations`
+        : `Below network average - Room for improvement`
+    };
+  };
+
+  // Get top contributors
+  const getTopContributors = (): Array<{ userId: string; count: number }> => {
+    const history = safeCharger.verification_history || [];
+    const userCounts: { [key: string]: number } = {};
+
+    history.forEach(action => {
+      userCounts[action.user_id] = (userCounts[action.user_id] || 0) + 1;
+    });
+
+    return Object.entries(userCounts)
+      .map(([userId, count]) => ({ userId, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+  };
+
+  // Get what to expect
+  const getExpectations = (): string[] => {
+    const expectations: string[] = [];
+    const reliabilityScore = getReliabilityScore();
+
+    if (reliabilityScore >= 80) {
+      expectations.push('✓ High chance all ports will be available');
+      expectations.push('✓ Fast charging speeds confirmed by community');
+    } else if (reliabilityScore >= 60) {
+      expectations.push('~ Some ports may be in use or unavailable');
+      expectations.push('~ Charging speeds may vary');
+    } else {
+      expectations.push('⚠ May experience issues or downtime');
+      expectations.push('⚠ Consider having a backup station nearby');
+    }
+
+    if (safeCharger.amenities && safeCharger.amenities.length > 0) {
+      expectations.push(`✓ Amenities: ${safeCharger.amenities.slice(0, 2).join(', ')}`);
+    }
+
+    return expectations;
+  };
+
   const trends = calculateTrends();
   const reliabilityScore = getReliabilityScore();
   const bestTime = getBestTimeToVisit();
   const insights = getInsights();
+  const riskAssessment = getRiskAssessment();
+  const networkComparison = getNetworkComparison();
+  const topContributors = getTopContributors();
+  const expectations = getExpectations();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -316,6 +440,9 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   const scoreRotateAnim = useRef(new Animated.Value(0)).current;
   const insightsFadeAnim = useRef(new Animated.Value(0)).current;
   const trendsFadeAnim = useRef(new Animated.Value(0)).current;
+  const headerFadeAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const riskBadgeAnim = useRef(new Animated.Value(0)).current;
 
   // Trigger animations when modal opens
   useEffect(() => {
@@ -326,9 +453,16 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
       scoreRotateAnim.setValue(0);
       insightsFadeAnim.setValue(0);
       trendsFadeAnim.setValue(0);
+      headerFadeAnim.setValue(0);
+      riskBadgeAnim.setValue(0);
 
       // Stagger animations for smooth sequence
       Animated.sequence([
+        Animated.timing(headerFadeAnim, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 300,
@@ -347,6 +481,12 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             easing: Easing.out(Easing.cubic),
             useNativeDriver: true,
           }),
+          Animated.spring(riskBadgeAnim, {
+            toValue: 1,
+            tension: 40,
+            friction: 6,
+            useNativeDriver: true,
+          }),
         ]),
         Animated.timing(insightsFadeAnim, {
           toValue: 1,
@@ -359,6 +499,24 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
           useNativeDriver: true,
         }),
       ]).start();
+
+      // Continuous pulse animation for risk badge
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.08,
+            duration: 1000,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1000,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
     }
   }, [visible]);
 
@@ -471,15 +629,92 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
           </View>
 
           <ScrollView style={styles.content}>
+            {/* Quick Decision Helper */}
+            <Animated.View
+              style={[
+                styles.section,
+                styles.decisionSection,
+                { opacity: headerFadeAnim }
+              ]}
+            >
+              <View style={styles.decisionHeader}>
+                <Ionicons name="flash" size={24} color="#FFB300" />
+                <Text style={styles.decisionTitle}>Quick Decision</Text>
+              </View>
+              <Animated.View
+                style={[
+                  styles.riskBadge,
+                  { backgroundColor: riskAssessment.backgroundColor },
+                  {
+                    transform: [
+                      { scale: riskBadgeAnim },
+                      { scale: riskAssessment.level === 'high' ? pulseAnim : 1 }
+                    ]
+                  }
+                ]}
+              >
+                <View style={styles.riskBadgeContent}>
+                  <Ionicons
+                    name={
+                      riskAssessment.level === 'low' ? 'shield-checkmark' :
+                      riskAssessment.level === 'medium' ? 'warning' :
+                      'alert-circle'
+                    }
+                    size={32}
+                    color={riskAssessment.color}
+                  />
+                  <View style={styles.riskBadgeText}>
+                    <Text style={[styles.riskLabel, { color: riskAssessment.color }]}>
+                      {riskAssessment.label}
+                    </Text>
+                    <Text style={styles.riskRecommendation}>
+                      {riskAssessment.recommendation}
+                    </Text>
+                  </View>
+                </View>
+              </Animated.View>
+            </Animated.View>
+
+            {/* What to Expect */}
+            <Animated.View
+              style={[
+                styles.section,
+                { opacity: headerFadeAnim }
+              ]}
+            >
+              <Text style={styles.sectionTitle}>What to Expect</Text>
+              <View style={styles.expectationsContainer}>
+                {expectations.map((expectation, index) => (
+                  <View key={index} style={styles.expectationItem}>
+                    <Text style={styles.expectationText}>{expectation}</Text>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+
             {/* Current Level */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Current Verification Level</Text>
+              <Text style={styles.sectionTitle}>Verification Status</Text>
               <View style={styles.levelCard}>
                 <VerificationBadge level={safeCharger.verification_level} size="large" />
                 <View style={styles.levelInfo}>
                   <Text style={styles.levelDescription}>
                     {LEVEL_DESCRIPTIONS[safeCharger.verification_level as keyof typeof LEVEL_DESCRIPTIONS]}
                   </Text>
+                  {/* Network Comparison */}
+                  <View style={styles.comparisonBadge}>
+                    <Ionicons
+                      name={networkComparison.betterThanAverage ? 'trending-up' : 'analytics'}
+                      size={14}
+                      color={networkComparison.betterThanAverage ? '#4CAF50' : '#FF9800'}
+                    />
+                    <Text style={[
+                      styles.comparisonText,
+                      { color: networkComparison.betterThanAverage ? '#2E7D32' : '#F57C00' }
+                    ]}>
+                      {networkComparison.message}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
@@ -740,12 +975,40 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               </View>
             </View>
 
+            {/* Top Contributors */}
+            {topContributors.length > 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Top Community Contributors</Text>
+                <View style={styles.contributorsContainer}>
+                  {topContributors.map((contributor, index) => (
+                    <View key={index} style={styles.contributorCard}>
+                      <View style={styles.contributorRank}>
+                        <Ionicons
+                          name={index === 0 ? 'trophy' : index === 1 ? 'medal' : 'ribbon'}
+                          size={20}
+                          color={index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : '#CD7F32'}
+                        />
+                      </View>
+                      <View style={styles.contributorInfo}>
+                        <Text style={styles.contributorName}>
+                          {anonymizeUserId(contributor.userId)}
+                        </Text>
+                        <Text style={styles.contributorCount}>
+                          {contributor.count} verification{contributor.count > 1 ? 's' : ''}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
             {/* Verification History */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Verification History</Text>
+              <Text style={styles.sectionTitle}>Recent Verification History</Text>
               {safeCharger.verification_history && safeCharger.verification_history.length > 0 ? (
                 <View style={styles.timeline}>
-                  {safeCharger.verification_history.slice(-10).reverse().map((action: VerificationAction, index: number) => (
+                  {safeCharger.verification_history.slice(0, 8).map((action: VerificationAction, index: number) => (
                     <View key={index} style={styles.timelineItem}>
                       <View
                         style={[
@@ -1289,5 +1552,127 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: 8,
+  },
+  decisionSection: {
+    backgroundColor: 'transparent',
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  decisionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  decisionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  riskBadge: {
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  riskBadgeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  riskBadgeText: {
+    flex: 1,
+  },
+  riskLabel: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  riskRecommendation: {
+    fontSize: 13,
+    color: '#424242',
+    lineHeight: 19,
+    fontWeight: '500',
+  },
+  expectationsContainer: {
+    gap: 10,
+  },
+  expectationItem: {
+    backgroundColor: '#F8F9FA',
+    padding: 14,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#4CAF50',
+  },
+  expectationText: {
+    fontSize: 13,
+    color: '#1A1A1A',
+    lineHeight: 19,
+    fontWeight: '500',
+  },
+  comparisonBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    marginTop: 12,
+    alignSelf: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  comparisonText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  contributorsContainer: {
+    gap: 12,
+  },
+  contributorCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    padding: 16,
+    borderRadius: 14,
+    gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  contributorRank: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  contributorInfo: {
+    flex: 1,
+  },
+  contributorName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 4,
+  },
+  contributorCount: {
+    fontSize: 12,
+    color: '#666666',
   },
 });
