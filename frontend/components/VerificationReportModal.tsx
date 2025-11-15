@@ -321,28 +321,39 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   if (!charger && visible) {
     return (
       <Modal visible={visible} animationType="slide" transparent={true}>
-        <View style={styles.overlay}>
-          <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Verification Report</Text>
-              <TouchableOpacity onPress={onClose}>
-                <Ionicons name="close" size={28} color="#1A1A1A" />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.emptyState}>
-              <Ionicons name="alert-circle-outline" size={64} color="#CCCCCC" />
-              <Text style={styles.emptyText}>No charger data available</Text>
-            </View>
-          </SafeAreaView>
-        </View>
+        <TouchableOpacity
+          style={styles.overlay}
+          activeOpacity={1}
+          onPress={onClose}
+        >
+          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+            <SafeAreaView style={styles.container}>
+              <View style={styles.header}>
+                <Text style={styles.title}>Verification Report</Text>
+                <TouchableOpacity onPress={onClose}>
+                  <Ionicons name="close" size={28} color="#1A1A1A" />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.emptyState}>
+                <Ionicons name="alert-circle-outline" size={64} color="#CCCCCC" />
+                <Text style={styles.emptyText}>No charger data available</Text>
+              </View>
+            </SafeAreaView>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     );
   }
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
-      <View style={styles.overlay}>
-        <SafeAreaView style={styles.container}>
+      <TouchableOpacity
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={onClose}
+      >
+        <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+          <SafeAreaView style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>Verification Report</Text>
             <TouchableOpacity onPress={onClose}>
@@ -597,7 +608,8 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             </View>
           </ScrollView>
         </SafeAreaView>
-      </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 };
