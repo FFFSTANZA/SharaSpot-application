@@ -12,6 +12,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import bcrypt
 import requests
+import random
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
@@ -315,6 +316,67 @@ async def update_preferences(
     user.distance_unit = data.distance_unit
     return user
 # Chargers Routes
+def generate_mock_verification_history(level: int, verified_by_count: int, now: datetime) -> List[dict]:
+    """Generate realistic mock verification history for chargers"""
+    history = []
+
+    # Generate history based on verification level
+    history_count = verified_by_count
+    action_types = ['active', 'not_working', 'partial']
+
+    # Higher level = more "active" verifications
+    if level >= 4:
+        weights = [0.85, 0.05, 0.10]  # Mostly active
+    elif level >= 3:
+        weights = [0.70, 0.15, 0.15]
+    elif level >= 2:
+        weights = [0.55, 0.25, 0.20]
+    else:
+        weights = [0.40, 0.35, 0.25]
+
+    notes_options = [
+        'Working perfectly',
+        'All ports available',
+        'Quick charging confirmed',
+        'One port not working',
+        'Slow charging on port 2',
+        'Well maintained station',
+        'Station needs cleaning',
+        'Charger verified working',
+        'Fast charging available',
+        'Good location with amenities'
+    ]
+
+    for i in range(history_count):
+        # Distribute verifications over last 60 days
+        days_ago = int((i / max(history_count - 1, 1)) * 60) if history_count > 1 else 0
+        timestamp = now - timedelta(days=days_ago, hours=int((i * 7) % 24))
+
+        # Weighted random selection of action
+        rand = random.random()
+        if rand < weights[0]:
+            action = 'active'
+        elif rand < weights[0] + weights[1]:
+            action = 'not_working'
+        else:
+            action = 'partial'
+
+        user_id = f"user_{str(uuid.uuid4())[:8]}"
+
+        # 60% chance of having notes
+        notes = random.choice(notes_options) if random.random() > 0.4 else None
+
+        history.append({
+            "user_id": user_id,
+            "action": action,
+            "timestamp": timestamp,
+            "notes": notes
+        })
+
+    # Sort by timestamp descending (newest first)
+    history.sort(key=lambda x: x["timestamp"], reverse=True)
+    return history
+
 @api_router.get("/chargers", response_model=List[Charger])
 async def get_chargers(
     session_token: Optional[str] = Cookie(None),
@@ -347,7 +409,7 @@ async def get_chargers(
             "nearby_amenities": ["restaurant", "atm"],
             "photos": [],
             "verified_by_count": 25,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(5, 25, now),
             "last_verified": now - timedelta(days=2),
             "uptime_percentage": 98.5,
             "distance": 0.5,
@@ -370,7 +432,7 @@ async def get_chargers(
             "nearby_amenities": ["bank", "food court"],
             "photos": [],
             "verified_by_count": 18,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(4, 18, now),
             "last_verified": now - timedelta(days=5),
             "uptime_percentage": 95.2,
             "distance": 1.2,
@@ -393,7 +455,7 @@ async def get_chargers(
             "nearby_amenities": [],
             "photos": [],
             "verified_by_count": 12,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(3, 12, now),
             "last_verified": now - timedelta(days=15),
             "uptime_percentage": 87.3,
             "distance": 2.8,
@@ -416,7 +478,7 @@ async def get_chargers(
             "nearby_amenities": ["mall", "restaurant"],
             "photos": [],
             "verified_by_count": 30,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(5, 30, now),
             "last_verified": now - timedelta(days=1),
             "uptime_percentage": 99.1,
             "distance": 3.5,
@@ -439,7 +501,7 @@ async def get_chargers(
             "nearby_amenities": ["cafe"],
             "photos": [],
             "verified_by_count": 5,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(2, 5, now),
             "last_verified": now - timedelta(days=30),
             "uptime_percentage": 78.5,
             "distance": 1.8,
@@ -462,7 +524,7 @@ async def get_chargers(
             "nearby_amenities": ["bus stop"],
             "photos": [],
             "verified_by_count": 8,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(3, 8, now),
             "last_verified": now - timedelta(days=10),
             "uptime_percentage": 91.7,
             "distance": 2.1,
