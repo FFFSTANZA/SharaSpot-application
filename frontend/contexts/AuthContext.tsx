@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { SessionManager, StorageMigration } from '../utils/secureStorage';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -42,7 +42,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkSession = async () => {
     try {
-      const token = await AsyncStorage.getItem('session_token');
+      // Migrate old AsyncStorage tokens to secure storage
+      await StorageMigration.migrateSessionToken();
+
+      const token = await SessionManager.getToken();
       if (token) {
         const response = await axios.get(`${API_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -52,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setNeedsPreferences(needsPrefs);
       }
     } catch (error) {
-      await AsyncStorage.removeItem('session_token');
+      await SessionManager.clearToken();
     } finally {
       setLoading(false);
     }
@@ -61,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
-      await AsyncStorage.setItem('session_token', response.data.session_token);
+      await SessionManager.setToken(response.data.session_token);
       setUser(response.data.user);
       setNeedsPreferences(response.data.needs_preferences);
     } catch (error: any) {
@@ -72,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (email: string, password: string, name: string) => {
     try {
       const response = await axios.post(`${API_URL}/api/auth/signup`, { email, password, name });
-      await AsyncStorage.setItem('session_token', response.data.session_token);
+      await SessionManager.setToken(response.data.session_token);
       setUser(response.data.user);
       setNeedsPreferences(response.data.needs_preferences);
     } catch (error: any) {
@@ -96,7 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         headers: { 'X-Session-ID': sessionId }
       });
 
-      await AsyncStorage.setItem('session_token', response.data.session_token);
+      await SessionManager.setToken(response.data.session_token);
       setUser(response.data.user);
       setNeedsPreferences(response.data.needs_preferences);
 
@@ -112,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const continueAsGuest = async () => {
     try {
       const response = await axios.post(`${API_URL}/api/auth/guest`);
-      await AsyncStorage.setItem('session_token', response.data.session_token);
+      await SessionManager.setToken(response.data.session_token);
       setUser(response.data.user);
       setNeedsPreferences(false);
     } catch (error: any) {
@@ -122,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      const token = await AsyncStorage.getItem('session_token');
+      const token = await SessionManager.getToken();
       if (token) {
         await axios.post(`${API_URL}/api/auth/logout`, {}, {
           headers: { Authorization: `Bearer ${token}` }
@@ -131,7 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      await AsyncStorage.removeItem('session_token');
+      await SessionManager.clearToken();
       setUser(null);
       setNeedsPreferences(false);
     }
@@ -139,7 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updatePreferences = async (preferences: { port_type: string; vehicle_type: string; distance_unit: string }) => {
     try {
-      const token = await AsyncStorage.getItem('session_token');
+      const token = await SessionManager.getToken();
       const response = await axios.put(`${API_URL}/api/auth/preferences`, preferences, {
         headers: { Authorization: `Bearer ${token}` }
       });

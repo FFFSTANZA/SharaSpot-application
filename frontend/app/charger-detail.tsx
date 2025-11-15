@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SessionManager } from '../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { VerificationBadge } from '../components/VerificationBadge';
@@ -47,7 +47,7 @@ export default function ChargerDetail() {
         setLoading(false);
       } else if (params.id) {
         // Fetch from API if only ID provided
-        const token = await AsyncStorage.getItem('session_token');
+        const token = await SessionManager.getToken();
         const response = await axios.get(`${API_URL}/api/chargers/${params.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -97,7 +97,7 @@ export default function ChargerDetail() {
 
     setActionLoading(action);
     try {
-      const token = await AsyncStorage.getItem('session_token');
+      const token = await SessionManager.getToken();
       const response = await axios.post(
         `${API_URL}/api/chargers/${charger.id}/verify`,
         { action, notes: '' },

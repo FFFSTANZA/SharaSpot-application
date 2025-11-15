@@ -88,7 +88,7 @@ export default function Welcome() {
   const handleGuest = async () => {
     try {
       await continueAsGuest();
-      router.replace('/home');
+      router.replace('/(tabs)');
     } catch (error: any) {
       alert(error.message);
     }

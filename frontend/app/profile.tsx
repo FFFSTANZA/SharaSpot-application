@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SessionManager } from '../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,7 +40,7 @@ export default function Profile() {
 
   const loadProfileData = async () => {
     try {
-      const token = await AsyncStorage.getItem('session_token');
+      const token = await SessionManager.getToken();
 
       const statsResponse = await axios.get(`${API_URL}/api/profile/stats`, {
         headers: { Authorization: `Bearer ${token}` },

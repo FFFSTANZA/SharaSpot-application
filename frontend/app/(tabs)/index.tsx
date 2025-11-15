@@ -3,12 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Activ
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SessionManager } from '../../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { VerificationBadge } from '../../components/VerificationBadge';
 import { AmenitiesIcons } from '../../components/AmenitiesIcons';
 import { FilterModal, Filters } from '../../components/FilterModal';
+import { VerificationReportModal } from '../../components/VerificationReportModal';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 // Conditional import for MapView (mobile only)
@@ -63,6 +64,8 @@ export default function Discover() {
   const [refreshing, setRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [selectedChargerForReport, setSelectedChargerForReport] = useState<Charger | null>(null);
   const [filters, setFilters] = useState<Filters>({
     verificationLevel: null,
     portType: null,
@@ -78,8 +81,8 @@ export default function Discover() {
 
   const loadChargers = async () => {
     try {
-      const token = await AsyncStorage.getItem('session_token');
-      
+      const token = await SessionManager.getToken();
+
       // Build query params
       const params: any = {};
       if (filters.verificationLevel !== null) params.verification_level = filters.verificationLevel;
@@ -104,21 +107,6 @@ export default function Discover() {
   const handleRefresh = () => {
     setRefreshing(true);
     loadChargers();
-  };
-
-  const handleAddCharger = () => {
-    if (user?.is_guest) {
-      Alert.alert(
-        'Sign In Required',
-        'Please sign in to add hidden chargers',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Sign In', onPress: () => handleLogout() },
-        ]
-      );
-      return;
-    }
-    router.push('/add-charger');
   };
 
   const handleLogout = async () => {
@@ -189,7 +177,15 @@ export default function Discover() {
             {item.address}
           </Text>
         </View>
-        <VerificationBadge level={item.verification_level} size="small" />
+        <TouchableOpacity
+          onPress={() => {
+            setSelectedChargerForReport(item);
+            setReportModalVisible(true);
+          }}
+          activeOpacity={0.7}
+        >
+          <VerificationBadge level={item.verification_level} size="small" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.cardDetails}>
@@ -381,6 +377,13 @@ export default function Discover() {
         onClose={() => setFilterModalVisible(false)}
         onApply={handleFilterApply}
         currentFilters={filters}
+      />
+
+      {/* Verification Report Modal */}
+      <VerificationReportModal
+        visible={reportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        charger={selectedChargerForReport}
       />
     </SafeAreaView>
   );
@@ -635,23 +638,6 @@ const styles = StyleSheet.create({
     ...Typography.labelLarge,
     color: Colors.textInverse,
     letterSpacing: 0.5,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: Spacing.lg,
-    right: Spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.success,
-    paddingVertical: Spacing['3'],
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.full,
-    gap: Spacing.sm,
-    ...Shadows.lg,
-  },
-  fabText: {
-    ...Typography.labelMedium,
-    color: Colors.textInverse,
   },
   webMapFallback: {
     flex: 1,
