@@ -317,7 +317,7 @@ async def update_preferences(
     return user
 # Chargers Routes
 def generate_mock_verification_history(level: int, verified_by_count: int, now: datetime) -> List[dict]:
-    """Generate realistic mock verification history for chargers"""
+    """Generate realistic mock verification history for chargers with enhanced data"""
     history = []
 
     # Generate history based on verification level
@@ -344,13 +344,29 @@ def generate_mock_verification_history(level: int, verified_by_count: int, now: 
         'Station needs cleaning',
         'Charger verified working',
         'Fast charging available',
-        'Good location with amenities'
+        'Good location with amenities',
+        'Charging speed excellent',
+        'No wait time',
+        'Had to wait 15 minutes',
+        'Very crowded during lunch',
+        'Empty early morning',
+        'Clean and well-lit',
+        'Great amenities nearby'
     ]
 
+    # Peak hours: 8-10am and 5-7pm are busier
     for i in range(history_count):
         # Distribute verifications over last 60 days
         days_ago = int((i / max(history_count - 1, 1)) * 60) if history_count > 1 else 0
-        timestamp = now - timedelta(days=days_ago, hours=int((i * 7) % 24))
+
+        # Generate realistic time distribution (more during peak hours)
+        hour = random.choices(
+            range(24),
+            weights=[2,1,1,1,2,3,5,8,10,8,6,7,8,7,6,7,8,10,9,7,5,4,3,2],  # Peak at 8-10am and 5-7pm
+            k=1
+        )[0]
+
+        timestamp = now - timedelta(days=days_ago, hours=hour, minutes=random.randint(0, 59))
 
         # Weighted random selection of action
         rand = random.random()
@@ -363,14 +379,29 @@ def generate_mock_verification_history(level: int, verified_by_count: int, now: 
 
         user_id = f"user_{str(uuid.uuid4())[:8]}"
 
-        # 60% chance of having notes
-        notes = random.choice(notes_options) if random.random() > 0.4 else None
+        # 65% chance of having notes
+        notes = random.choice(notes_options) if random.random() > 0.35 else None
+
+        # Add charging duration and wait time data
+        charging_duration = None
+        wait_time = None
+
+        if action == 'active':
+            # Active stations have realistic charging durations (15-120 minutes)
+            charging_duration = random.randint(15, 120)
+            # Wait time based on time of day (0-30 minutes)
+            if 8 <= hour <= 10 or 17 <= hour <= 19:  # Peak hours
+                wait_time = random.randint(0, 30)
+            else:
+                wait_time = random.randint(0, 10)
 
         history.append({
             "user_id": user_id,
             "action": action,
             "timestamp": timestamp,
-            "notes": notes
+            "notes": notes,
+            "charging_duration": charging_duration,  # in minutes
+            "wait_time": wait_time  # in minutes
         })
 
     # Sort by timestamp descending (newest first)

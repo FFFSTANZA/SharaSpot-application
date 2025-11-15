@@ -19,6 +19,8 @@ interface VerificationAction {
   action: string;
   timestamp: string;
   notes?: string;
+  charging_duration?: number;  // in minutes
+  wait_time?: number;  // in minutes
 }
 
 interface TrendData {
@@ -425,6 +427,129 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
     return expectations;
   };
 
+  // Analyze peak hours and usage patterns
+  const getPeakHoursAnalysis = (): {
+    peakHours: string;
+    quietHours: string;
+    avgWaitTime: number;
+    avgChargingDuration: number;
+    hourlyData: Array<{ hour: number; count: number; successRate: number }>;
+  } => {
+    const history = safeCharger.verification_history || [];
+    const hourlyStats: { [key: number]: { total: number; active: number; waitTimes: number[]; durations: number[] } } = {};
+
+    // Initialize all hours
+    for (let i = 0; i < 24; i++) {
+      hourlyStats[i] = { total: 0, active: 0, waitTimes: [], durations: [] };
+    }
+
+    // Collect data by hour
+    history.forEach(action => {
+      const hour = new Date(action.timestamp).getHours();
+      hourlyStats[hour].total++;
+      if (action.action === 'active') {
+        hourlyStats[hour].active++;
+        if (action.wait_time !== undefined && action.wait_time !== null) {
+          hourlyStats[hour].waitTimes.push(action.wait_time);
+        }
+        if (action.charging_duration !== undefined && action.charging_duration !== null) {
+          hourlyStats[hour].durations.push(action.charging_duration);
+        }
+      }
+    });
+
+    // Find peak and quiet hours
+    const hoursWithData = Object.entries(hourlyStats)
+      .filter(([_, stats]) => stats.total > 0)
+      .sort((a, b) => b[1].total - a[1].total);
+
+    const peakHour = hoursWithData[0] ? parseInt(hoursWithData[0][0]) : 12;
+    const quietHour = hoursWithData[hoursWithData.length - 1]
+      ? parseInt(hoursWithData[hoursWithData.length - 1][0])
+      : 3;
+
+    // Calculate average wait time
+    const allWaitTimes = Object.values(hourlyStats).flatMap(stats => stats.waitTimes);
+    const avgWaitTime = allWaitTimes.length > 0
+      ? Math.round(allWaitTimes.reduce((sum, time) => sum + time, 0) / allWaitTimes.length)
+      : 0;
+
+    // Calculate average charging duration
+    const allDurations = Object.values(hourlyStats).flatMap(stats => stats.durations);
+    const avgChargingDuration = allDurations.length > 0
+      ? Math.round(allDurations.reduce((sum, dur) => sum + dur, 0) / allDurations.length)
+      : 45;  // default 45 minutes
+
+    // Prepare hourly data for visualization
+    const hourlyData = Object.entries(hourlyStats).map(([hour, stats]) => ({
+      hour: parseInt(hour),
+      count: stats.total,
+      successRate: stats.total > 0 ? (stats.active / stats.total) * 100 : 0
+    }));
+
+    const formatHour = (h: number) => {
+      if (h === 0) return '12 AM';
+      if (h < 12) return `${h} AM`;
+      if (h === 12) return '12 PM';
+      return `${h - 12} PM`;
+    };
+
+    return {
+      peakHours: formatHour(peakHour),
+      quietHours: formatHour(quietHour),
+      avgWaitTime,
+      avgChargingDuration,
+      hourlyData
+    };
+  };
+
+  // Get real-time availability prediction
+  const getAvailabilityPrediction = (): {
+    currentProbability: number;
+    status: 'high' | 'medium' | 'low';
+    message: string;
+    color: string;
+  } => {
+    const currentHour = new Date().getHours();
+    const peakHours = [8, 9, 17, 18, 19];  // Morning and evening rush
+    const reliabilityScore = getReliabilityScore();
+
+    let probability = reliabilityScore;
+
+    // Reduce probability during peak hours
+    if (peakHours.includes(currentHour)) {
+      probability = Math.max(0, probability - 15);
+    }
+
+    // Increase probability during off-peak
+    if (currentHour >= 0 && currentHour < 6) {
+      probability = Math.min(100, probability + 10);
+    }
+
+    if (probability >= 75) {
+      return {
+        currentProbability: probability,
+        status: 'high',
+        message: 'Very likely available now',
+        color: '#4CAF50'
+      };
+    } else if (probability >= 50) {
+      return {
+        currentProbability: probability,
+        status: 'medium',
+        message: 'Might have some wait time',
+        color: '#FF9800'
+      };
+    } else {
+      return {
+        currentProbability: probability,
+        status: 'low',
+        message: 'Call ahead recommended',
+        color: '#F44336'
+      };
+    }
+  };
+
   const trends = calculateTrends();
   const reliabilityScore = getReliabilityScore();
   const bestTime = getBestTimeToVisit();
@@ -433,6 +558,8 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   const networkComparison = getNetworkComparison();
   const topContributors = getTopContributors();
   const expectations = getExpectations();
+  const peakAnalysis = getPeakHoursAnalysis();
+  const availabilityPrediction = getAvailabilityPrediction();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -689,6 +816,80 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                     <Text style={styles.expectationText}>{expectation}</Text>
                   </View>
                 ))}
+              </View>
+            </Animated.View>
+
+            {/* Real-Time Availability Prediction */}
+            <Animated.View
+              style={[
+                styles.section,
+                styles.availabilitySection,
+                { opacity: headerFadeAnim }
+              ]}
+            >
+              <View style={styles.availabilityHeader}>
+                <Ionicons name="pulse" size={22} color="#2196F3" />
+                <Text style={styles.sectionTitle}>Availability Right Now</Text>
+              </View>
+              <View style={styles.availabilityCard}>
+                <View style={styles.probabilityCircle}>
+                  <Text style={[styles.probabilityNumber, { color: availabilityPrediction.color }]}>
+                    {availabilityPrediction.currentProbability}%
+                  </Text>
+                  <Text style={styles.probabilityLabel}>Likely Available</Text>
+                </View>
+                <View style={styles.availabilityInfo}>
+                  <Ionicons
+                    name={
+                      availabilityPrediction.status === 'high' ? 'checkmark-circle' :
+                      availabilityPrediction.status === 'medium' ? 'time' :
+                      'warning'
+                    }
+                    size={24}
+                    color={availabilityPrediction.color}
+                  />
+                  <Text style={[styles.availabilityMessage, { color: availabilityPrediction.color }]}>
+                    {availabilityPrediction.message}
+                  </Text>
+                </View>
+              </View>
+            </Animated.View>
+
+            {/* Usage Patterns & Wait Times */}
+            <Animated.View
+              style={[
+                styles.section,
+                { opacity: fadeAnim }
+              ]}
+            >
+              <Text style={styles.sectionTitle}>Usage Patterns & Wait Times</Text>
+              <View style={styles.usageGrid}>
+                <View style={styles.usageCard}>
+                  <Ionicons name="time-outline" size={28} color="#9C27B0" />
+                  <Text style={styles.usageValue}>{peakAnalysis.avgWaitTime} min</Text>
+                  <Text style={styles.usageLabel}>Avg Wait Time</Text>
+                </View>
+                <View style={styles.usageCard}>
+                  <Ionicons name="battery-charging" size={28} color="#4CAF50" />
+                  <Text style={styles.usageValue}>{peakAnalysis.avgChargingDuration} min</Text>
+                  <Text style={styles.usageLabel}>Avg Charging</Text>
+                </View>
+              </View>
+              <View style={styles.peakTimesContainer}>
+                <View style={styles.peakTimeRow}>
+                  <Ionicons name="arrow-up-circle" size={20} color="#F44336" />
+                  <View style={styles.peakTimeInfo}>
+                    <Text style={styles.peakTimeLabel}>Busiest Time</Text>
+                    <Text style={styles.peakTimeValue}>{peakAnalysis.peakHours}</Text>
+                  </View>
+                </View>
+                <View style={styles.peakTimeRow}>
+                  <Ionicons name="arrow-down-circle" size={20} color="#4CAF50" />
+                  <View style={styles.peakTimeInfo}>
+                    <Text style={styles.peakTimeLabel}>Quietest Time</Text>
+                    <Text style={styles.peakTimeValue}>{peakAnalysis.quietHours}</Text>
+                  </View>
+                </View>
               </View>
             </Animated.View>
 
@@ -1674,5 +1875,116 @@ const styles = StyleSheet.create({
   contributorCount: {
     fontSize: 12,
     color: '#666666',
+  },
+  availabilitySection: {
+    backgroundColor: '#FAFAFA',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  availabilityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  availabilityCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  probabilityCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#E0E0E0',
+  },
+  probabilityNumber: {
+    fontSize: 32,
+    fontWeight: '700',
+  },
+  probabilityLabel: {
+    fontSize: 10,
+    color: '#666666',
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  availabilityInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  availabilityMessage: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    lineHeight: 21,
+  },
+  usageGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  usageCard: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    padding: 20,
+    borderRadius: 14,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  usageValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  usageLabel: {
+    fontSize: 12,
+    color: '#666666',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  peakTimesContainer: {
+    gap: 12,
+  },
+  peakTimeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#F8F9FA',
+    padding: 16,
+    borderRadius: 12,
+  },
+  peakTimeInfo: {
+    flex: 1,
+  },
+  peakTimeLabel: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+  peakTimeValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A1A',
   },
 });
