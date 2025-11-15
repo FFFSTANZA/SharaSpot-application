@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SessionManager } from '../../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
 
@@ -112,7 +112,7 @@ export default function SmartEcoRouting() {
     setLoading(true);
 
     try {
-      const token = await AsyncStorage.getItem('session_token');
+      const token = await SessionManager.getToken();
       const batteryCapacity = getBatteryCapacity();
 
       // Mock coordinates (Chennai, Tamil Nadu) - in production, use geocoding

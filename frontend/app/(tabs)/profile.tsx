@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SessionManager } from '../../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
@@ -43,7 +43,7 @@ export default function Profile() {
 
   const loadProfileStats = async () => {
     try {
-      const token = await AsyncStorage.getItem('session_token');
+      const token = await SessionManager.getToken();
       const response = await axios.get(`${API_URL}/api/profile/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });

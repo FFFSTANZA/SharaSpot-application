@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Activ
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SessionManager } from '../../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { VerificationBadge } from '../../components/VerificationBadge';
@@ -78,8 +78,8 @@ export default function Discover() {
 
   const loadChargers = async () => {
     try {
-      const token = await AsyncStorage.getItem('session_token');
-      
+      const token = await SessionManager.getToken();
+
       // Build query params
       const params: any = {};
       if (filters.verificationLevel !== null) params.verification_level = filters.verificationLevel;
