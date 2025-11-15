@@ -4,7 +4,10 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "start:fresh": "expo start --clear",
     "reset-project": "node ./scripts/reset-project.js",
+    "clear-cache": "rm -rf .metro-cache .expo && expo start --clear",
+    "nuclear-reset": "./clear-all-caches.sh",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
