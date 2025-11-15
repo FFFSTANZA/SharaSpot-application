@@ -109,21 +109,6 @@ export default function Discover() {
     loadChargers();
   };
 
-  const handleAddCharger = () => {
-    if (user?.is_guest) {
-      Alert.alert(
-        'Sign In Required',
-        'Please sign in to add hidden chargers',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Sign In', onPress: () => handleLogout() },
-        ]
-      );
-      return;
-    }
-    router.push('/add-charger');
-  };
-
   const handleLogout = async () => {
     Alert.alert(
       'Logout',
@@ -653,23 +638,6 @@ const styles = StyleSheet.create({
     ...Typography.labelLarge,
     color: Colors.textInverse,
     letterSpacing: 0.5,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: Spacing.lg,
-    right: Spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.success,
-    paddingVertical: Spacing['3'],
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.full,
-    gap: Spacing.sm,
-    ...Shadows.lg,
-  },
-  fabText: {
-    ...Typography.labelMedium,
-    color: Colors.textInverse,
   },
   webMapFallback: {
     flex: 1,
