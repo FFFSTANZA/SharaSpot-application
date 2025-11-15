@@ -1,17 +1,18 @@
 # Metro Cache Issues - Troubleshooting Guide
 
-## The Problem
+## The Problem (NOW FIXED)
 
-This project uses a **persistent Metro cache** configuration in `metro.config.js` that stores bundler cache on disk. While this improves build performance, it can cause issues where old versions of the app persist even after code changes.
+This project **previously** used a **persistent Metro cache** configuration in `metro.config.js` that stored bundler cache on disk. This was causing serious issues where old versions of the app persisted even after code changes.
 
-### Symptoms
+### Symptoms (that occurred before the fix)
 - App displays old/mixed versions of code
 - Changes not reflected after restart
 - "Combining few old versions" behavior
+- App works for few minutes, then reverts to old version
 
-## Root Cause
+## Root Cause (FIXED)
 
-The `metro.config.js` file (lines 8-12) explicitly configures a FileStore cache:
+The `metro.config.js` file was explicitly configuring a persistent FileStore cache:
 
 ```javascript
 const root = process.env.METRO_CACHE_ROOT || path.join(__dirname, '.metro-cache');
@@ -20,7 +21,11 @@ config.cacheStores = [
 ];
 ```
 
-This cache persists between Metro restarts and can hold stale bundles.
+This cache persisted between Metro restarts and held stale bundles that would be served even after clearing caches manually.
+
+## Permanent Fix Applied
+
+**The persistent cache has been DISABLED in `metro.config.js`**. Metro now uses default in-memory caching only. This prevents stale bundles from persisting between sessions.
 
 ## Solutions
 
@@ -113,13 +118,23 @@ All must be cleared for a truly fresh start.
 - `package.json` - Added cache clearing scripts
 - `clear-all-caches.sh` - Nuclear reset script
 
-## Future Considerations
+## Going Forward
 
-If you want to disable persistent caching during development, you can:
+With the persistent cache disabled, you should:
 
-1. Comment out the `config.cacheStores` in `metro.config.js`
-2. Set environment variable: `export METRO_CACHE_ROOT=/tmp/metro-cache`
-3. Always use `--clear` flag when starting
+1. **Start normally**: Just use `npm start` or `npm run start:fresh`
+2. **No more mixed versions**: The issue of old/new code mixing is resolved
+3. **Slightly slower first builds**: Metro will rebuild more often, but this ensures fresh code
+4. **Use `--clear` if needed**: If you ever see stale code, run `npm run start:fresh`
+
+## Re-enabling Persistent Cache (Not Recommended)
+
+If you need persistent caching for performance and are willing to manually manage cache issues:
+
+1. Uncomment the FileStore configuration in `metro.config.js` (lines 12-15)
+2. Always use `npm run start:fresh` when starting development
+3. Run `npm run nuclear-reset` if you see any cache issues
+4. Be prepared for the old/mixed version issues to potentially return
 
 ## Quick Reference
 
