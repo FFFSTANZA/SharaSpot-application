@@ -155,42 +155,151 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
     return Math.round(((activeCount + partialCount * 0.5) / history.length) * 100);
   };
 
-  const getBestTimeToVisit = (): string => {
+  const getBestTimeToVisit = (): { recommendation: string; timeSlots: string[] } => {
     const reliabilityScore = getReliabilityScore();
-    if (reliabilityScore >= 80) return 'Anytime - Highly reliable';
-    if (reliabilityScore >= 60) return 'Weekdays preferred - More consistent';
-    if (reliabilityScore >= 40) return 'Call ahead - Variable availability';
-    return 'Check real-time status first';
+    const history = safeCharger.verification_history || [];
+
+    // Analyze verification times to suggest best visiting hours
+    const timeSlots: string[] = [];
+    if (history.length > 0) {
+      const hourCounts: { [key: string]: { active: number; total: number } } = {};
+
+      history.forEach(action => {
+        const hour = new Date(action.timestamp).getHours();
+        let period = '';
+        if (hour >= 6 && hour < 12) period = 'Morning (6AM-12PM)';
+        else if (hour >= 12 && hour < 17) period = 'Afternoon (12PM-5PM)';
+        else if (hour >= 17 && hour < 21) period = 'Evening (5PM-9PM)';
+        else period = 'Night (9PM-6AM)';
+
+        if (!hourCounts[period]) hourCounts[period] = { active: 0, total: 0 };
+        hourCounts[period].total++;
+        if (action.action === 'active') hourCounts[period].active++;
+      });
+
+      // Find periods with highest success rate
+      Object.entries(hourCounts)
+        .sort(([, a], [, b]) => (b.active / b.total) - (a.active / a.total))
+        .slice(0, 2)
+        .forEach(([period]) => timeSlots.push(period));
+    }
+
+    let recommendation = '';
+    if (reliabilityScore >= 80) recommendation = 'Anytime - Highly reliable';
+    else if (reliabilityScore >= 60) recommendation = 'Weekdays preferred - More consistent';
+    else if (reliabilityScore >= 40) recommendation = 'Call ahead - Variable availability';
+    else recommendation = 'Check real-time status first';
+
+    return { recommendation, timeSlots };
   };
 
-  const getInsights = (): string[] => {
-    const insights: string[] = [];
+  const getInsights = (): Array<{ icon: string; text: string; type: 'positive' | 'warning' | 'neutral' }> => {
+    const insights: Array<{ icon: string; text: string; type: 'positive' | 'warning' | 'neutral' }> = [];
     const trends = calculateTrends();
     const reliabilityScore = getReliabilityScore();
     const level = safeCharger.verification_level;
+    const history = safeCharger.verification_history || [];
 
-    if (reliabilityScore >= 85) {
-      insights.push('⭐ Consistently reliable with high uptime');
-    }
-
+    // Recent activity warning
     if (trends.last24h.notWorkingCount > 2) {
-      insights.push('⚠️ Recent reports of issues - check before visiting');
+      insights.push({
+        icon: 'alert-circle',
+        text: 'Multiple issues reported in last 24h - verify before visiting',
+        type: 'warning'
+      });
+    } else if (trends.last24h.notWorkingCount > 0) {
+      insights.push({
+        icon: 'information-circle',
+        text: `${trends.last24h.notWorkingCount} issue(s) reported recently - check status`,
+        type: 'warning'
+      });
     }
 
-    if (level >= 4) {
-      insights.push('🏆 Trusted by the community - verified multiple times');
+    // Positive reliability insights
+    if (reliabilityScore >= 85) {
+      insights.push({
+        icon: 'star',
+        text: `Consistently reliable - ${reliabilityScore}% success rate`,
+        type: 'positive'
+      });
     }
 
     if (trends.last7d.activeCount >= 5) {
-      insights.push('✅ Actively verified this week - data is fresh');
+      insights.push({
+        icon: 'checkmark-done-circle',
+        text: `${trends.last7d.activeCount} active verifications this week - data is fresh`,
+        type: 'positive'
+      });
     }
 
+    // Trust level insights
+    if (level >= 4) {
+      insights.push({
+        icon: 'shield-checkmark',
+        text: `Highly trusted by community - Level ${level} verified`,
+        type: 'positive'
+      });
+    }
+
+    // Uptime insights
     if (safeCharger.uptime_percentage >= 90) {
-      insights.push('📈 Excellent uptime history');
+      insights.push({
+        icon: 'trending-up',
+        text: `${safeCharger.uptime_percentage.toFixed(1)}% uptime - excellent availability`,
+        type: 'positive'
+      });
+    } else if (safeCharger.uptime_percentage < 70) {
+      insights.push({
+        icon: 'trending-down',
+        text: `${safeCharger.uptime_percentage.toFixed(1)}% uptime - frequent issues reported`,
+        type: 'warning'
+      });
+    }
+
+    // Community engagement
+    if (safeCharger.verified_by_count >= 20) {
+      insights.push({
+        icon: 'people',
+        text: `${safeCharger.verified_by_count} community verifiers - well-monitored`,
+        type: 'positive'
+      });
+    }
+
+    // Recent verification freshness
+    const daysSinceLastVerified = safeCharger.last_verified
+      ? Math.floor((new Date().getTime() - new Date(safeCharger.last_verified).getTime()) / (1000 * 60 * 60 * 24))
+      : 999;
+
+    if (daysSinceLastVerified > 30) {
+      insights.push({
+        icon: 'time',
+        text: 'No recent verifications - status may be outdated',
+        type: 'warning'
+      });
+    } else if (daysSinceLastVerified <= 3) {
+      insights.push({
+        icon: 'refresh',
+        text: 'Recently verified - status is up to date',
+        type: 'positive'
+      });
+    }
+
+    // Trend analysis
+    const recentTrend = trends.last7d.activeCount >= trends.last30d.activeCount / 4;
+    if (recentTrend && trends.last7d.activeCount > 3) {
+      insights.push({
+        icon: 'arrow-up-circle',
+        text: 'Improving reliability - more active reports recently',
+        type: 'positive'
+      });
     }
 
     if (insights.length === 0) {
-      insights.push('📊 Limited verification data - be the first to verify!');
+      insights.push({
+        icon: 'analytics',
+        text: 'Limited verification data - help the community by verifying',
+        type: 'neutral'
+      });
     }
 
     return insights;
@@ -401,8 +510,19 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                     </Text>
                     <View style={styles.bestTimeChip}>
                       <Ionicons name="time-outline" size={14} color="#4CAF50" />
-                      <Text style={styles.bestTimeText}>{bestTime}</Text>
+                      <Text style={styles.bestTimeText}>{bestTime.recommendation}</Text>
                     </View>
+                    {bestTime.timeSlots.length > 0 && (
+                      <View style={styles.timeSlotsContainer}>
+                        <Text style={styles.timeSlotsLabel}>Best times:</Text>
+                        {bestTime.timeSlots.map((slot, idx) => (
+                          <View key={idx} style={styles.timeSlot}>
+                            <Ionicons name="time" size={12} color="#2E7D32" />
+                            <Text style={styles.timeSlotText}>{slot}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
                   </View>
                 </View>
               </View>
@@ -426,11 +546,36 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                   },
                 ]}
               >
-                <Text style={styles.sectionTitle}>Key Insights</Text>
+                <Text style={styles.sectionTitle}>Smart Insights & Recommendations</Text>
                 <View style={styles.insightsContainer}>
                   {insights.map((insight, index) => (
-                    <View key={index} style={styles.insightCard}>
-                      <Text style={styles.insightText}>{insight}</Text>
+                    <View
+                      key={index}
+                      style={[
+                        styles.insightCard,
+                        insight.type === 'positive' && styles.insightCardPositive,
+                        insight.type === 'warning' && styles.insightCardWarning,
+                        insight.type === 'neutral' && styles.insightCardNeutral,
+                      ]}
+                    >
+                      <Ionicons
+                        name={insight.icon as any}
+                        size={20}
+                        color={
+                          insight.type === 'positive' ? '#2E7D32' :
+                          insight.type === 'warning' ? '#F57C00' :
+                          '#1976D2'
+                        }
+                      />
+                      <Text
+                        style={[
+                          styles.insightText,
+                          insight.type === 'positive' && styles.insightTextPositive,
+                          insight.type === 'warning' && styles.insightTextWarning,
+                        ]}
+                      >
+                        {insight.text}
+                      </Text>
                     </View>
                   ))}
                 </View>
@@ -458,30 +603,70 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               <View style={styles.trendsContainer}>
                 {[trends.last24h, trends.last7d, trends.last30d].map((trend, index) => {
                   const total = trend.activeCount + trend.notWorkingCount + trend.partialCount;
+                  const activePercent = total > 0 ? (trend.activeCount / total) * 100 : 0;
+                  const partialPercent = total > 0 ? (trend.partialCount / total) * 100 : 0;
+                  const failPercent = total > 0 ? (trend.notWorkingCount / total) * 100 : 0;
+
                   return (
                     <View key={index} style={styles.trendCard}>
                       <Text style={styles.trendPeriod}>{trend.period}</Text>
                       <Text style={styles.trendTotal}>{total}</Text>
-                      <Text style={styles.trendLabel}>checks</Text>
-                      {total > 0 && (
-                        <View style={styles.trendBreakdown}>
-                          <View style={styles.trendRow}>
-                            <View style={[styles.trendDot, { backgroundColor: '#4CAF50' }]} />
-                            <Text style={styles.trendValue}>{trend.activeCount}</Text>
+                      <Text style={styles.trendLabel}>verifications</Text>
+
+                      {total > 0 ? (
+                        <>
+                          {/* Visual Progress Bar */}
+                          <View style={styles.trendProgressBar}>
+                            {activePercent > 0 && (
+                              <View
+                                style={[
+                                  styles.trendProgressSegment,
+                                  { width: `${activePercent}%`, backgroundColor: '#4CAF50' }
+                                ]}
+                              />
+                            )}
+                            {partialPercent > 0 && (
+                              <View
+                                style={[
+                                  styles.trendProgressSegment,
+                                  { width: `${partialPercent}%`, backgroundColor: '#FF9800' }
+                                ]}
+                              />
+                            )}
+                            {failPercent > 0 && (
+                              <View
+                                style={[
+                                  styles.trendProgressSegment,
+                                  { width: `${failPercent}%`, backgroundColor: '#F44336' }
+                                ]}
+                              />
+                            )}
                           </View>
-                          {trend.partialCount > 0 && (
-                            <View style={styles.trendRow}>
-                              <View style={[styles.trendDot, { backgroundColor: '#FF9800' }]} />
-                              <Text style={styles.trendValue}>{trend.partialCount}</Text>
-                            </View>
-                          )}
-                          {trend.notWorkingCount > 0 && (
-                            <View style={styles.trendRow}>
-                              <View style={[styles.trendDot, { backgroundColor: '#F44336' }]} />
-                              <Text style={styles.trendValue}>{trend.notWorkingCount}</Text>
-                            </View>
-                          )}
-                        </View>
+
+                          {/* Breakdown */}
+                          <View style={styles.trendBreakdown}>
+                            {trend.activeCount > 0 && (
+                              <View style={styles.trendRow}>
+                                <View style={[styles.trendDot, { backgroundColor: '#4CAF50' }]} />
+                                <Text style={styles.trendValue}>{trend.activeCount} active</Text>
+                              </View>
+                            )}
+                            {trend.partialCount > 0 && (
+                              <View style={styles.trendRow}>
+                                <View style={[styles.trendDot, { backgroundColor: '#FF9800' }]} />
+                                <Text style={styles.trendValue}>{trend.partialCount} partial</Text>
+                              </View>
+                            )}
+                            {trend.notWorkingCount > 0 && (
+                              <View style={styles.trendRow}>
+                                <View style={[styles.trendDot, { backgroundColor: '#F44336' }]} />
+                                <Text style={styles.trendValue}>{trend.notWorkingCount} down</Text>
+                              </View>
+                            )}
+                          </View>
+                        </>
+                      ) : (
+                        <Text style={styles.noDataText}>No data</Text>
                       )}
                     </View>
                   );
@@ -491,26 +676,66 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
 
             {/* Statistics */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Quick Statistics</Text>
+              <Text style={styles.sectionTitle}>Performance Metrics</Text>
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
-                  <Ionicons name="people" size={24} color="#2196F3" />
+                  <View style={styles.statIconCircle}>
+                    <Ionicons name="people" size={24} color="#2196F3" />
+                  </View>
                   <Text style={styles.statValue}>{safeCharger.verified_by_count}</Text>
-                  <Text style={styles.statLabel}>Verifiers</Text>
+                  <Text style={styles.statLabel}>Community Verifiers</Text>
+                  <View style={styles.statBar}>
+                    <View
+                      style={[
+                        styles.statBarFill,
+                        {
+                          width: `${Math.min((safeCharger.verified_by_count / 30) * 100, 100)}%`,
+                          backgroundColor: '#2196F3',
+                        },
+                      ]}
+                    />
+                  </View>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name="trending-up" size={24} color="#4CAF50" />
+                  <View style={[
+                    styles.statIconCircle,
+                    { backgroundColor: safeCharger.uptime_percentage >= 90 ? '#E8F5E9' : '#FFF3E0' }
+                  ]}>
+                    <Ionicons
+                      name={safeCharger.uptime_percentage >= 90 ? 'trending-up' : 'analytics'}
+                      size={24}
+                      color={safeCharger.uptime_percentage >= 90 ? '#4CAF50' : '#FF9800'}
+                    />
+                  </View>
                   <Text style={styles.statValue}>{safeCharger.uptime_percentage.toFixed(1)}%</Text>
-                  <Text style={styles.statLabel}>Uptime</Text>
+                  <Text style={styles.statLabel}>Uptime Rate</Text>
+                  <View style={styles.statBar}>
+                    <View
+                      style={[
+                        styles.statBarFill,
+                        {
+                          width: `${safeCharger.uptime_percentage}%`,
+                          backgroundColor: safeCharger.uptime_percentage >= 90 ? '#4CAF50' : '#FF9800',
+                        },
+                      ]}
+                    />
+                  </View>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name="time" size={24} color="#FF9800" />
+                  <View style={styles.statIconCircle}>
+                    <Ionicons name="time" size={24} color="#9C27B0" />
+                  </View>
                   <Text style={styles.statValue}>
                     {safeCharger.last_verified
                       ? formatDate(safeCharger.last_verified).split(',')[0]
-                      : 'N/A'}
+                      : 'Never'}
                   </Text>
-                  <Text style={styles.statLabel}>Last Check</Text>
+                  <Text style={styles.statLabel}>Last Verified</Text>
+                  {safeCharger.last_verified && (
+                    <Text style={styles.statSubtext}>
+                      {formatDate(safeCharger.last_verified)}
+                    </Text>
+                  )}
                 </View>
               </View>
             </View>
@@ -690,21 +915,50 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  statIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#E3F2FD',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   statValue: {
     fontSize: 20,
     fontWeight: '700',
     color: '#1A1A1A',
-    marginTop: 8,
+    marginTop: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#666666',
     marginTop: 4,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  statSubtext: {
+    fontSize: 9,
+    color: '#999999',
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  statBar: {
+    width: '100%',
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  statBarFill: {
+    height: '100%',
+    borderRadius: 2,
   },
   timeline: {
     gap: 16,
@@ -899,25 +1153,71 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2E7D32',
   },
+  timeSlotsContainer: {
+    marginTop: 8,
+    gap: 4,
+  },
+  timeSlotsLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#666666',
+    marginBottom: 4,
+  },
+  timeSlot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F1F8E9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  timeSlotText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#2E7D32',
+  },
   insightsContainer: {
-    gap: 8,
+    gap: 10,
   },
   insightCard: {
-    backgroundColor: '#E3F2FD',
-    padding: 14,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    borderRadius: 14,
     borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
-    shadowColor: '#2196F3',
-    shadowOffset: { width: 0, height: 1 },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  insightCardPositive: {
+    backgroundColor: '#E8F5E9',
+    borderLeftColor: '#4CAF50',
+  },
+  insightCardWarning: {
+    backgroundColor: '#FFF3E0',
+    borderLeftColor: '#FF9800',
+  },
+  insightCardNeutral: {
+    backgroundColor: '#E3F2FD',
+    borderLeftColor: '#2196F3',
   },
   insightText: {
+    flex: 1,
     fontSize: 13,
     color: '#1A1A1A',
-    lineHeight: 18,
+    lineHeight: 19,
+    fontWeight: '500',
+  },
+  insightTextPositive: {
+    color: '#1B5E20',
+  },
+  insightTextWarning: {
+    color: '#E65100',
   },
   trendsContainer: {
     flexDirection: 'row',
@@ -950,10 +1250,22 @@ const styles = StyleSheet.create({
   trendLabel: {
     fontSize: 11,
     color: '#999999',
-    marginBottom: 8,
+    marginBottom: 10,
+  },
+  trendProgressBar: {
+    flexDirection: 'row',
+    height: 8,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 10,
+    width: '100%',
+  },
+  trendProgressSegment: {
+    height: '100%',
   },
   trendBreakdown: {
-    gap: 4,
+    gap: 6,
     width: '100%',
   },
   trendRow: {
@@ -967,8 +1279,15 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   trendValue: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
     color: '#666666',
+  },
+  noDataText: {
+    fontSize: 11,
+    color: '#999999',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
   },
 });
