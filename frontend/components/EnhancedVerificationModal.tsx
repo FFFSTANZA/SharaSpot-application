@@ -99,7 +99,7 @@ export function EnhancedVerificationModal({
         useNativeDriver: true,
       }),
     ]).start();
-  }, [getBonusCoins()]);
+  }, [portTypeUsed, portsAvailable, chargingSuccess, paymentMethod, stationLighting, cleanlinessRating, chargingSpeedRating, amenitiesRating, wouldRecommend, waitTime, photoUrl, action]);
 
   const resetForm = () => {
     setStep('action');
