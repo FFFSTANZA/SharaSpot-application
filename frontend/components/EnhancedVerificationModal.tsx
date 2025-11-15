@@ -339,7 +339,7 @@ export function EnhancedVerificationModal({
         <View style={styles.bonusContent}>
           <Text style={styles.bonusTitle}>Earn Up To 9 Coins!</Text>
           <Text style={styles.bonusDescription}>
-            Provide detailed feedback to maximize your rewards
+            Share port details, payment info & ratings to unlock maximum rewards 🏆
           </Text>
         </View>
       </View>

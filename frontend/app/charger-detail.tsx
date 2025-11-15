@@ -117,13 +117,22 @@ export default function ChargerDetail() {
       const bonusReasons = response.data.bonus_reasons || [];
       const newLevel = response.data.new_level;
 
+      // Celebratory message based on coins earned
+      let title = 'Verified! 🎉';
+      if (totalCoins >= 9) title = 'Perfect Verification! 🏆';
+      else if (totalCoins >= 7) title = 'Excellent Work! ✨';
+      else if (totalCoins >= 5) title = 'Great Job! 🌟';
+
       let message = `🪙 +${totalCoins} SharaCoins earned!`;
       if (bonusCoins > 0) {
         message += `\n\n✨ Bonus: +${bonusCoins} (${bonusReasons.join(', ')})`;
       }
+      if (totalCoins >= 9) {
+        message += `\n\n🏆 Maximum rewards unlocked!`;
+      }
       message += `\n\nStation level: L${newLevel}`;
 
-      Alert.alert('Verified! 🎉', message, [
+      Alert.alert(title, message, [
         { text: 'OK', onPress: () => loadChargerDetails() },
       ]);
     } catch (error: any) {
@@ -248,7 +257,7 @@ export default function ChargerDetail() {
                   <View style={styles.verifyButtonContent}>
                     <Text style={styles.verifyButtonTitle}>Verify This Station</Text>
                     <Text style={styles.verifyButtonSubtitle}>
-                      Earn up to 6 🪙 with detailed feedback
+                      Earn up to 9 🪙 with detailed feedback
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
