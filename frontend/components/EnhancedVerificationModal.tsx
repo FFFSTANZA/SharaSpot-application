@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,12 +21,24 @@ interface EnhancedVerificationModalProps {
 export interface VerificationData {
   action: 'active' | 'not_working' | 'partial';
   notes?: string;
+  // Wait time and port context
   wait_time?: number;
+  port_type_used?: string;
+  ports_available?: number;
+  charging_success?: boolean;
+  // Operational details
+  payment_method?: string;
+  station_lighting?: string;
+  // Quality ratings
   cleanliness_rating?: number;
   charging_speed_rating?: number;
   amenities_rating?: number;
   would_recommend?: boolean;
+  // Photo evidence (for not_working reports)
+  photo_url?: string;
 }
+
+type Step = 'action' | 'wait_time' | 'port_context' | 'operational' | 'quality' | 'photo';
 
 export function EnhancedVerificationModal({
   visible,
@@ -34,29 +46,113 @@ export function EnhancedVerificationModal({
   onSubmit,
   chargerName,
 }: EnhancedVerificationModalProps) {
-  const [step, setStep] = useState<'action' | 'details'>('action');
+  const [step, setStep] = useState<Step>('action');
   const [action, setAction] = useState<'active' | 'not_working' | 'partial' | null>(null);
   const [notes, setNotes] = useState('');
+
+  // Wait time and port context
   const [waitTime, setWaitTime] = useState<number | undefined>();
+  const [portTypeUsed, setPortTypeUsed] = useState<string | undefined>();
+  const [portsAvailable, setPortsAvailable] = useState<number | undefined>();
+  const [chargingSuccess, setChargingSuccess] = useState<boolean | undefined>();
+
+  // Operational details
+  const [paymentMethod, setPaymentMethod] = useState<string | undefined>();
+  const [stationLighting, setStationLighting] = useState<string | undefined>();
+
+  // Quality ratings
   const [cleanlinessRating, setCleanlinessRating] = useState<number | undefined>();
   const [chargingSpeedRating, setChargingSpeedRating] = useState<number | undefined>();
   const [amenitiesRating, setAmenitiesRating] = useState<number | undefined>();
   const [wouldRecommend, setWouldRecommend] = useState<boolean | undefined>();
+
+  // Photo evidence
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>();
+
+  // Animation
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const coinPulse = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (visible) {
+      // Slide in animation
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 50,
+        friction: 8,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [step, visible]);
+
+  useEffect(() => {
+    // Pulse coin counter when bonus changes
+    Animated.sequence([
+      Animated.timing(coinPulse, {
+        toValue: 1.2,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(coinPulse, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [getBonusCoins()]);
 
   const resetForm = () => {
     setStep('action');
     setAction(null);
     setNotes('');
     setWaitTime(undefined);
+    setPortTypeUsed(undefined);
+    setPortsAvailable(undefined);
+    setChargingSuccess(undefined);
+    setPaymentMethod(undefined);
+    setStationLighting(undefined);
     setCleanlinessRating(undefined);
     setChargingSpeedRating(undefined);
     setAmenitiesRating(undefined);
     setWouldRecommend(undefined);
+    setPhotoUrl(undefined);
   };
 
   const handleActionSelect = (selectedAction: 'active' | 'not_working' | 'partial') => {
     setAction(selectedAction);
-    setStep('details');
+    // For not_working, skip directly to photo step after wait time
+    setStep('wait_time');
+  };
+
+  const getNextStep = (currentStep: Step): Step | null => {
+    if (currentStep === 'action') return 'wait_time';
+    if (currentStep === 'wait_time') return 'port_context';
+    if (currentStep === 'port_context') return 'operational';
+    if (currentStep === 'operational') return 'quality';
+    if (currentStep === 'quality') {
+      // Only show photo step for not_working reports
+      if (action === 'not_working') return 'photo';
+      return null; // Done
+    }
+    if (currentStep === 'photo') return null; // Done
+    return null;
+  };
+
+  const handleNext = () => {
+    const next = getNextStep(step);
+    if (next) {
+      setStep(next);
+    } else {
+      handleSubmit();
+    }
+  };
+
+  const handleBack = () => {
+    if (step === 'wait_time') setStep('action');
+    else if (step === 'port_context') setStep('wait_time');
+    else if (step === 'operational') setStep('port_context');
+    else if (step === 'quality') setStep('operational');
+    else if (step === 'photo') setStep('quality');
   };
 
   const handleSubmit = () => {
@@ -66,10 +162,16 @@ export function EnhancedVerificationModal({
       action,
       notes: notes.trim() || undefined,
       wait_time: waitTime,
+      port_type_used: portTypeUsed,
+      ports_available: portsAvailable,
+      charging_success: chargingSuccess,
+      payment_method: paymentMethod,
+      station_lighting: stationLighting,
       cleanliness_rating: cleanlinessRating,
       charging_speed_rating: chargingSpeedRating,
       amenities_rating: amenitiesRating,
       would_recommend: wouldRecommend,
+      photo_url: photoUrl,
     };
 
     onSubmit(data);
@@ -81,22 +183,65 @@ export function EnhancedVerificationModal({
     onClose();
   };
 
-  const handleSkipDetails = () => {
+  const handleSkip = () => {
     handleSubmit();
   };
 
   const getBonusCoins = (): number => {
     let bonus = 0;
-    const detailedFields = [cleanlinessRating, chargingSpeedRating, amenitiesRating, wouldRecommend];
-    const detailedCount = detailedFields.filter(f => f !== undefined).length;
 
-    if (detailedCount >= 3) bonus = 3;
-    else if (detailedCount >= 2) bonus = 2;
-    else if (detailedCount >= 1) bonus = 1;
+    // Port context bonus (+1 if provided 2+ of 3 fields)
+    const portContextFields = [portTypeUsed, portsAvailable, chargingSuccess];
+    const portContextCount = portContextFields.filter(f => f !== undefined).length;
+    if (portContextCount >= 2) bonus += 1;
 
+    // Operational details bonus (+1 if provided both fields)
+    if (paymentMethod && stationLighting) bonus += 1;
+
+    // Quality ratings bonus (+1-3 based on completeness)
+    const qualityFields = [cleanlinessRating, chargingSpeedRating, amenitiesRating, wouldRecommend];
+    const qualityCount = qualityFields.filter(f => f !== undefined).length;
+    if (qualityCount >= 3) bonus += 3;
+    else if (qualityCount >= 2) bonus += 2;
+    else if (qualityCount >= 1) bonus += 1;
+
+    // Wait time bonus (+1)
     if (waitTime !== undefined) bonus += 1;
 
+    // Photo evidence bonus (+2, only for not_working)
+    if (photoUrl && action === 'not_working') bonus += 2;
+
     return bonus;
+  };
+
+  const getTotalCoins = (): number => {
+    return Math.min(2 + getBonusCoins(), 9);
+  };
+
+  const getStepNumber = (): { current: number; total: number } => {
+    const stepOrder: Step[] = ['action', 'wait_time', 'port_context', 'operational', 'quality'];
+    if (action === 'not_working') stepOrder.push('photo');
+
+    const current = stepOrder.indexOf(step) + 1;
+    const total = stepOrder.length;
+
+    return { current, total };
+  };
+
+  const renderProgressBar = () => {
+    const { current, total } = getStepNumber();
+    const progress = (current / total) * 100;
+
+    return (
+      <View style={styles.progressContainer}>
+        <View style={styles.progressBar}>
+          <View style={[styles.progressFill, { width: `${progress}%` }]} />
+        </View>
+        <Text style={styles.progressText}>
+          Step {current} of {total}
+        </Text>
+      </View>
+    );
   };
 
   const renderStarRating = (
@@ -128,6 +273,497 @@ export function EnhancedVerificationModal({
     </View>
   );
 
+  const renderActionStep = () => (
+    <View>
+      <Text style={styles.instructionText}>
+        What's the current status of this charging station?
+      </Text>
+
+      <TouchableOpacity
+        style={[styles.actionCard, styles.activeCard]}
+        onPress={() => handleActionSelect('active')}
+      >
+        <View style={styles.actionIconCircle}>
+          <Ionicons name="checkmark-circle" size={40} color="#4CAF50" />
+        </View>
+        <View style={styles.actionContent}>
+          <Text style={styles.actionTitle}>Active & Working</Text>
+          <Text style={styles.actionDescription}>
+            All chargers are functional and available
+          </Text>
+          <Text style={styles.actionReward}>Earn up to 9 🪙</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={24} color="#666666" />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.actionCard, styles.notWorkingCard]}
+        onPress={() => handleActionSelect('not_working')}
+      >
+        <View style={styles.actionIconCircle}>
+          <Ionicons name="close-circle" size={40} color="#F44336" />
+        </View>
+        <View style={styles.actionContent}>
+          <Text style={styles.actionTitle}>Not Working</Text>
+          <Text style={styles.actionDescription}>
+            Station is down or not operational
+          </Text>
+          <Text style={styles.actionReward}>Earn up to 7 🪙 (with photo)</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={24} color="#666666" />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.actionCard, styles.partialCard]}
+        onPress={() => handleActionSelect('partial')}
+      >
+        <View style={styles.actionIconCircle}>
+          <Ionicons name="battery-half" size={40} color="#FF9800" />
+        </View>
+        <View style={styles.actionContent}>
+          <Text style={styles.actionTitle}>Partially Working</Text>
+          <Text style={styles.actionDescription}>
+            Some chargers working, others not available
+          </Text>
+          <Text style={styles.actionReward}>Earn up to 9 🪙</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={24} color="#666666" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderWaitTimeStep = () => (
+    <View>
+      <View style={styles.bonusBanner}>
+        <Ionicons name="gift" size={24} color="#4CAF50" />
+        <View style={styles.bonusContent}>
+          <Text style={styles.bonusTitle}>Earn Up To 9 Coins!</Text>
+          <Text style={styles.bonusDescription}>
+            Provide detailed feedback to maximize your rewards
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.questionSection}>
+        <Text style={styles.questionTitle}>Wait time for available port?</Text>
+        <Text style={styles.questionSubtitle}>How long did you wait to find an available charger?</Text>
+        <View style={styles.waitTimeButtons}>
+          {[0, 5, 10, 15, 20, 30].map((time) => (
+            <TouchableOpacity
+              key={time}
+              style={[
+                styles.waitTimeButton,
+                waitTime === time && styles.waitTimeButtonSelected,
+              ]}
+              onPress={() => setWaitTime(time)}
+            >
+              <Text
+                style={[
+                  styles.waitTimeButtonText,
+                  waitTime === time && styles.waitTimeButtonTextSelected,
+                ]}
+              >
+                {time === 0 ? 'No wait' : `${time} min`}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {waitTime !== undefined && (
+          <Text style={styles.bonusIndicator}>+1 🪙 bonus</Text>
+        )}
+      </View>
+
+      <View style={styles.navigationButtons}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.skipButtonSmall} onPress={handleSkip}>
+          <Text style={styles.skipButtonSmallText}>Skip to Submit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>Next</Text>
+          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderPortContextStep = () => (
+    <View>
+      <View style={styles.questionSection}>
+        <Text style={styles.questionTitle}>Which port type did you use?</Text>
+        <View style={styles.optionButtons}>
+          {['Type 1', 'Type 2', 'CCS', 'CHAdeMO'].map((type) => (
+            <TouchableOpacity
+              key={type}
+              style={[
+                styles.optionButton,
+                portTypeUsed === type && styles.optionButtonSelected,
+              ]}
+              onPress={() => setPortTypeUsed(type)}
+            >
+              <Text
+                style={[
+                  styles.optionButtonText,
+                  portTypeUsed === type && styles.optionButtonTextSelected,
+                ]}
+              >
+                {type}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.questionSection}>
+        <Text style={styles.questionTitle}>How many ports were available when you arrived?</Text>
+        <View style={styles.optionButtons}>
+          {[0, 1, 2, 3, '4+'].map((num) => (
+            <TouchableOpacity
+              key={num}
+              style={[
+                styles.optionButton,
+                portsAvailable === (num === '4+' ? 4 : num) && styles.optionButtonSelected,
+              ]}
+              onPress={() => setPortsAvailable(num === '4+' ? 4 : (num as number))}
+            >
+              <Text
+                style={[
+                  styles.optionButtonText,
+                  portsAvailable === (num === '4+' ? 4 : num) && styles.optionButtonTextSelected,
+                ]}
+              >
+                {num}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.questionSection}>
+        <Text style={styles.questionTitle}>Did charging work on the first try?</Text>
+        <View style={styles.yesNoButtons}>
+          <TouchableOpacity
+            style={[
+              styles.yesNoButton,
+              chargingSuccess === true && styles.yesNoButtonYes,
+            ]}
+            onPress={() => setChargingSuccess(true)}
+          >
+            <Ionicons
+              name="checkmark-circle"
+              size={28}
+              color={chargingSuccess === true ? '#FFFFFF' : '#4CAF50'}
+            />
+            <Text
+              style={[
+                styles.yesNoButtonText,
+                chargingSuccess === true && styles.yesNoButtonTextSelected,
+              ]}
+            >
+              Yes
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.yesNoButton,
+              chargingSuccess === false && styles.yesNoButtonNo,
+            ]}
+            onPress={() => setChargingSuccess(false)}
+          >
+            <Ionicons
+              name="close-circle"
+              size={28}
+              color={chargingSuccess === false ? '#FFFFFF' : '#F44336'}
+            />
+            <Text
+              style={[
+                styles.yesNoButtonText,
+                chargingSuccess === false && styles.yesNoButtonTextSelected,
+              ]}
+            >
+              No
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {([portTypeUsed, portsAvailable, chargingSuccess].filter(f => f !== undefined).length >= 2) && (
+        <Text style={styles.bonusIndicator}>
+          Port context: +1 🪙
+        </Text>
+      )}
+
+      <View style={styles.navigationButtons}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.skipButtonSmall} onPress={handleSkip}>
+          <Text style={styles.skipButtonSmallText}>Skip to Submit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>Next</Text>
+          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderOperationalStep = () => (
+    <View>
+      <View style={styles.questionSection}>
+        <Text style={styles.questionTitle}>How did you pay?</Text>
+        <View style={styles.optionButtons}>
+          {['App', 'Card', 'Cash', 'Free'].map((method) => (
+            <TouchableOpacity
+              key={method}
+              style={[
+                styles.optionButton,
+                paymentMethod === method && styles.optionButtonSelected,
+              ]}
+              onPress={() => setPaymentMethod(method)}
+            >
+              <Text
+                style={[
+                  styles.optionButtonText,
+                  paymentMethod === method && styles.optionButtonTextSelected,
+                ]}
+              >
+                {method}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.questionSection}>
+        <Text style={styles.questionTitle}>How was the station lighting?</Text>
+        <View style={styles.optionButtons}>
+          {['Well-lit', 'Adequate', 'Poor'].map((lighting) => (
+            <TouchableOpacity
+              key={lighting}
+              style={[
+                styles.optionButton,
+                stationLighting === lighting && styles.optionButtonSelected,
+              ]}
+              onPress={() => setStationLighting(lighting)}
+            >
+              <Text
+                style={[
+                  styles.optionButtonText,
+                  stationLighting === lighting && styles.optionButtonTextSelected,
+                ]}
+              >
+                {lighting}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {paymentMethod && stationLighting && (
+        <Text style={styles.bonusIndicator}>Operational details: +1 🪙</Text>
+      )}
+
+      <View style={styles.navigationButtons}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.skipButtonSmall} onPress={handleSkip}>
+          <Text style={styles.skipButtonSmallText}>Skip to Submit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>Next</Text>
+          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderQualityStep = () => {
+    const qualityFields = [cleanlinessRating, chargingSpeedRating, amenitiesRating, wouldRecommend];
+    const qualityCount = qualityFields.filter(f => f !== undefined).length;
+    let qualityBonus = 0;
+    if (qualityCount >= 3) qualityBonus = 3;
+    else if (qualityCount >= 2) qualityBonus = 2;
+    else if (qualityCount >= 1) qualityBonus = 1;
+
+    return (
+      <View>
+        <View style={styles.ratingsSection}>
+          <Text style={styles.sectionTitle}>Rate Your Experience (Optional)</Text>
+
+          {renderStarRating(
+            cleanlinessRating,
+            setCleanlinessRating,
+            'Cleanliness',
+            'sparkles'
+          )}
+
+          {renderStarRating(
+            chargingSpeedRating,
+            setChargingSpeedRating,
+            'Charging Speed',
+            'flash'
+          )}
+
+          {renderStarRating(
+            amenitiesRating,
+            setAmenitiesRating,
+            'Amenities',
+            'restaurant'
+          )}
+        </View>
+
+        <View style={styles.recommendSection}>
+          <Text style={styles.questionTitle}>Would you recommend this station?</Text>
+          <View style={styles.yesNoButtons}>
+            <TouchableOpacity
+              style={[
+                styles.yesNoButton,
+                wouldRecommend === true && styles.yesNoButtonYes,
+              ]}
+              onPress={() => setWouldRecommend(true)}
+            >
+              <Ionicons
+                name="thumbs-up"
+                size={28}
+                color={wouldRecommend === true ? '#FFFFFF' : '#4CAF50'}
+              />
+              <Text
+                style={[
+                  styles.yesNoButtonText,
+                  wouldRecommend === true && styles.yesNoButtonTextSelected,
+                ]}
+              >
+                Yes
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.yesNoButton,
+                wouldRecommend === false && styles.yesNoButtonNo,
+              ]}
+              onPress={() => setWouldRecommend(false)}
+            >
+              <Ionicons
+                name="thumbs-down"
+                size={28}
+                color={wouldRecommend === false ? '#FFFFFF' : '#F44336'}
+              />
+              <Text
+                style={[
+                  styles.yesNoButtonText,
+                  wouldRecommend === false && styles.yesNoButtonTextSelected,
+                ]}
+              >
+                No
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {qualityBonus > 0 && (
+          <Text style={styles.bonusIndicator}>Quality ratings: +{qualityBonus} 🪙</Text>
+        )}
+
+        <View style={styles.notesSection}>
+          <Text style={styles.questionTitle}>Additional Notes (Optional)</Text>
+          <TextInput
+            style={styles.notesInput}
+            placeholder="Share any additional details about your experience..."
+            placeholderTextColor="#999999"
+            multiline
+            numberOfLines={4}
+            value={notes}
+            onChangeText={setNotes}
+            textAlignVertical="top"
+          />
+        </View>
+
+        <View style={styles.navigationButtons}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Ionicons name="chevron-back" size={20} color="#666666" />
+            <Text style={styles.backButtonText}>Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.submitButton} onPress={handleNext}>
+            <Text style={styles.submitButtonText}>
+              {action === 'not_working' ? 'Next' : `Submit (${getTotalCoins()} 🪙)`}
+            </Text>
+            {action === 'not_working' && <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />}
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const renderPhotoStep = () => (
+    <View>
+      <View style={styles.photoBanner}>
+        <Ionicons name="camera" size={32} color="#4CAF50" />
+        <Text style={styles.photoBannerTitle}>Help Others With Photo Evidence</Text>
+        <Text style={styles.photoBannerSubtitle}>
+          Earn +2 extra coins by uploading a photo of the issue
+        </Text>
+      </View>
+
+      <View style={styles.photoSection}>
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={() => {
+            // Simulate photo upload - in real app, use expo-image-picker
+            setPhotoUrl(`https://example.com/photos/station_${Date.now()}.jpg`);
+          }}
+        >
+          <Ionicons name="cloud-upload" size={40} color="#4CAF50" />
+          <Text style={styles.uploadButtonText}>
+            {photoUrl ? 'Photo Added ✓' : 'Upload Photo'}
+          </Text>
+          {photoUrl && <Text style={styles.uploadSuccess}>+2 🪙 bonus!</Text>}
+        </TouchableOpacity>
+
+        {!photoUrl && (
+          <Text style={styles.photoHint}>
+            Optional: Take a photo showing the issue with the charger
+          </Text>
+        )}
+      </View>
+
+      <View style={styles.navigationButtons}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Text style={styles.submitButtonText}>Submit ({getTotalCoins()} 🪙)</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderCurrentStep = () => {
+    switch (step) {
+      case 'action':
+        return renderActionStep();
+      case 'wait_time':
+        return renderWaitTimeStep();
+      case 'port_context':
+        return renderPortContextStep();
+      case 'operational':
+        return renderOperationalStep();
+      case 'quality':
+        return renderQualityStep();
+      case 'photo':
+        return renderPhotoStep();
+      default:
+        return null;
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -143,235 +779,19 @@ export function EnhancedVerificationModal({
               <Ionicons name="close" size={28} color="#1A1A1A" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>
-              {step === 'action' ? 'Verify Station' : 'Share More Details'}
+              {step === 'action' ? 'Verify Station' : 'Enhanced Details'}
             </Text>
-            <View style={styles.placeholder} />
+            <Animated.View style={[styles.coinBadge, { transform: [{ scale: coinPulse }] }]}>
+              <Text style={styles.coinBadgeText}>{getTotalCoins()} 🪙</Text>
+            </Animated.View>
           </View>
+
+          {/* Progress Bar */}
+          {step !== 'action' && renderProgressBar()}
 
           <ScrollView style={styles.content}>
             <Text style={styles.chargerName}>{chargerName}</Text>
-
-            {step === 'action' ? (
-              /* Step 1: Action Selection */
-              <View>
-                <Text style={styles.instructionText}>
-                  What's the current status of this charging station?
-                </Text>
-
-                <TouchableOpacity
-                  style={[styles.actionCard, styles.activeCard]}
-                  onPress={() => handleActionSelect('active')}
-                >
-                  <View style={styles.actionIconCircle}>
-                    <Ionicons name="checkmark-circle" size={40} color="#4CAF50" />
-                  </View>
-                  <View style={styles.actionContent}>
-                    <Text style={styles.actionTitle}>Active & Working</Text>
-                    <Text style={styles.actionDescription}>
-                      All chargers are functional and available
-                    </Text>
-                    <Text style={styles.actionReward}>Earn 2-6 🪙</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={24} color="#666666" />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.actionCard, styles.notWorkingCard]}
-                  onPress={() => handleActionSelect('not_working')}
-                >
-                  <View style={styles.actionIconCircle}>
-                    <Ionicons name="close-circle" size={40} color="#F44336" />
-                  </View>
-                  <View style={styles.actionContent}>
-                    <Text style={styles.actionTitle}>Not Working</Text>
-                    <Text style={styles.actionDescription}>
-                      Station is down or not operational
-                    </Text>
-                    <Text style={styles.actionReward}>Earn 2 🪙</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={24} color="#666666" />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.actionCard, styles.partialCard]}
-                  onPress={() => handleActionSelect('partial')}
-                >
-                  <View style={styles.actionIconCircle}>
-                    <Ionicons name="battery-half" size={40} color="#FF9800" />
-                  </View>
-                  <View style={styles.actionContent}>
-                    <Text style={styles.actionTitle}>Partially Working</Text>
-                    <Text style={styles.actionDescription}>
-                      Some chargers working, others not available
-                    </Text>
-                    <Text style={styles.actionReward}>Earn 2 🪙</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={24} color="#666666" />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              /* Step 2: Detailed Feedback */
-              <View>
-                <View style={styles.bonusBanner}>
-                  <Ionicons name="gift" size={24} color="#4CAF50" />
-                  <View style={styles.bonusContent}>
-                    <Text style={styles.bonusTitle}>Earn Bonus Coins!</Text>
-                    <Text style={styles.bonusDescription}>
-                      Provide detailed feedback to earn up to +4 extra coins
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Wait Time */}
-                <View style={styles.questionSection}>
-                  <Text style={styles.questionTitle}>How long did you wait?</Text>
-                  <View style={styles.waitTimeButtons}>
-                    {[0, 5, 10, 15, 20, 30].map((time) => (
-                      <TouchableOpacity
-                        key={time}
-                        style={[
-                          styles.waitTimeButton,
-                          waitTime === time && styles.waitTimeButtonSelected,
-                        ]}
-                        onPress={() => setWaitTime(time)}
-                      >
-                        <Text
-                          style={[
-                            styles.waitTimeButtonText,
-                            waitTime === time && styles.waitTimeButtonTextSelected,
-                          ]}
-                        >
-                          {time === 0 ? 'No wait' : `${time} min`}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                  {waitTime !== undefined && (
-                    <Text style={styles.bonusIndicator}>+1 🪙 bonus</Text>
-                  )}
-                </View>
-
-                {/* Ratings */}
-                <View style={styles.ratingsSection}>
-                  <Text style={styles.sectionTitle}>Rate Your Experience (Optional)</Text>
-
-                  {renderStarRating(
-                    cleanlinessRating,
-                    setCleanlinessRating,
-                    'Cleanliness',
-                    'sparkles'
-                  )}
-
-                  {renderStarRating(
-                    chargingSpeedRating,
-                    setChargingSpeedRating,
-                    'Charging Speed',
-                    'flash'
-                  )}
-
-                  {renderStarRating(
-                    amenitiesRating,
-                    setAmenitiesRating,
-                    'Amenities',
-                    'restaurant'
-                  )}
-                </View>
-
-                {/* Recommendation */}
-                <View style={styles.recommendSection}>
-                  <Text style={styles.questionTitle}>Would you recommend this station?</Text>
-                  <View style={styles.recommendButtons}>
-                    <TouchableOpacity
-                      style={[
-                        styles.recommendButton,
-                        wouldRecommend === true && styles.recommendButtonYes,
-                      ]}
-                      onPress={() => setWouldRecommend(true)}
-                    >
-                      <Ionicons
-                        name="thumbs-up"
-                        size={28}
-                        color={wouldRecommend === true ? '#FFFFFF' : '#4CAF50'}
-                      />
-                      <Text
-                        style={[
-                          styles.recommendButtonText,
-                          wouldRecommend === true && styles.recommendButtonTextSelected,
-                        ]}
-                      >
-                        Yes
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[
-                        styles.recommendButton,
-                        wouldRecommend === false && styles.recommendButtonNo,
-                      ]}
-                      onPress={() => setWouldRecommend(false)}
-                    >
-                      <Ionicons
-                        name="thumbs-down"
-                        size={28}
-                        color={wouldRecommend === false ? '#FFFFFF' : '#F44336'}
-                      />
-                      <Text
-                        style={[
-                          styles.recommendButtonText,
-                          wouldRecommend === false && styles.recommendButtonTextSelected,
-                        ]}
-                      >
-                        No
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Notes */}
-                <View style={styles.notesSection}>
-                  <Text style={styles.questionTitle}>Additional Notes (Optional)</Text>
-                  <TextInput
-                    style={styles.notesInput}
-                    placeholder="Share any additional details about your experience..."
-                    placeholderTextColor="#999999"
-                    multiline
-                    numberOfLines={4}
-                    value={notes}
-                    onChangeText={setNotes}
-                    textAlignVertical="top"
-                  />
-                </View>
-
-                {/* Current Bonus Display */}
-                {getBonusCoins() > 0 && (
-                  <View style={styles.currentBonusCard}>
-                    <Ionicons name="trophy" size={24} color="#FFB300" />
-                    <Text style={styles.currentBonusText}>
-                      Current bonus: +{getBonusCoins()} 🪙
-                    </Text>
-                  </View>
-                )}
-
-                {/* Action Buttons */}
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity
-                    style={styles.skipButton}
-                    onPress={handleSkipDetails}
-                  >
-                    <Text style={styles.skipButtonText}>Skip & Submit (2 🪙)</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.submitButton}
-                    onPress={handleSubmit}
-                  >
-                    <Text style={styles.submitButtonText}>
-                      Submit ({2 + getBonusCoins()} 🪙)
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
+            {renderCurrentStep()}
           </ScrollView>
         </View>
       </View>
@@ -413,8 +833,41 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1A1A1A',
   },
-  placeholder: {
-    width: 36,
+  coinBadge: {
+    backgroundColor: '#FFF8E1',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#FFB300',
+  },
+  coinBadgeText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F57C00',
+  },
+  progressContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#F8F9FA',
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#4CAF50',
+    borderRadius: 3,
+  },
+  progressText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666666',
+    textAlign: 'center',
   },
   content: {
     paddingHorizontal: 20,
@@ -483,16 +936,15 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
   },
   bonusBanner: {
-    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#E8F5E9',
     padding: 16,
     borderRadius: 14,
     marginBottom: 24,
-    gap: 12,
   },
   bonusContent: {
-    flex: 1,
+    alignItems: 'center',
+    marginTop: 8,
   },
   bonusTitle: {
     fontSize: 15,
@@ -503,6 +955,7 @@ const styles = StyleSheet.create({
   bonusDescription: {
     fontSize: 13,
     color: '#1B5E20',
+    textAlign: 'center',
     lineHeight: 18,
   },
   questionSection: {
@@ -513,6 +966,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1A1A1A',
     marginBottom: 12,
+  },
+  questionSubtitle: {
+    fontSize: 13,
+    color: '#666666',
+    marginBottom: 12,
+    lineHeight: 18,
   },
   waitTimeButtons: {
     flexDirection: 'row',
@@ -537,6 +996,63 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   waitTimeButtonTextSelected: {
+    color: '#FFFFFF',
+  },
+  optionButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  optionButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+  },
+  optionButtonSelected: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  optionButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666666',
+  },
+  optionButtonTextSelected: {
+    color: '#FFFFFF',
+  },
+  yesNoButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  yesNoButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 16,
+    borderRadius: 14,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+  },
+  yesNoButtonYes: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  yesNoButtonNo: {
+    backgroundColor: '#F44336',
+    borderColor: '#F44336',
+  },
+  yesNoButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#666666',
+  },
+  yesNoButtonTextSelected: {
     color: '#FFFFFF',
   },
   bonusIndicator: {
@@ -578,38 +1094,6 @@ const styles = StyleSheet.create({
   recommendSection: {
     marginBottom: 28,
   },
-  recommendButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  recommendButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: '#F5F5F5',
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-  },
-  recommendButtonYes: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
-  },
-  recommendButtonNo: {
-    backgroundColor: '#F44336',
-    borderColor: '#F44336',
-  },
-  recommendButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#666666',
-  },
-  recommendButtonTextSelected: {
-    color: '#FFFFFF',
-  },
   notesSection: {
     marginBottom: 24,
   },
@@ -623,46 +1107,124 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
   },
-  currentBonusCard: {
-    flexDirection: 'row',
+  photoBanner: {
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFF8E1',
-    padding: 16,
+    backgroundColor: '#E8F5E9',
+    padding: 24,
     borderRadius: 14,
-    gap: 10,
     marginBottom: 24,
   },
-  currentBonusText: {
-    fontSize: 15,
+  photoBannerTitle: {
+    fontSize: 16,
     fontWeight: '700',
-    color: '#F57C00',
+    color: '#2E7D32',
+    marginTop: 12,
+    marginBottom: 8,
   },
-  actionButtons: {
+  photoBannerSubtitle: {
+    fontSize: 13,
+    color: '#1B5E20',
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  photoSection: {
+    marginBottom: 24,
+  },
+  uploadButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8F9FA',
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+    borderStyle: 'dashed',
+    borderRadius: 14,
+    padding: 32,
+    marginBottom: 12,
+  },
+  uploadButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#4CAF50',
+    marginTop: 12,
+  },
+  uploadSuccess: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#2E7D32',
+    marginTop: 8,
+  },
+  photoHint: {
+    fontSize: 12,
+    color: '#666666',
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  navigationButtons: {
     flexDirection: 'row',
     gap: 12,
     marginBottom: 16,
   },
-  skipButton: {
-    flex: 1,
-    paddingVertical: 16,
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderRadius: 14,
     backgroundColor: '#F5F5F5',
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    alignItems: 'center',
   },
-  skipButtonText: {
-    fontSize: 15,
+  backButtonText: {
+    fontSize: 14,
     fontWeight: '600',
     color: '#666666',
   },
+  skipButtonSmall: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  skipButtonSmallText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666666',
+  },
+  nextButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: '#4CAF50',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  nextButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
   submitButton: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     paddingVertical: 16,
     borderRadius: 14,
     backgroundColor: '#4CAF50',
-    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,

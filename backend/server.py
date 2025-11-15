@@ -63,12 +63,21 @@ class VerificationAction(BaseModel):
     action: str  # "active", "not_working", "partial"
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     notes: Optional[str] = None
-    # Enhanced feedback fields
-    wait_time: Optional[int] = None  # in minutes
+    # Wait time and port context
+    wait_time: Optional[int] = None  # in minutes - for available port
+    port_type_used: Optional[str] = None  # "Type 1", "Type 2", "CCS", "CHAdeMO"
+    ports_available: Optional[int] = None  # number of ports available on arrival
+    charging_success: Optional[bool] = None  # worked on first try?
+    # Operational details
+    payment_method: Optional[str] = None  # "App", "Card", "Cash", "Free"
+    station_lighting: Optional[str] = None  # "Well-lit", "Adequate", "Poor"
+    # Quality ratings
     cleanliness_rating: Optional[int] = None  # 1-5 stars
     charging_speed_rating: Optional[int] = None  # 1-5 stars
     amenities_rating: Optional[int] = None  # 1-5 stars
     would_recommend: Optional[bool] = None
+    # Photo evidence (for not_working reports)
+    photo_url: Optional[str] = None
 class Charger(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
@@ -105,12 +114,21 @@ class ChargerCreateRequest(BaseModel):
 class VerificationActionRequest(BaseModel):
     action: str  # "active", "not_working", "partial"
     notes: Optional[str] = None
-    # Enhanced feedback fields (optional)
-    wait_time: Optional[int] = None  # in minutes
+    # Wait time and port context
+    wait_time: Optional[int] = None  # in minutes - for available port
+    port_type_used: Optional[str] = None  # "Type 1", "Type 2", "CCS", "CHAdeMO"
+    ports_available: Optional[int] = None  # number of ports available on arrival
+    charging_success: Optional[bool] = None  # worked on first try?
+    # Operational details
+    payment_method: Optional[str] = None  # "App", "Card", "Cash", "Free"
+    station_lighting: Optional[str] = None  # "Well-lit", "Adequate", "Poor"
+    # Quality ratings
     cleanliness_rating: Optional[int] = None  # 1-5 stars
     charging_speed_rating: Optional[int] = None  # 1-5 stars
     amenities_rating: Optional[int] = None  # 1-5 stars
     would_recommend: Optional[bool] = None
+    # Photo evidence (for not_working reports)
+    photo_url: Optional[str] = None
 class CoinTransaction(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
@@ -394,12 +412,18 @@ def generate_mock_verification_history(level: int, verified_by_count: int, now: 
         # 65% chance of having notes
         notes = random.choice(notes_options) if random.random() > 0.35 else None
 
-        # Add detailed feedback data
+        # Add detailed feedback data - Gold Tier
         wait_time = None
+        port_type_used = None
+        ports_available = None
+        charging_success = None
+        payment_method = None
+        station_lighting = None
         cleanliness_rating = None
         charging_speed_rating = None
         amenities_rating = None
         would_recommend = None
+        photo_url = None
 
         if action == 'active':
             # Wait time based on time of day (0-30 minutes)
@@ -408,7 +432,18 @@ def generate_mock_verification_history(level: int, verified_by_count: int, now: 
             else:
                 wait_time = random.randint(0, 10)
 
-            # 70% chance of providing detailed ratings for active verifications
+            # 70% chance of providing detailed port context
+            if random.random() < 0.7:
+                port_type_used = random.choice(['Type 2', 'CCS', 'CHAdeMO', 'Type 1'])
+                ports_available = random.randint(0, 3)
+                charging_success = random.random() < 0.85  # 85% success rate
+
+            # 70% chance of providing operational details
+            if random.random() < 0.7:
+                payment_method = random.choice(['App', 'Card', 'Free', 'Cash'])
+                station_lighting = random.choice(['Well-lit', 'Adequate', 'Poor'])
+
+            # 70% chance of providing quality ratings for active verifications
             if random.random() < 0.7:
                 # Higher level stations get better ratings
                 if level >= 4:
@@ -427,16 +462,27 @@ def generate_mock_verification_history(level: int, verified_by_count: int, now: 
                     amenities_rating = random.randint(2, 4)
                     would_recommend = random.random() < 0.6
 
+        elif action == 'not_working':
+            # For not_working reports, 60% include photo evidence
+            if random.random() < 0.6:
+                photo_url = f"https://example.com/photos/station_{random.randint(1000, 9999)}.jpg"
+
         history.append({
             "user_id": user_id,
             "action": action,
             "timestamp": timestamp,
             "notes": notes,
             "wait_time": wait_time,
+            "port_type_used": port_type_used,
+            "ports_available": ports_available,
+            "charging_success": charging_success,
+            "payment_method": payment_method,
+            "station_lighting": station_lighting,
             "cleanliness_rating": cleanliness_rating,
             "charging_speed_rating": charging_speed_rating,
             "amenities_rating": amenities_rating,
-            "would_recommend": would_recommend
+            "would_recommend": would_recommend,
+            "photo_url": photo_url
         })
 
     # Sort by timestamp descending (newest first)
@@ -714,10 +760,16 @@ async def verify_charger(
         action=request.action,
         notes=request.notes,
         wait_time=request.wait_time,
+        port_type_used=request.port_type_used,
+        ports_available=request.ports_available,
+        charging_success=request.charging_success,
+        payment_method=request.payment_method,
+        station_lighting=request.station_lighting,
         cleanliness_rating=request.cleanliness_rating,
         charging_speed_rating=request.charging_speed_rating,
         amenities_rating=request.amenities_rating,
-        would_recommend=request.would_recommend
+        would_recommend=request.would_recommend,
+        photo_url=request.photo_url
     )
     # Update charger
     verification_history = charger.get("verification_history", [])
@@ -751,41 +803,57 @@ async def verify_charger(
             "uptime_percentage": uptime
         }}
     )
-    # Reward user with SharaCoins (2 for basic verification, +3 bonus for detailed feedback)
-    coins_reward = 2
+    # Reward user with SharaCoins - Gold Tier System (up to 9 coins)
+    coins_reward = 2  # Base reward
     bonus_coins = 0
     bonus_reasons = []
 
-    # Check if user provided detailed feedback
-    detailed_fields = [
+    # Port context bonus (+1 if provided 2+ of 3 fields)
+    port_context_fields = [
+        request.port_type_used,
+        request.ports_available,
+        request.charging_success
+    ]
+    port_context_count = sum(1 for field in port_context_fields if field is not None)
+    if port_context_count >= 2:
+        bonus_coins += 1
+        bonus_reasons.append("Port context")
+
+    # Operational details bonus (+1 if provided both fields)
+    if request.payment_method and request.station_lighting:
+        bonus_coins += 1
+        bonus_reasons.append("Operational details")
+
+    # Quality ratings bonus (+1-3 based on completeness)
+    quality_fields = [
         request.cleanliness_rating,
         request.charging_speed_rating,
         request.amenities_rating,
         request.would_recommend
     ]
-
-    # Count how many detailed fields were provided
-    detailed_count = sum(1 for field in detailed_fields if field is not None)
-
-    if detailed_count >= 3:
-        # Full detailed feedback: +3 bonus coins
-        bonus_coins = 3
+    quality_count = sum(1 for field in quality_fields if field is not None)
+    if quality_count >= 3:
+        bonus_coins += 3
         bonus_reasons.append("Complete feedback")
-    elif detailed_count >= 2:
-        # Partial detailed feedback: +2 bonus coins
-        bonus_coins = 2
+    elif quality_count >= 2:
+        bonus_coins += 2
         bonus_reasons.append("Detailed feedback")
-    elif detailed_count >= 1:
-        # Some detailed feedback: +1 bonus coin
-        bonus_coins = 1
+    elif quality_count >= 1:
+        bonus_coins += 1
         bonus_reasons.append("Extra feedback")
 
-    # Bonus for wait time info
+    # Wait time bonus (+1)
     if request.wait_time is not None:
         bonus_coins += 1
         bonus_reasons.append("Wait time info")
 
-    total_coins = coins_reward + bonus_coins
+    # Photo evidence bonus (+2, only for not_working reports)
+    if request.photo_url and request.action == "not_working":
+        bonus_coins += 2
+        bonus_reasons.append("Photo evidence")
+
+    # Calculate total with cap at 9 coins
+    total_coins = min(coins_reward + bonus_coins, 9)
 
     await db.users.update_one(
         {"id": user.id},

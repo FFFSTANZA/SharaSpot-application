@@ -19,11 +19,21 @@ interface VerificationAction {
   action: string;
   timestamp: string;
   notes?: string;
+  // Wait time and port context
   wait_time?: number;  // in minutes
+  port_type_used?: string;  // "Type 1", "Type 2", "CCS", "CHAdeMO"
+  ports_available?: number;
+  charging_success?: boolean;
+  // Operational details
+  payment_method?: string;  // "App", "Card", "Cash", "Free"
+  station_lighting?: string;  // "Well-lit", "Adequate", "Poor"
+  // Quality ratings
   cleanliness_rating?: number;  // 1-5 stars
   charging_speed_rating?: number;  // 1-5 stars
   amenities_rating?: number;  // 1-5 stars
   would_recommend?: boolean;
+  // Photo evidence (for not_working reports)
+  photo_url?: string;
 }
 
 interface TrendData {
