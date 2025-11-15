@@ -12,6 +12,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import bcrypt
 import requests
+import random
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
@@ -62,6 +63,21 @@ class VerificationAction(BaseModel):
     action: str  # "active", "not_working", "partial"
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     notes: Optional[str] = None
+    # Wait time and port context
+    wait_time: Optional[int] = None  # in minutes - for available port
+    port_type_used: Optional[str] = None  # "Type 1", "Type 2", "CCS", "CHAdeMO"
+    ports_available: Optional[int] = None  # number of ports available on arrival
+    charging_success: Optional[bool] = None  # worked on first try?
+    # Operational details
+    payment_method: Optional[str] = None  # "App", "Card", "Cash", "Free"
+    station_lighting: Optional[str] = None  # "Well-lit", "Adequate", "Poor"
+    # Quality ratings
+    cleanliness_rating: Optional[int] = None  # 1-5 stars
+    charging_speed_rating: Optional[int] = None  # 1-5 stars
+    amenities_rating: Optional[int] = None  # 1-5 stars
+    would_recommend: Optional[bool] = None
+    # Photo evidence (for not_working reports)
+    photo_url: Optional[str] = None
 class Charger(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
@@ -98,6 +114,21 @@ class ChargerCreateRequest(BaseModel):
 class VerificationActionRequest(BaseModel):
     action: str  # "active", "not_working", "partial"
     notes: Optional[str] = None
+    # Wait time and port context
+    wait_time: Optional[int] = None  # in minutes - for available port
+    port_type_used: Optional[str] = None  # "Type 1", "Type 2", "CCS", "CHAdeMO"
+    ports_available: Optional[int] = None  # number of ports available on arrival
+    charging_success: Optional[bool] = None  # worked on first try?
+    # Operational details
+    payment_method: Optional[str] = None  # "App", "Card", "Cash", "Free"
+    station_lighting: Optional[str] = None  # "Well-lit", "Adequate", "Poor"
+    # Quality ratings
+    cleanliness_rating: Optional[int] = None  # 1-5 stars
+    charging_speed_rating: Optional[int] = None  # 1-5 stars
+    amenities_rating: Optional[int] = None  # 1-5 stars
+    would_recommend: Optional[bool] = None
+    # Photo evidence (for not_working reports)
+    photo_url: Optional[str] = None
 class CoinTransaction(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
@@ -315,6 +346,149 @@ async def update_preferences(
     user.distance_unit = data.distance_unit
     return user
 # Chargers Routes
+def generate_mock_verification_history(level: int, verified_by_count: int, now: datetime) -> List[dict]:
+    """Generate realistic mock verification history for chargers with enhanced data"""
+    history = []
+
+    # Generate history based on verification level
+    history_count = verified_by_count
+    action_types = ['active', 'not_working', 'partial']
+
+    # Higher level = more "active" verifications
+    if level >= 4:
+        weights = [0.85, 0.05, 0.10]  # Mostly active
+    elif level >= 3:
+        weights = [0.70, 0.15, 0.15]
+    elif level >= 2:
+        weights = [0.55, 0.25, 0.20]
+    else:
+        weights = [0.40, 0.35, 0.25]
+
+    notes_options = [
+        'Working perfectly',
+        'All ports available',
+        'Quick charging confirmed',
+        'One port not working',
+        'Slow charging on port 2',
+        'Well maintained station',
+        'Station needs cleaning',
+        'Charger verified working',
+        'Fast charging available',
+        'Good location with amenities',
+        'Charging speed excellent',
+        'No wait time',
+        'Had to wait 15 minutes',
+        'Very crowded during lunch',
+        'Empty early morning',
+        'Clean and well-lit',
+        'Great amenities nearby'
+    ]
+
+    # Peak hours: 8-10am and 5-7pm are busier
+    for i in range(history_count):
+        # Distribute verifications over last 60 days
+        days_ago = int((i / max(history_count - 1, 1)) * 60) if history_count > 1 else 0
+
+        # Generate realistic time distribution (more during peak hours)
+        hour = random.choices(
+            range(24),
+            weights=[2,1,1,1,2,3,5,8,10,8,6,7,8,7,6,7,8,10,9,7,5,4,3,2],  # Peak at 8-10am and 5-7pm
+            k=1
+        )[0]
+
+        timestamp = now - timedelta(days=days_ago, hours=hour, minutes=random.randint(0, 59))
+
+        # Weighted random selection of action
+        rand = random.random()
+        if rand < weights[0]:
+            action = 'active'
+        elif rand < weights[0] + weights[1]:
+            action = 'not_working'
+        else:
+            action = 'partial'
+
+        user_id = f"user_{str(uuid.uuid4())[:8]}"
+
+        # 65% chance of having notes
+        notes = random.choice(notes_options) if random.random() > 0.35 else None
+
+        # Add detailed feedback data - Gold Tier
+        wait_time = None
+        port_type_used = None
+        ports_available = None
+        charging_success = None
+        payment_method = None
+        station_lighting = None
+        cleanliness_rating = None
+        charging_speed_rating = None
+        amenities_rating = None
+        would_recommend = None
+        photo_url = None
+
+        if action == 'active':
+            # Wait time based on time of day (0-30 minutes)
+            if 8 <= hour <= 10 or 17 <= hour <= 19:  # Peak hours
+                wait_time = random.randint(0, 30)
+            else:
+                wait_time = random.randint(0, 10)
+
+            # 70% chance of providing detailed port context
+            if random.random() < 0.7:
+                port_type_used = random.choice(['Type 2', 'CCS', 'CHAdeMO', 'Type 1'])
+                ports_available = random.randint(0, 3)
+                charging_success = random.random() < 0.85  # 85% success rate
+
+            # 70% chance of providing operational details
+            if random.random() < 0.7:
+                payment_method = random.choice(['App', 'Card', 'Free', 'Cash'])
+                station_lighting = random.choice(['Well-lit', 'Adequate', 'Poor'])
+
+            # 70% chance of providing quality ratings for active verifications
+            if random.random() < 0.7:
+                # Higher level stations get better ratings
+                if level >= 4:
+                    cleanliness_rating = random.randint(4, 5)
+                    charging_speed_rating = random.randint(4, 5)
+                    amenities_rating = random.randint(4, 5)
+                    would_recommend = random.random() < 0.9
+                elif level >= 3:
+                    cleanliness_rating = random.randint(3, 5)
+                    charging_speed_rating = random.randint(3, 5)
+                    amenities_rating = random.randint(3, 5)
+                    would_recommend = random.random() < 0.75
+                else:
+                    cleanliness_rating = random.randint(2, 4)
+                    charging_speed_rating = random.randint(2, 4)
+                    amenities_rating = random.randint(2, 4)
+                    would_recommend = random.random() < 0.6
+
+        elif action == 'not_working':
+            # For not_working reports, 60% include photo evidence
+            if random.random() < 0.6:
+                photo_url = f"https://example.com/photos/station_{random.randint(1000, 9999)}.jpg"
+
+        history.append({
+            "user_id": user_id,
+            "action": action,
+            "timestamp": timestamp,
+            "notes": notes,
+            "wait_time": wait_time,
+            "port_type_used": port_type_used,
+            "ports_available": ports_available,
+            "charging_success": charging_success,
+            "payment_method": payment_method,
+            "station_lighting": station_lighting,
+            "cleanliness_rating": cleanliness_rating,
+            "charging_speed_rating": charging_speed_rating,
+            "amenities_rating": amenities_rating,
+            "would_recommend": would_recommend,
+            "photo_url": photo_url
+        })
+
+    # Sort by timestamp descending (newest first)
+    history.sort(key=lambda x: x["timestamp"], reverse=True)
+    return history
+
 @api_router.get("/chargers", response_model=List[Charger])
 async def get_chargers(
     session_token: Optional[str] = Cookie(None),
@@ -347,7 +521,7 @@ async def get_chargers(
             "nearby_amenities": ["restaurant", "atm"],
             "photos": [],
             "verified_by_count": 25,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(5, 25, now),
             "last_verified": now - timedelta(days=2),
             "uptime_percentage": 98.5,
             "distance": 0.5,
@@ -370,7 +544,7 @@ async def get_chargers(
             "nearby_amenities": ["bank", "food court"],
             "photos": [],
             "verified_by_count": 18,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(4, 18, now),
             "last_verified": now - timedelta(days=5),
             "uptime_percentage": 95.2,
             "distance": 1.2,
@@ -393,7 +567,7 @@ async def get_chargers(
             "nearby_amenities": [],
             "photos": [],
             "verified_by_count": 12,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(3, 12, now),
             "last_verified": now - timedelta(days=15),
             "uptime_percentage": 87.3,
             "distance": 2.8,
@@ -416,7 +590,7 @@ async def get_chargers(
             "nearby_amenities": ["mall", "restaurant"],
             "photos": [],
             "verified_by_count": 30,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(5, 30, now),
             "last_verified": now - timedelta(days=1),
             "uptime_percentage": 99.1,
             "distance": 3.5,
@@ -439,7 +613,7 @@ async def get_chargers(
             "nearby_amenities": ["cafe"],
             "photos": [],
             "verified_by_count": 5,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(2, 5, now),
             "last_verified": now - timedelta(days=30),
             "uptime_percentage": 78.5,
             "distance": 1.8,
@@ -462,7 +636,7 @@ async def get_chargers(
             "nearby_amenities": ["bus stop"],
             "photos": [],
             "verified_by_count": 8,
-            "verification_history": [],
+            "verification_history": generate_mock_verification_history(3, 8, now),
             "last_verified": now - timedelta(days=10),
             "uptime_percentage": 91.7,
             "distance": 2.1,
@@ -580,11 +754,22 @@ async def verify_charger(
     charger = await db.chargers.find_one({"id": charger_id})
     if not charger:
         raise HTTPException(404, "Charger not found")
-    # Create verification action
+    # Create verification action with enhanced feedback
     action = VerificationAction(
         user_id=user.id,
         action=request.action,
-        notes=request.notes
+        notes=request.notes,
+        wait_time=request.wait_time,
+        port_type_used=request.port_type_used,
+        ports_available=request.ports_available,
+        charging_success=request.charging_success,
+        payment_method=request.payment_method,
+        station_lighting=request.station_lighting,
+        cleanliness_rating=request.cleanliness_rating,
+        charging_speed_rating=request.charging_speed_rating,
+        amenities_rating=request.amenities_rating,
+        would_recommend=request.would_recommend,
+        photo_url=request.photo_url
     )
     # Update charger
     verification_history = charger.get("verification_history", [])
@@ -618,24 +803,81 @@ async def verify_charger(
             "uptime_percentage": uptime
         }}
     )
-    # Reward user with SharaCoins (2 for verification)
-    coins_reward = 2
+    # Reward user with SharaCoins - Gold Tier System (up to 9 coins)
+    coins_reward = 2  # Base reward
+    bonus_coins = 0
+    bonus_reasons = []
+
+    # Port context bonus (+1 if provided 2+ of 3 fields)
+    port_context_fields = [
+        request.port_type_used,
+        request.ports_available,
+        request.charging_success
+    ]
+    port_context_count = sum(1 for field in port_context_fields if field is not None)
+    if port_context_count >= 2:
+        bonus_coins += 1
+        bonus_reasons.append("Port context")
+
+    # Operational details bonus (+1 if provided both fields)
+    if request.payment_method and request.station_lighting:
+        bonus_coins += 1
+        bonus_reasons.append("Operational details")
+
+    # Quality ratings bonus (+1-3 based on completeness)
+    quality_fields = [
+        request.cleanliness_rating,
+        request.charging_speed_rating,
+        request.amenities_rating,
+        request.would_recommend
+    ]
+    quality_count = sum(1 for field in quality_fields if field is not None)
+    if quality_count >= 3:
+        bonus_coins += 3
+        bonus_reasons.append("Complete feedback")
+    elif quality_count >= 2:
+        bonus_coins += 2
+        bonus_reasons.append("Detailed feedback")
+    elif quality_count >= 1:
+        bonus_coins += 1
+        bonus_reasons.append("Extra feedback")
+
+    # Wait time bonus (+1)
+    if request.wait_time is not None:
+        bonus_coins += 1
+        bonus_reasons.append("Wait time info")
+
+    # Photo evidence bonus (+2, only for not_working reports)
+    if request.photo_url and request.action == "not_working":
+        bonus_coins += 2
+        bonus_reasons.append("Photo evidence")
+
+    # Calculate total with cap at 9 coins
+    total_coins = min(coins_reward + bonus_coins, 9)
+
     await db.users.update_one(
         {"id": user.id},
-        {"$inc": {"shara_coins": coins_reward, "verifications_count": 1}}
+        {"$inc": {"shara_coins": total_coins, "verifications_count": 1}}
     )
-    
+
     # Log coin transaction
+    description = f"Verified charger as {request.action}: {charger['name']}"
+    if bonus_reasons:
+        description += f" ({', '.join(bonus_reasons)})"
+
     await log_coin_transaction(
         user.id,
         "verify_charger",
-        coins_reward,
-        f"Verified charger as {request.action}: {charger['name']}"
+        total_coins,
+        description
     )
-    
+
     return {
         "message": "Verification recorded",
-        "coins_earned": coins_reward,
+        "coins_earned": total_coins,
+        "base_coins": coins_reward,
+        "bonus_coins": bonus_coins,
+        "bonus_reasons": bonus_reasons,
         "new_level": new_level
     }
 

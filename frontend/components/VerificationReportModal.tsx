@@ -19,6 +19,21 @@ interface VerificationAction {
   action: string;
   timestamp: string;
   notes?: string;
+  // Wait time and port context
+  wait_time?: number;  // in minutes
+  port_type_used?: string;  // "Type 1", "Type 2", "CCS", "CHAdeMO"
+  ports_available?: number;
+  charging_success?: boolean;
+  // Operational details
+  payment_method?: string;  // "App", "Card", "Cash", "Free"
+  station_lighting?: string;  // "Well-lit", "Adequate", "Poor"
+  // Quality ratings
+  cleanliness_rating?: number;  // 1-5 stars
+  charging_speed_rating?: number;  // 1-5 stars
+  amenities_rating?: number;  // 1-5 stars
+  would_recommend?: boolean;
+  // Photo evidence (for not_working reports)
+  photo_url?: string;
 }
 
 interface TrendData {
@@ -155,51 +170,452 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
     return Math.round(((activeCount + partialCount * 0.5) / history.length) * 100);
   };
 
-  const getBestTimeToVisit = (): string => {
+  const getBestTimeToVisit = (): { recommendation: string; timeSlots: string[] } => {
     const reliabilityScore = getReliabilityScore();
-    if (reliabilityScore >= 80) return 'Anytime - Highly reliable';
-    if (reliabilityScore >= 60) return 'Weekdays preferred - More consistent';
-    if (reliabilityScore >= 40) return 'Call ahead - Variable availability';
-    return 'Check real-time status first';
+    const history = safeCharger.verification_history || [];
+
+    // Analyze verification times to suggest best visiting hours
+    const timeSlots: string[] = [];
+    if (history.length > 0) {
+      const hourCounts: { [key: string]: { active: number; total: number } } = {};
+
+      history.forEach(action => {
+        const hour = new Date(action.timestamp).getHours();
+        let period = '';
+        if (hour >= 6 && hour < 12) period = 'Morning (6AM-12PM)';
+        else if (hour >= 12 && hour < 17) period = 'Afternoon (12PM-5PM)';
+        else if (hour >= 17 && hour < 21) period = 'Evening (5PM-9PM)';
+        else period = 'Night (9PM-6AM)';
+
+        if (!hourCounts[period]) hourCounts[period] = { active: 0, total: 0 };
+        hourCounts[period].total++;
+        if (action.action === 'active') hourCounts[period].active++;
+      });
+
+      // Find periods with highest success rate
+      Object.entries(hourCounts)
+        .sort(([, a], [, b]) => (b.active / b.total) - (a.active / a.total))
+        .slice(0, 2)
+        .forEach(([period]) => timeSlots.push(period));
+    }
+
+    let recommendation = '';
+    if (reliabilityScore >= 80) recommendation = 'Anytime - Highly reliable';
+    else if (reliabilityScore >= 60) recommendation = 'Weekdays preferred - More consistent';
+    else if (reliabilityScore >= 40) recommendation = 'Call ahead - Variable availability';
+    else recommendation = 'Check real-time status first';
+
+    return { recommendation, timeSlots };
   };
 
-  const getInsights = (): string[] => {
-    const insights: string[] = [];
+  const getInsights = (): Array<{ icon: string; text: string; type: 'positive' | 'warning' | 'neutral' }> => {
+    const insights: Array<{ icon: string; text: string; type: 'positive' | 'warning' | 'neutral' }> = [];
     const trends = calculateTrends();
     const reliabilityScore = getReliabilityScore();
     const level = safeCharger.verification_level;
+    const history = safeCharger.verification_history || [];
 
-    if (reliabilityScore >= 85) {
-      insights.push('⭐ Consistently reliable with high uptime');
-    }
-
+    // Recent activity warning
     if (trends.last24h.notWorkingCount > 2) {
-      insights.push('⚠️ Recent reports of issues - check before visiting');
+      insights.push({
+        icon: 'alert-circle',
+        text: 'Multiple issues reported in last 24h - verify before visiting',
+        type: 'warning'
+      });
+    } else if (trends.last24h.notWorkingCount > 0) {
+      insights.push({
+        icon: 'information-circle',
+        text: `${trends.last24h.notWorkingCount} issue(s) reported recently - check status`,
+        type: 'warning'
+      });
     }
 
-    if (level >= 4) {
-      insights.push('🏆 Trusted by the community - verified multiple times');
+    // Positive reliability insights
+    if (reliabilityScore >= 85) {
+      insights.push({
+        icon: 'star',
+        text: `Consistently reliable - ${reliabilityScore}% success rate`,
+        type: 'positive'
+      });
     }
 
     if (trends.last7d.activeCount >= 5) {
-      insights.push('✅ Actively verified this week - data is fresh');
+      insights.push({
+        icon: 'checkmark-done-circle',
+        text: `${trends.last7d.activeCount} active verifications this week - data is fresh`,
+        type: 'positive'
+      });
     }
 
+    // Trust level insights
+    if (level >= 4) {
+      insights.push({
+        icon: 'shield-checkmark',
+        text: `Highly trusted by community - Level ${level} verified`,
+        type: 'positive'
+      });
+    }
+
+    // Uptime insights
     if (safeCharger.uptime_percentage >= 90) {
-      insights.push('📈 Excellent uptime history');
+      insights.push({
+        icon: 'trending-up',
+        text: `${safeCharger.uptime_percentage.toFixed(1)}% uptime - excellent availability`,
+        type: 'positive'
+      });
+    } else if (safeCharger.uptime_percentage < 70) {
+      insights.push({
+        icon: 'trending-down',
+        text: `${safeCharger.uptime_percentage.toFixed(1)}% uptime - frequent issues reported`,
+        type: 'warning'
+      });
+    }
+
+    // Community engagement
+    if (safeCharger.verified_by_count >= 20) {
+      insights.push({
+        icon: 'people',
+        text: `${safeCharger.verified_by_count} community verifiers - well-monitored`,
+        type: 'positive'
+      });
+    }
+
+    // Recent verification freshness
+    const daysSinceLastVerified = safeCharger.last_verified
+      ? Math.floor((new Date().getTime() - new Date(safeCharger.last_verified).getTime()) / (1000 * 60 * 60 * 24))
+      : 999;
+
+    if (daysSinceLastVerified > 30) {
+      insights.push({
+        icon: 'time',
+        text: 'No recent verifications - status may be outdated',
+        type: 'warning'
+      });
+    } else if (daysSinceLastVerified <= 3) {
+      insights.push({
+        icon: 'refresh',
+        text: 'Recently verified - status is up to date',
+        type: 'positive'
+      });
+    }
+
+    // Trend analysis
+    const recentTrend = trends.last7d.activeCount >= trends.last30d.activeCount / 4;
+    if (recentTrend && trends.last7d.activeCount > 3) {
+      insights.push({
+        icon: 'arrow-up-circle',
+        text: 'Improving reliability - more active reports recently',
+        type: 'positive'
+      });
     }
 
     if (insights.length === 0) {
-      insights.push('📊 Limited verification data - be the first to verify!');
+      insights.push({
+        icon: 'analytics',
+        text: 'Limited verification data - help the community by verifying',
+        type: 'neutral'
+      });
     }
 
     return insights;
+  };
+
+  // Calculate risk assessment
+  const getRiskAssessment = (): {
+    level: 'low' | 'medium' | 'high';
+    score: number;
+    label: string;
+    color: string;
+    backgroundColor: string;
+    recommendation: string;
+  } => {
+    const reliabilityScore = getReliabilityScore();
+    const trends = calculateTrends();
+    const history = safeCharger.verification_history || [];
+
+    // Calculate risk factors
+    let riskScore = 100 - reliabilityScore; // Base risk from reliability
+
+    // Increase risk if recent failures
+    if (trends.last24h.notWorkingCount > 0) riskScore += 20;
+    if (trends.last7d.notWorkingCount > 2) riskScore += 10;
+
+    // Increase risk if no recent data
+    const daysSinceLastVerified = safeCharger.last_verified
+      ? Math.floor((new Date().getTime() - new Date(safeCharger.last_verified).getTime()) / (1000 * 60 * 60 * 24))
+      : 999;
+    if (daysSinceLastVerified > 30) riskScore += 15;
+
+    // Decrease risk if high verification count
+    if (safeCharger.verified_by_count >= 20) riskScore -= 10;
+    if (safeCharger.verification_level >= 4) riskScore -= 15;
+
+    riskScore = Math.max(0, Math.min(100, riskScore));
+
+    if (riskScore < 25) {
+      return {
+        level: 'low',
+        score: riskScore,
+        label: 'Low Risk - Highly Reliable',
+        color: '#2E7D32',
+        backgroundColor: '#E8F5E9',
+        recommendation: 'Safe to visit anytime. This station is consistently reliable.'
+      };
+    } else if (riskScore < 60) {
+      return {
+        level: 'medium',
+        score: riskScore,
+        label: 'Medium Risk - Generally Reliable',
+        color: '#F57C00',
+        backgroundColor: '#FFF3E0',
+        recommendation: 'Usually works well. Check recent status before visiting.'
+      };
+    } else {
+      return {
+        level: 'high',
+        score: riskScore,
+        label: 'High Risk - Verify First',
+        color: '#D32F2F',
+        backgroundColor: '#FFEBEE',
+        recommendation: 'Exercise caution. Contact station or verify status before traveling.'
+      };
+    }
+  };
+
+  // Compare to network average
+  const getNetworkComparison = (): {
+    betterThanAverage: boolean;
+    percentile: number;
+    message: string;
+  } => {
+    const reliabilityScore = getReliabilityScore();
+    // Simulated network average - in production, this would come from backend
+    const networkAverage = 75;
+    const percentile = Math.min(95, Math.round((reliabilityScore / 100) * 95));
+
+    return {
+      betterThanAverage: reliabilityScore > networkAverage,
+      percentile,
+      message: reliabilityScore > networkAverage
+        ? `${percentile}th percentile - Better than ${percentile}% of stations`
+        : `Below network average - Room for improvement`
+    };
+  };
+
+  // Get top contributors
+  const getTopContributors = (): Array<{ userId: string; count: number }> => {
+    const history = safeCharger.verification_history || [];
+    const userCounts: { [key: string]: number } = {};
+
+    history.forEach(action => {
+      userCounts[action.user_id] = (userCounts[action.user_id] || 0) + 1;
+    });
+
+    return Object.entries(userCounts)
+      .map(([userId, count]) => ({ userId, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+  };
+
+  // Get what to expect
+  const getExpectations = (): string[] => {
+    const expectations: string[] = [];
+    const reliabilityScore = getReliabilityScore();
+
+    if (reliabilityScore >= 80) {
+      expectations.push('✓ High chance all ports will be available');
+      expectations.push('✓ Fast charging speeds confirmed by community');
+    } else if (reliabilityScore >= 60) {
+      expectations.push('~ Some ports may be in use or unavailable');
+      expectations.push('~ Charging speeds may vary');
+    } else {
+      expectations.push('⚠ May experience issues or downtime');
+      expectations.push('⚠ Consider having a backup station nearby');
+    }
+
+    if (safeCharger.amenities && safeCharger.amenities.length > 0) {
+      expectations.push(`✓ Amenities: ${safeCharger.amenities.slice(0, 2).join(', ')}`);
+    }
+
+    return expectations;
+  };
+
+  // Analyze peak hours and usage patterns
+  const getPeakHoursAnalysis = (): {
+    peakHours: string;
+    quietHours: string;
+    avgWaitTime: number;
+    hourlyData: Array<{ hour: number; count: number; successRate: number }>;
+  } => {
+    const history = safeCharger.verification_history || [];
+    const hourlyStats: { [key: number]: { total: number; active: number; waitTimes: number[] } } = {};
+
+    // Initialize all hours
+    for (let i = 0; i < 24; i++) {
+      hourlyStats[i] = { total: 0, active: 0, waitTimes: [] };
+    }
+
+    // Collect data by hour
+    history.forEach(action => {
+      const hour = new Date(action.timestamp).getHours();
+      hourlyStats[hour].total++;
+      if (action.action === 'active') {
+        hourlyStats[hour].active++;
+        if (action.wait_time !== undefined && action.wait_time !== null) {
+          hourlyStats[hour].waitTimes.push(action.wait_time);
+        }
+      }
+    });
+
+    // Find peak and quiet hours
+    const hoursWithData = Object.entries(hourlyStats)
+      .filter(([_, stats]) => stats.total > 0)
+      .sort((a, b) => b[1].total - a[1].total);
+
+    const peakHour = hoursWithData[0] ? parseInt(hoursWithData[0][0]) : 12;
+    const quietHour = hoursWithData[hoursWithData.length - 1]
+      ? parseInt(hoursWithData[hoursWithData.length - 1][0])
+      : 3;
+
+    // Calculate average wait time
+    const allWaitTimes = Object.values(hourlyStats).flatMap(stats => stats.waitTimes);
+    const avgWaitTime = allWaitTimes.length > 0
+      ? Math.round(allWaitTimes.reduce((sum, time) => sum + time, 0) / allWaitTimes.length)
+      : 0;
+
+    // Prepare hourly data for visualization
+    const hourlyData = Object.entries(hourlyStats).map(([hour, stats]) => ({
+      hour: parseInt(hour),
+      count: stats.total,
+      successRate: stats.total > 0 ? (stats.active / stats.total) * 100 : 0
+    }));
+
+    const formatHour = (h: number) => {
+      if (h === 0) return '12 AM';
+      if (h < 12) return `${h} AM`;
+      if (h === 12) return '12 PM';
+      return `${h - 12} PM`;
+    };
+
+    return {
+      peakHours: formatHour(peakHour),
+      quietHours: formatHour(quietHour),
+      avgWaitTime,
+      hourlyData
+    };
+  };
+
+  // Get community ratings analytics
+  const getCommunityRatings = (): {
+    avgCleanliness: number;
+    avgChargingSpeed: number;
+    avgAmenities: number;
+    recommendationRate: number;
+    totalRatings: number;
+  } => {
+    const history = safeCharger.verification_history || [];
+    const ratings = history.filter(
+      action => action.cleanliness_rating || action.charging_speed_rating || action.amenities_rating
+    );
+
+    if (ratings.length === 0) {
+      return {
+        avgCleanliness: 0,
+        avgChargingSpeed: 0,
+        avgAmenities: 0,
+        recommendationRate: 0,
+        totalRatings: 0
+      };
+    }
+
+    const cleanlinessRatings = ratings.filter(r => r.cleanliness_rating).map(r => r.cleanliness_rating!);
+    const speedRatings = ratings.filter(r => r.charging_speed_rating).map(r => r.charging_speed_rating!);
+    const amenitiesRatings = ratings.filter(r => r.amenities_rating).map(r => r.amenities_rating!);
+    const recommendations = history.filter(r => r.would_recommend !== undefined && r.would_recommend !== null);
+
+    const avgCleanliness = cleanlinessRatings.length > 0
+      ? cleanlinessRatings.reduce((sum, r) => sum + r, 0) / cleanlinessRatings.length
+      : 0;
+
+    const avgChargingSpeed = speedRatings.length > 0
+      ? speedRatings.reduce((sum, r) => sum + r, 0) / speedRatings.length
+      : 0;
+
+    const avgAmenities = amenitiesRatings.length > 0
+      ? amenitiesRatings.reduce((sum, r) => sum + r, 0) / amenitiesRatings.length
+      : 0;
+
+    const recommendationRate = recommendations.length > 0
+      ? (recommendations.filter(r => r.would_recommend).length / recommendations.length) * 100
+      : 0;
+
+    return {
+      avgCleanliness: Math.round(avgCleanliness * 10) / 10,
+      avgChargingSpeed: Math.round(avgChargingSpeed * 10) / 10,
+      avgAmenities: Math.round(avgAmenities * 10) / 10,
+      recommendationRate: Math.round(recommendationRate),
+      totalRatings: ratings.length
+    };
+  };
+
+  // Get real-time availability prediction
+  const getAvailabilityPrediction = (): {
+    currentProbability: number;
+    status: 'high' | 'medium' | 'low';
+    message: string;
+    color: string;
+  } => {
+    const currentHour = new Date().getHours();
+    const peakHours = [8, 9, 17, 18, 19];  // Morning and evening rush
+    const reliabilityScore = getReliabilityScore();
+
+    let probability = reliabilityScore;
+
+    // Reduce probability during peak hours
+    if (peakHours.includes(currentHour)) {
+      probability = Math.max(0, probability - 15);
+    }
+
+    // Increase probability during off-peak
+    if (currentHour >= 0 && currentHour < 6) {
+      probability = Math.min(100, probability + 10);
+    }
+
+    if (probability >= 75) {
+      return {
+        currentProbability: probability,
+        status: 'high',
+        message: 'Very likely available now',
+        color: '#4CAF50'
+      };
+    } else if (probability >= 50) {
+      return {
+        currentProbability: probability,
+        status: 'medium',
+        message: 'Might have some wait time',
+        color: '#FF9800'
+      };
+    } else {
+      return {
+        currentProbability: probability,
+        status: 'low',
+        message: 'Call ahead recommended',
+        color: '#F44336'
+      };
+    }
   };
 
   const trends = calculateTrends();
   const reliabilityScore = getReliabilityScore();
   const bestTime = getBestTimeToVisit();
   const insights = getInsights();
+  const riskAssessment = getRiskAssessment();
+  const networkComparison = getNetworkComparison();
+  const topContributors = getTopContributors();
+  const expectations = getExpectations();
+  const peakAnalysis = getPeakHoursAnalysis();
+  const availabilityPrediction = getAvailabilityPrediction();
+  const communityRatings = getCommunityRatings();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -207,6 +623,9 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
   const scoreRotateAnim = useRef(new Animated.Value(0)).current;
   const insightsFadeAnim = useRef(new Animated.Value(0)).current;
   const trendsFadeAnim = useRef(new Animated.Value(0)).current;
+  const headerFadeAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const riskBadgeAnim = useRef(new Animated.Value(0)).current;
 
   // Trigger animations when modal opens
   useEffect(() => {
@@ -217,9 +636,16 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
       scoreRotateAnim.setValue(0);
       insightsFadeAnim.setValue(0);
       trendsFadeAnim.setValue(0);
+      headerFadeAnim.setValue(0);
+      riskBadgeAnim.setValue(0);
 
       // Stagger animations for smooth sequence
       Animated.sequence([
+        Animated.timing(headerFadeAnim, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 300,
@@ -238,6 +664,12 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
             easing: Easing.out(Easing.cubic),
             useNativeDriver: true,
           }),
+          Animated.spring(riskBadgeAnim, {
+            toValue: 1,
+            tension: 40,
+            friction: 6,
+            useNativeDriver: true,
+          }),
         ]),
         Animated.timing(insightsFadeAnim, {
           toValue: 1,
@@ -250,6 +682,24 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
           useNativeDriver: true,
         }),
       ]).start();
+
+      // Continuous pulse animation for risk badge
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.08,
+            duration: 1000,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1000,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
     }
   }, [visible]);
 
@@ -362,15 +812,253 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
           </View>
 
           <ScrollView style={styles.content}>
+            {/* Quick Decision Helper */}
+            <Animated.View
+              style={[
+                styles.section,
+                styles.decisionSection,
+                { opacity: headerFadeAnim }
+              ]}
+            >
+              <View style={styles.decisionHeader}>
+                <Ionicons name="flash" size={24} color="#FFB300" />
+                <Text style={styles.decisionTitle}>Quick Decision</Text>
+              </View>
+              <Animated.View
+                style={[
+                  styles.riskBadge,
+                  { backgroundColor: riskAssessment.backgroundColor },
+                  {
+                    transform: [
+                      { scale: riskBadgeAnim },
+                      { scale: riskAssessment.level === 'high' ? pulseAnim : 1 }
+                    ]
+                  }
+                ]}
+              >
+                <View style={styles.riskBadgeContent}>
+                  <Ionicons
+                    name={
+                      riskAssessment.level === 'low' ? 'shield-checkmark' :
+                      riskAssessment.level === 'medium' ? 'warning' :
+                      'alert-circle'
+                    }
+                    size={32}
+                    color={riskAssessment.color}
+                  />
+                  <View style={styles.riskBadgeText}>
+                    <Text style={[styles.riskLabel, { color: riskAssessment.color }]}>
+                      {riskAssessment.label}
+                    </Text>
+                    <Text style={styles.riskRecommendation}>
+                      {riskAssessment.recommendation}
+                    </Text>
+                  </View>
+                </View>
+              </Animated.View>
+            </Animated.View>
+
+            {/* What to Expect */}
+            <Animated.View
+              style={[
+                styles.section,
+                { opacity: headerFadeAnim }
+              ]}
+            >
+              <Text style={styles.sectionTitle}>What to Expect</Text>
+              <View style={styles.expectationsContainer}>
+                {expectations.map((expectation, index) => (
+                  <View key={index} style={styles.expectationItem}>
+                    <Text style={styles.expectationText}>{expectation}</Text>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+
+            {/* Real-Time Availability Prediction */}
+            <Animated.View
+              style={[
+                styles.section,
+                styles.availabilitySection,
+                { opacity: headerFadeAnim }
+              ]}
+            >
+              <View style={styles.availabilityHeader}>
+                <Ionicons name="pulse" size={22} color="#2196F3" />
+                <Text style={styles.sectionTitle}>Availability Right Now</Text>
+              </View>
+              <View style={styles.availabilityCard}>
+                <View style={styles.probabilityCircle}>
+                  <Text style={[styles.probabilityNumber, { color: availabilityPrediction.color }]}>
+                    {availabilityPrediction.currentProbability}%
+                  </Text>
+                  <Text style={styles.probabilityLabel}>Likely Available</Text>
+                </View>
+                <View style={styles.availabilityInfo}>
+                  <Ionicons
+                    name={
+                      availabilityPrediction.status === 'high' ? 'checkmark-circle' :
+                      availabilityPrediction.status === 'medium' ? 'time' :
+                      'warning'
+                    }
+                    size={24}
+                    color={availabilityPrediction.color}
+                  />
+                  <Text style={[styles.availabilityMessage, { color: availabilityPrediction.color }]}>
+                    {availabilityPrediction.message}
+                  </Text>
+                </View>
+              </View>
+            </Animated.View>
+
+            {/* Community Ratings */}
+            {communityRatings.totalRatings > 0 && (
+              <Animated.View
+                style={[
+                  styles.section,
+                  styles.ratingsSection,
+                  { opacity: fadeAnim }
+                ]}
+              >
+                <View style={styles.ratingsSectionHeader}>
+                  <Ionicons name="star" size={22} color="#FFB300" />
+                  <Text style={styles.sectionTitle}>Community Ratings</Text>
+                  <View style={styles.ratingsCount}>
+                    <Text style={styles.ratingsCountText}>{communityRatings.totalRatings} ratings</Text>
+                  </View>
+                </View>
+
+                <View style={styles.ratingsGrid}>
+                  {communityRatings.avgCleanliness > 0 && (
+                    <View style={styles.ratingCard}>
+                      <Ionicons name="sparkles" size={32} color="#9C27B0" />
+                      <View style={styles.ratingStars}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Ionicons
+                            key={star}
+                            name={star <= Math.round(communityRatings.avgCleanliness) ? 'star' : 'star-outline'}
+                            size={16}
+                            color="#FFB300"
+                          />
+                        ))}
+                      </View>
+                      <Text style={styles.ratingValue}>{communityRatings.avgCleanliness.toFixed(1)}</Text>
+                      <Text style={styles.ratingLabel}>Cleanliness</Text>
+                    </View>
+                  )}
+
+                  {communityRatings.avgChargingSpeed > 0 && (
+                    <View style={styles.ratingCard}>
+                      <Ionicons name="flash" size={32} color="#4CAF50" />
+                      <View style={styles.ratingStars}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Ionicons
+                            key={star}
+                            name={star <= Math.round(communityRatings.avgChargingSpeed) ? 'star' : 'star-outline'}
+                            size={16}
+                            color="#FFB300"
+                          />
+                        ))}
+                      </View>
+                      <Text style={styles.ratingValue}>{communityRatings.avgChargingSpeed.toFixed(1)}</Text>
+                      <Text style={styles.ratingLabel}>Charging Speed</Text>
+                    </View>
+                  )}
+
+                  {communityRatings.avgAmenities > 0 && (
+                    <View style={styles.ratingCard}>
+                      <Ionicons name="restaurant" size={32} color="#FF9800" />
+                      <View style={styles.ratingStars}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Ionicons
+                            key={star}
+                            name={star <= Math.round(communityRatings.avgAmenities) ? 'star' : 'star-outline'}
+                            size={16}
+                            color="#FFB300"
+                          />
+                        ))}
+                      </View>
+                      <Text style={styles.ratingValue}>{communityRatings.avgAmenities.toFixed(1)}</Text>
+                      <Text style={styles.ratingLabel}>Amenities</Text>
+                    </View>
+                  )}
+                </View>
+
+                {communityRatings.recommendationRate > 0 && (
+                  <View style={styles.recommendationCard}>
+                    <View style={styles.recommendationIcon}>
+                      <Ionicons name="thumbs-up" size={28} color="#4CAF50" />
+                    </View>
+                    <View style={styles.recommendationContent}>
+                      <Text style={styles.recommendationValue}>{communityRatings.recommendationRate}%</Text>
+                      <Text style={styles.recommendationLabel}>Would Recommend</Text>
+                    </View>
+                    <View style={styles.recommendationBadge}>
+                      <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    </View>
+                  </View>
+                )}
+              </Animated.View>
+            )}
+
+            {/* Usage Patterns & Wait Times */}
+            <Animated.View
+              style={[
+                styles.section,
+                { opacity: fadeAnim }
+              ]}
+            >
+              <Text style={styles.sectionTitle}>Usage Patterns</Text>
+              {peakAnalysis.avgWaitTime > 0 && (
+                <View style={styles.waitTimeCard}>
+                  <Ionicons name="time-outline" size={32} color="#9C27B0" />
+                  <View style={styles.waitTimeInfo}>
+                    <Text style={styles.waitTimeValue}>{peakAnalysis.avgWaitTime} min</Text>
+                    <Text style={styles.waitTimeLabel}>Average Wait Time</Text>
+                  </View>
+                </View>
+              )}
+              <View style={styles.peakTimesContainer}>
+                <View style={styles.peakTimeRow}>
+                  <Ionicons name="arrow-up-circle" size={20} color="#F44336" />
+                  <View style={styles.peakTimeInfo}>
+                    <Text style={styles.peakTimeLabel}>Busiest Time</Text>
+                    <Text style={styles.peakTimeValue}>{peakAnalysis.peakHours}</Text>
+                  </View>
+                </View>
+                <View style={styles.peakTimeRow}>
+                  <Ionicons name="arrow-down-circle" size={20} color="#4CAF50" />
+                  <View style={styles.peakTimeInfo}>
+                    <Text style={styles.peakTimeLabel}>Quietest Time</Text>
+                    <Text style={styles.peakTimeValue}>{peakAnalysis.quietHours}</Text>
+                  </View>
+                </View>
+              </View>
+            </Animated.View>
+
             {/* Current Level */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Current Verification Level</Text>
+              <Text style={styles.sectionTitle}>Verification Status</Text>
               <View style={styles.levelCard}>
                 <VerificationBadge level={safeCharger.verification_level} size="large" />
                 <View style={styles.levelInfo}>
                   <Text style={styles.levelDescription}>
                     {LEVEL_DESCRIPTIONS[safeCharger.verification_level as keyof typeof LEVEL_DESCRIPTIONS]}
                   </Text>
+                  {/* Network Comparison */}
+                  <View style={styles.comparisonBadge}>
+                    <Ionicons
+                      name={networkComparison.betterThanAverage ? 'trending-up' : 'analytics'}
+                      size={14}
+                      color={networkComparison.betterThanAverage ? '#4CAF50' : '#FF9800'}
+                    />
+                    <Text style={[
+                      styles.comparisonText,
+                      { color: networkComparison.betterThanAverage ? '#2E7D32' : '#F57C00' }
+                    ]}>
+                      {networkComparison.message}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
@@ -401,8 +1089,19 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                     </Text>
                     <View style={styles.bestTimeChip}>
                       <Ionicons name="time-outline" size={14} color="#4CAF50" />
-                      <Text style={styles.bestTimeText}>{bestTime}</Text>
+                      <Text style={styles.bestTimeText}>{bestTime.recommendation}</Text>
                     </View>
+                    {bestTime.timeSlots.length > 0 && (
+                      <View style={styles.timeSlotsContainer}>
+                        <Text style={styles.timeSlotsLabel}>Best times:</Text>
+                        {bestTime.timeSlots.map((slot, idx) => (
+                          <View key={idx} style={styles.timeSlot}>
+                            <Ionicons name="time" size={12} color="#2E7D32" />
+                            <Text style={styles.timeSlotText}>{slot}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
                   </View>
                 </View>
               </View>
@@ -426,11 +1125,36 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                   },
                 ]}
               >
-                <Text style={styles.sectionTitle}>Key Insights</Text>
+                <Text style={styles.sectionTitle}>Smart Insights & Recommendations</Text>
                 <View style={styles.insightsContainer}>
                   {insights.map((insight, index) => (
-                    <View key={index} style={styles.insightCard}>
-                      <Text style={styles.insightText}>{insight}</Text>
+                    <View
+                      key={index}
+                      style={[
+                        styles.insightCard,
+                        insight.type === 'positive' && styles.insightCardPositive,
+                        insight.type === 'warning' && styles.insightCardWarning,
+                        insight.type === 'neutral' && styles.insightCardNeutral,
+                      ]}
+                    >
+                      <Ionicons
+                        name={insight.icon as any}
+                        size={20}
+                        color={
+                          insight.type === 'positive' ? '#2E7D32' :
+                          insight.type === 'warning' ? '#F57C00' :
+                          '#1976D2'
+                        }
+                      />
+                      <Text
+                        style={[
+                          styles.insightText,
+                          insight.type === 'positive' && styles.insightTextPositive,
+                          insight.type === 'warning' && styles.insightTextWarning,
+                        ]}
+                      >
+                        {insight.text}
+                      </Text>
                     </View>
                   ))}
                 </View>
@@ -458,30 +1182,70 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               <View style={styles.trendsContainer}>
                 {[trends.last24h, trends.last7d, trends.last30d].map((trend, index) => {
                   const total = trend.activeCount + trend.notWorkingCount + trend.partialCount;
+                  const activePercent = total > 0 ? (trend.activeCount / total) * 100 : 0;
+                  const partialPercent = total > 0 ? (trend.partialCount / total) * 100 : 0;
+                  const failPercent = total > 0 ? (trend.notWorkingCount / total) * 100 : 0;
+
                   return (
                     <View key={index} style={styles.trendCard}>
                       <Text style={styles.trendPeriod}>{trend.period}</Text>
                       <Text style={styles.trendTotal}>{total}</Text>
-                      <Text style={styles.trendLabel}>checks</Text>
-                      {total > 0 && (
-                        <View style={styles.trendBreakdown}>
-                          <View style={styles.trendRow}>
-                            <View style={[styles.trendDot, { backgroundColor: '#4CAF50' }]} />
-                            <Text style={styles.trendValue}>{trend.activeCount}</Text>
+                      <Text style={styles.trendLabel}>verifications</Text>
+
+                      {total > 0 ? (
+                        <>
+                          {/* Visual Progress Bar */}
+                          <View style={styles.trendProgressBar}>
+                            {activePercent > 0 && (
+                              <View
+                                style={[
+                                  styles.trendProgressSegment,
+                                  { width: `${activePercent}%`, backgroundColor: '#4CAF50' }
+                                ]}
+                              />
+                            )}
+                            {partialPercent > 0 && (
+                              <View
+                                style={[
+                                  styles.trendProgressSegment,
+                                  { width: `${partialPercent}%`, backgroundColor: '#FF9800' }
+                                ]}
+                              />
+                            )}
+                            {failPercent > 0 && (
+                              <View
+                                style={[
+                                  styles.trendProgressSegment,
+                                  { width: `${failPercent}%`, backgroundColor: '#F44336' }
+                                ]}
+                              />
+                            )}
                           </View>
-                          {trend.partialCount > 0 && (
-                            <View style={styles.trendRow}>
-                              <View style={[styles.trendDot, { backgroundColor: '#FF9800' }]} />
-                              <Text style={styles.trendValue}>{trend.partialCount}</Text>
-                            </View>
-                          )}
-                          {trend.notWorkingCount > 0 && (
-                            <View style={styles.trendRow}>
-                              <View style={[styles.trendDot, { backgroundColor: '#F44336' }]} />
-                              <Text style={styles.trendValue}>{trend.notWorkingCount}</Text>
-                            </View>
-                          )}
-                        </View>
+
+                          {/* Breakdown */}
+                          <View style={styles.trendBreakdown}>
+                            {trend.activeCount > 0 && (
+                              <View style={styles.trendRow}>
+                                <View style={[styles.trendDot, { backgroundColor: '#4CAF50' }]} />
+                                <Text style={styles.trendValue}>{trend.activeCount} active</Text>
+                              </View>
+                            )}
+                            {trend.partialCount > 0 && (
+                              <View style={styles.trendRow}>
+                                <View style={[styles.trendDot, { backgroundColor: '#FF9800' }]} />
+                                <Text style={styles.trendValue}>{trend.partialCount} partial</Text>
+                              </View>
+                            )}
+                            {trend.notWorkingCount > 0 && (
+                              <View style={styles.trendRow}>
+                                <View style={[styles.trendDot, { backgroundColor: '#F44336' }]} />
+                                <Text style={styles.trendValue}>{trend.notWorkingCount} down</Text>
+                              </View>
+                            )}
+                          </View>
+                        </>
+                      ) : (
+                        <Text style={styles.noDataText}>No data</Text>
                       )}
                     </View>
                   );
@@ -491,36 +1255,104 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
 
             {/* Statistics */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Quick Statistics</Text>
+              <Text style={styles.sectionTitle}>Performance Metrics</Text>
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
-                  <Ionicons name="people" size={24} color="#2196F3" />
+                  <View style={styles.statIconCircle}>
+                    <Ionicons name="people" size={24} color="#2196F3" />
+                  </View>
                   <Text style={styles.statValue}>{safeCharger.verified_by_count}</Text>
-                  <Text style={styles.statLabel}>Verifiers</Text>
+                  <Text style={styles.statLabel}>Community Verifiers</Text>
+                  <View style={styles.statBar}>
+                    <View
+                      style={[
+                        styles.statBarFill,
+                        {
+                          width: `${Math.min((safeCharger.verified_by_count / 30) * 100, 100)}%`,
+                          backgroundColor: '#2196F3',
+                        },
+                      ]}
+                    />
+                  </View>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name="trending-up" size={24} color="#4CAF50" />
+                  <View style={[
+                    styles.statIconCircle,
+                    { backgroundColor: safeCharger.uptime_percentage >= 90 ? '#E8F5E9' : '#FFF3E0' }
+                  ]}>
+                    <Ionicons
+                      name={safeCharger.uptime_percentage >= 90 ? 'trending-up' : 'analytics'}
+                      size={24}
+                      color={safeCharger.uptime_percentage >= 90 ? '#4CAF50' : '#FF9800'}
+                    />
+                  </View>
                   <Text style={styles.statValue}>{safeCharger.uptime_percentage.toFixed(1)}%</Text>
-                  <Text style={styles.statLabel}>Uptime</Text>
+                  <Text style={styles.statLabel}>Uptime Rate</Text>
+                  <View style={styles.statBar}>
+                    <View
+                      style={[
+                        styles.statBarFill,
+                        {
+                          width: `${safeCharger.uptime_percentage}%`,
+                          backgroundColor: safeCharger.uptime_percentage >= 90 ? '#4CAF50' : '#FF9800',
+                        },
+                      ]}
+                    />
+                  </View>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name="time" size={24} color="#FF9800" />
+                  <View style={styles.statIconCircle}>
+                    <Ionicons name="time" size={24} color="#9C27B0" />
+                  </View>
                   <Text style={styles.statValue}>
                     {safeCharger.last_verified
                       ? formatDate(safeCharger.last_verified).split(',')[0]
-                      : 'N/A'}
+                      : 'Never'}
                   </Text>
-                  <Text style={styles.statLabel}>Last Check</Text>
+                  <Text style={styles.statLabel}>Last Verified</Text>
+                  {safeCharger.last_verified && (
+                    <Text style={styles.statSubtext}>
+                      {formatDate(safeCharger.last_verified)}
+                    </Text>
+                  )}
                 </View>
               </View>
             </View>
 
+            {/* Top Contributors */}
+            {topContributors.length > 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Top Community Contributors</Text>
+                <View style={styles.contributorsContainer}>
+                  {topContributors.map((contributor, index) => (
+                    <View key={index} style={styles.contributorCard}>
+                      <View style={styles.contributorRank}>
+                        <Ionicons
+                          name={index === 0 ? 'trophy' : index === 1 ? 'medal' : 'ribbon'}
+                          size={20}
+                          color={index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : '#CD7F32'}
+                        />
+                      </View>
+                      <View style={styles.contributorInfo}>
+                        <Text style={styles.contributorName}>
+                          {anonymizeUserId(contributor.userId)}
+                        </Text>
+                        <Text style={styles.contributorCount}>
+                          {contributor.count} verification{contributor.count > 1 ? 's' : ''}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
             {/* Verification History */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Verification History</Text>
+              <Text style={styles.sectionTitle}>Recent Verification History</Text>
               {safeCharger.verification_history && safeCharger.verification_history.length > 0 ? (
                 <View style={styles.timeline}>
-                  {safeCharger.verification_history.slice(-10).reverse().map((action: VerificationAction, index: number) => (
+                  {safeCharger.verification_history.slice(0, 8).map((action: VerificationAction, index: number) => (
                     <View key={index} style={styles.timelineItem}>
                       <View
                         style={[
@@ -690,21 +1522,50 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  statIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#E3F2FD',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   statValue: {
     fontSize: 20,
     fontWeight: '700',
     color: '#1A1A1A',
-    marginTop: 8,
+    marginTop: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#666666',
     marginTop: 4,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  statSubtext: {
+    fontSize: 9,
+    color: '#999999',
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  statBar: {
+    width: '100%',
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  statBarFill: {
+    height: '100%',
+    borderRadius: 2,
   },
   timeline: {
     gap: 16,
@@ -899,25 +1760,71 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2E7D32',
   },
+  timeSlotsContainer: {
+    marginTop: 8,
+    gap: 4,
+  },
+  timeSlotsLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#666666',
+    marginBottom: 4,
+  },
+  timeSlot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F1F8E9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  timeSlotText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#2E7D32',
+  },
   insightsContainer: {
-    gap: 8,
+    gap: 10,
   },
   insightCard: {
-    backgroundColor: '#E3F2FD',
-    padding: 14,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    borderRadius: 14,
     borderLeftWidth: 4,
-    borderLeftColor: '#2196F3',
-    shadowColor: '#2196F3',
-    shadowOffset: { width: 0, height: 1 },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  insightCardPositive: {
+    backgroundColor: '#E8F5E9',
+    borderLeftColor: '#4CAF50',
+  },
+  insightCardWarning: {
+    backgroundColor: '#FFF3E0',
+    borderLeftColor: '#FF9800',
+  },
+  insightCardNeutral: {
+    backgroundColor: '#E3F2FD',
+    borderLeftColor: '#2196F3',
   },
   insightText: {
+    flex: 1,
     fontSize: 13,
     color: '#1A1A1A',
-    lineHeight: 18,
+    lineHeight: 19,
+    fontWeight: '500',
+  },
+  insightTextPositive: {
+    color: '#1B5E20',
+  },
+  insightTextWarning: {
+    color: '#E65100',
   },
   trendsContainer: {
     flexDirection: 'row',
@@ -950,10 +1857,22 @@ const styles = StyleSheet.create({
   trendLabel: {
     fontSize: 11,
     color: '#999999',
-    marginBottom: 8,
+    marginBottom: 10,
+  },
+  trendProgressBar: {
+    flexDirection: 'row',
+    height: 8,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 10,
+    width: '100%',
+  },
+  trendProgressSegment: {
+    height: '100%',
   },
   trendBreakdown: {
-    gap: 4,
+    gap: 6,
     width: '100%',
   },
   trendRow: {
@@ -967,8 +1886,383 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   trendValue: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
     color: '#666666',
+  },
+  noDataText: {
+    fontSize: 11,
+    color: '#999999',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  decisionSection: {
+    backgroundColor: 'transparent',
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  decisionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  decisionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  riskBadge: {
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  riskBadgeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  riskBadgeText: {
+    flex: 1,
+  },
+  riskLabel: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  riskRecommendation: {
+    fontSize: 13,
+    color: '#424242',
+    lineHeight: 19,
+    fontWeight: '500',
+  },
+  expectationsContainer: {
+    gap: 10,
+  },
+  expectationItem: {
+    backgroundColor: '#F8F9FA',
+    padding: 14,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#4CAF50',
+  },
+  expectationText: {
+    fontSize: 13,
+    color: '#1A1A1A',
+    lineHeight: 19,
+    fontWeight: '500',
+  },
+  comparisonBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    marginTop: 12,
+    alignSelf: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  comparisonText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  contributorsContainer: {
+    gap: 12,
+  },
+  contributorCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    padding: 16,
+    borderRadius: 14,
+    gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  contributorRank: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  contributorInfo: {
+    flex: 1,
+  },
+  contributorName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 4,
+  },
+  contributorCount: {
+    fontSize: 12,
+    color: '#666666',
+  },
+  availabilitySection: {
+    backgroundColor: '#FAFAFA',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  availabilityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  availabilityCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  probabilityCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#E0E0E0',
+  },
+  probabilityNumber: {
+    fontSize: 32,
+    fontWeight: '700',
+  },
+  probabilityLabel: {
+    fontSize: 10,
+    color: '#666666',
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  availabilityInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  availabilityMessage: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    lineHeight: 21,
+  },
+  usageGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  usageCard: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    padding: 20,
+    borderRadius: 14,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  usageValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  usageLabel: {
+    fontSize: 12,
+    color: '#666666',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  peakTimesContainer: {
+    gap: 12,
+  },
+  peakTimeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#F8F9FA',
+    padding: 16,
+    borderRadius: 12,
+  },
+  peakTimeInfo: {
+    flex: 1,
+  },
+  peakTimeLabel: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+  peakTimeValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  ratingsSection: {
+    backgroundColor: '#FFFEF7',
+    borderWidth: 1,
+    borderColor: '#FFE082',
+  },
+  ratingsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  ratingsCount: {
+    marginLeft: 'auto',
+    backgroundColor: '#FFF8E1',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  ratingsCountText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#F57C00',
+  },
+  ratingsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  ratingCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  ratingStars: {
+    flexDirection: 'row',
+    gap: 2,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  ratingValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginTop: 4,
+  },
+  ratingLabel: {
+    fontSize: 11,
+    color: '#666666',
+    marginTop: 4,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  recommendationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    padding: 18,
+    borderRadius: 14,
+    gap: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  recommendationIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  recommendationContent: {
+    flex: 1,
+  },
+  recommendationValue: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 2,
+  },
+  recommendationLabel: {
+    fontSize: 13,
+    color: '#1B5E20',
+    fontWeight: '600',
+  },
+  recommendationBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#C8E6C9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  waitTimeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    padding: 18,
+    borderRadius: 14,
+    gap: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  waitTimeInfo: {
+    flex: 1,
+  },
+  waitTimeValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 4,
+  },
+  waitTimeLabel: {
+    fontSize: 13,
+    color: '#666666',
+    fontWeight: '600',
   },
 });
