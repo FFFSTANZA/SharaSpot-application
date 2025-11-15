@@ -1195,6 +1195,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#666666',
+    textAlign: 'center',
   },
   nextButton: {
     flexDirection: 'row',
