@@ -67,19 +67,61 @@ export default function VerifyStation() {
   // Photo evidence
   const [photoUrl, setPhotoUrl] = useState<string | undefined>();
 
-  // Animation
+  // Animations
   const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const coinPulse = useRef(new Animated.Value(1)).current;
+  const coinShimmer = useRef(new Animated.Value(0)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Slide in animation
-    Animated.spring(slideAnim, {
-      toValue: 0,
-      tension: 50,
-      friction: 8,
-      useNativeDriver: true,
-    }).start();
+    // Reset and animate content on step change
+    slideAnim.setValue(300);
+    fadeAnim.setValue(0);
+
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 65,
+        friction: 9,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, [step]);
+
+  useEffect(() => {
+    // Animate progress bar
+    const { current, total } = getStepNumber();
+    Animated.spring(progressAnim, {
+      toValue: current / total,
+      tension: 50,
+      friction: 7,
+      useNativeDriver: false,
+    }).start();
+  }, [step, action]);
+
+  useEffect(() => {
+    // Continuous shimmer effect for coin badge
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(coinShimmer, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(coinShimmer, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   useEffect(() => {
     // Pulse coin counter when bonus changes
@@ -233,12 +275,16 @@ export default function VerifyStation() {
 
   const renderProgressBar = () => {
     const { current, total } = getStepNumber();
-    const progress = (current / total) * 100;
+
+    const progressWidth = progressAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    });
 
     return (
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progress}%` }]} />
+          <Animated.View style={[styles.progressFill, { width: progressWidth }]} />
         </View>
         <Text style={styles.progressText}>
           Step {current} of {total}
@@ -784,7 +830,18 @@ export default function VerifyStation() {
         <Text style={styles.headerTitle}>
           {step === 'action' ? 'Verify Station' : 'Enhanced Details'}
         </Text>
-        <Animated.View style={[styles.coinBadge, { transform: [{ scale: coinPulse }] }]}>
+        <Animated.View
+          style={[
+            styles.coinBadge,
+            {
+              transform: [{ scale: coinPulse }],
+              opacity: coinShimmer.interpolate({
+                inputRange: [0, 0.5, 1],
+                outputRange: [1, 0.85, 1],
+              }),
+            }
+          ]}
+        >
           <Text style={styles.coinBadgeText}>{getTotalCoins()} 🪙</Text>
         </Animated.View>
       </View>
@@ -793,8 +850,15 @@ export default function VerifyStation() {
       {step !== 'action' && renderProgressBar()}
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.chargerName}>{chargerName}</Text>
-        {renderCurrentStep()}
+        <Animated.View
+          style={{
+            opacity: fadeAnim,
+            transform: [{ translateX: slideAnim }],
+          }}
+        >
+          <Text style={styles.chargerName}>{chargerName}</Text>
+          {renderCurrentStep()}
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -814,6 +878,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
     backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   closeButton: {
     padding: 4,
@@ -825,16 +894,24 @@ const styles = StyleSheet.create({
   },
   coinBadge: {
     backgroundColor: '#FFF8E1',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#FFB300',
+    shadowColor: '#FFB300',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   coinBadgeText: {
     fontSize: 14,
     fontWeight: '700',
     color: '#F57C00',
+    textShadowColor: 'rgba(245, 124, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   progressContainer: {
     paddingHorizontal: 20,
@@ -884,27 +961,35 @@ const styles = StyleSheet.create({
   actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   activeCard: {
-    borderLeftWidth: 4,
+    borderLeftWidth: 5,
     borderLeftColor: '#4CAF50',
+    shadowColor: '#4CAF50',
+    shadowOpacity: 0.15,
   },
   notWorkingCard: {
-    borderLeftWidth: 4,
+    borderLeftWidth: 5,
     borderLeftColor: '#F44336',
+    shadowColor: '#F44336',
+    shadowOpacity: 0.15,
   },
   partialCard: {
-    borderLeftWidth: 4,
+    borderLeftWidth: 5,
     borderLeftColor: '#FF9800',
+    shadowColor: '#FF9800',
+    shadowOpacity: 0.15,
   },
   actionIconCircle: {
     marginRight: 16,
@@ -932,9 +1017,16 @@ const styles = StyleSheet.create({
   bonusBanner: {
     alignItems: 'center',
     backgroundColor: '#E8F5E9',
-    padding: 16,
-    borderRadius: 14,
+    padding: 18,
+    borderRadius: 16,
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#A5D6A7',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   bonusContent: {
     alignItems: 'center',
@@ -1032,14 +1124,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     borderWidth: 2,
     borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   yesNoButtonYes: {
     backgroundColor: '#4CAF50',
     borderColor: '#4CAF50',
+    shadowColor: '#4CAF50',
+    shadowOpacity: 0.3,
   },
   yesNoButtonNo: {
     backgroundColor: '#F44336',
     borderColor: '#F44336',
+    shadowColor: '#F44336',
+    shadowOpacity: 0.3,
   },
   yesNoButtonText: {
     fontSize: 15,
@@ -1050,10 +1151,16 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   bonusIndicator: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
     color: '#4CAF50',
     marginTop: 8,
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    overflow: 'hidden',
   },
   ratingsSection: {
     marginBottom: 28,
@@ -1105,8 +1212,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#E8F5E9',
     padding: 24,
-    borderRadius: 14,
+    borderRadius: 16,
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#A5D6A7',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   photoBannerTitle: {
     fontSize: 16,
@@ -1127,13 +1241,18 @@ const styles = StyleSheet.create({
   uploadButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F8FFF9',
     borderWidth: 2,
     borderColor: '#4CAF50',
     borderStyle: 'dashed',
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 32,
     marginBottom: 12,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   uploadButtonText: {
     fontSize: 15,
@@ -1183,12 +1302,17 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
     backgroundColor: '#FFF8E1',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#FFB300',
+    shadowColor: '#FFB300',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   skipButtonText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#F57C00',
   },
   nextButton: {
@@ -1200,16 +1324,19 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
     backgroundColor: '#4CAF50',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   nextButtonText: {
     fontSize: 14,
     fontWeight: '700',
     color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   submitButton: {
     flex: 1,
@@ -1220,15 +1347,18 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 14,
     backgroundColor: '#4CAF50',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
   submitButtonText: {
     fontSize: 15,
     fontWeight: '700',
     color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });
