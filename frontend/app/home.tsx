@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.successLight,
-    paddingVertical: Spacing['2.5'],  // 10px - using theme
+    paddingVertical: 10,              // 10px
     paddingHorizontal: Spacing.md,    // 16px - using theme
     borderRadius: BorderRadius.full,  // Perfect pill shape
     gap: Spacing.sm,                  // 8px - using theme
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
   },
   portTypes: {
     flexDirection: 'row',
-    gap: Spacing['1.5'],
+    gap: 6,                           // 6px
     alignItems: 'center',
   },
   portBadge: {

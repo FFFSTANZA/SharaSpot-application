@@ -9,7 +9,8 @@ import Constants from 'expo-constants';
 import { VerificationBadge } from '../../components/VerificationBadge';
 import { AmenitiesIcons } from '../../components/AmenitiesIcons';
 import { FilterModal, Filters } from '../../components/FilterModal';
-import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { VerificationReportModal } from '../../components/VerificationReportModal';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 
 // Conditional import for MapView (mobile only)
 let MapView: any = null;
@@ -48,11 +49,11 @@ interface Charger {
 type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
-  1: '#9E9E9E',  // Grey - New Entry
-  2: '#4CAF50',  // Green - Community Verified
-  3: '#2196F3',  // Blue - Reliable
-  4: '#FFB300',  // Gold - Trusted
-  5: '#9C27B0',  // Platinum - Certified Partner
+  1: '#9E9E9E',      // Grey - New Entry
+  2: Colors.primary,  // Electric Blue - Community Verified
+  3: Colors.accent,   // Neon Cyan - Reliable
+  4: Colors.accentGold, // Gold - Trusted
+  5: Colors.secondary,  // Electric Purple - Certified Partner
 };
 
 export default function Discover() {
@@ -63,6 +64,8 @@ export default function Discover() {
   const [refreshing, setRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [selectedChargerForReport, setSelectedChargerForReport] = useState<Charger | null>(null);
   const [filters, setFilters] = useState<Filters>({
     verificationLevel: null,
     portType: null,
@@ -179,7 +182,7 @@ export default function Discover() {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={22} color="#4CAF50" />
+          <Ionicons name="flash" size={24} color={Colors.primary} />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
@@ -189,12 +192,20 @@ export default function Discover() {
             {item.address}
           </Text>
         </View>
-        <VerificationBadge level={item.verification_level} size="small" />
+        <TouchableOpacity
+          onPress={() => {
+            setSelectedChargerForReport(item);
+            setReportModalVisible(true);
+          }}
+          activeOpacity={0.7}
+        >
+          <VerificationBadge level={item.verification_level} size="small" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <Ionicons name="locate" size={16} color="#666666" />
+          <Ionicons name="locate" size={14} color={Colors.textSecondary} />
           <Text style={styles.detailText}>
             {item.distance} {user?.distance_unit || 'km'} away
           </Text>
@@ -202,8 +213,8 @@ export default function Discover() {
         <View style={styles.detailRow}>
           <Ionicons
             name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"}
-            size={16}
-            color={item.available_ports > 0 ? "#4CAF50" : "#F44336"}
+            size={14}
+            color={item.available_ports > 0 ? Colors.success : Colors.error}
           />
           <Text style={styles.detailText}>
             {item.available_ports}/{item.total_ports} ports available
@@ -223,7 +234,7 @@ export default function Discover() {
           )}
         </View>
         {item.amenities && item.amenities.length > 0 && (
-          <AmenitiesIcons amenities={item.amenities} size={16} />
+          <AmenitiesIcons amenities={item.amenities} size={14} />
         )}
       </View>
 
@@ -249,6 +260,9 @@ export default function Discover() {
         <Text style={styles.greeting}>Hello, {user?.name || 'Guest'}!</Text>
         <Text style={styles.subtitle}>{chargers.length} charging stations nearby</Text>
       </View>
+      <TouchableOpacity style={styles.profileButton} onPress={() => router.push('/profile')}>
+        <Ionicons name="person-circle" size={40} color={Colors.primary} />
+      </TouchableOpacity>
     </View>
   );
 
@@ -308,7 +322,7 @@ export default function Discover() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -365,14 +379,19 @@ export default function Discover() {
         </View>
       )}
 
-      {/* View Toggle Button - Lowered Position */}
+      {/* View Toggle Button */}
       <TouchableOpacity
         style={styles.viewToggle}
         onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
-        activeOpacity={0.85}
       >
-        <Ionicons name={viewMode === 'map' ? 'list' : 'map'} size={22} color="#FFFFFF" />
-        <Text style={styles.viewToggleText}>{viewMode === 'map' ? 'List View' : 'Map View'}</Text>
+        <Ionicons name={viewMode === 'map' ? 'list' : 'map'} size={24} color="#FFFFFF" />
+        <Text style={styles.viewToggleText}>{viewMode === 'map' ? 'List' : 'Map'}</Text>
+      </TouchableOpacity>
+
+      {/* Add Hidden Charger FAB */}
+      <TouchableOpacity style={styles.fab} onPress={handleAddCharger}>
+        <Ionicons name="add" size={20} color="#FFFFFF" />
+        <Text style={styles.fabText}>Add Hidden Charger</Text>
       </TouchableOpacity>
 
       {/* Filter Modal */}
@@ -382,6 +401,13 @@ export default function Discover() {
         onApply={handleFilterApply}
         currentFilters={filters}
       />
+
+      {/* Verification Report Modal */}
+      <VerificationReportModal
+        visible={reportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        charger={selectedChargerForReport}
+      />
     </SafeAreaView>
   );
 }
@@ -389,7 +415,7 @@ export default function Discover() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundSecondary,
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -401,19 +427,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.lg,
+    padding: Spacing.lg,           // 24px - using theme
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   greeting: {
-    ...Typography.headlineSmall,
+    ...Typography.headlineSmall,   // Enhanced typography
     color: Colors.textPrimary,
   },
   subtitle: {
-    ...Typography.bodyMedium,
+    ...Typography.bodyMedium,      // Enhanced typography
     color: Colors.textSecondary,
-    marginTop: 4,
+    marginTop: Spacing['1'],       // 4px - using theme
+  },
+  profileButton: {
+    padding: Spacing['1'],         // 4px - using theme
   },
   filterBar: {
     backgroundColor: Colors.surface,
@@ -425,28 +454,27 @@ const styles = StyleSheet.create({
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: Colors.successLight,
-    paddingVertical: 10,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.full,
-    gap: Spacing.sm,
-    minHeight: 44,
+    paddingVertical: 10,              // 10px
+    paddingHorizontal: Spacing.md,    // 16px - using theme
+    borderRadius: BorderRadius.full,  // Perfect pill shape
+    gap: Spacing.sm,                  // 8px - using theme
+    alignSelf: 'flex-start',
   },
   filterButtonText: {
-    ...Typography.labelLarge,
+    ...Typography.labelLarge,         // Enhanced typography (15px)
     color: Colors.successDark,
   },
   filterBadge: {
     backgroundColor: Colors.success,
-    width: 20,
-    height: 20,
-    borderRadius: BorderRadius.full,
+    width: 22,                        // Slightly larger
+    height: 22,                       // Slightly larger
+    borderRadius: BorderRadius.full,  // Perfect circle
     justifyContent: 'center',
     alignItems: 'center',
   },
   filterBadgeText: {
-    ...Typography.labelSmall,
+    ...Typography.labelSmall,         // Enhanced typography (11px)
     color: Colors.textInverse,
   },
   mapContainer: {
@@ -459,67 +487,61 @@ const styles = StyleSheet.create({
   markerContainer: {
     width: 32,
     height: 32,
-    borderRadius: BorderRadius.full,
+    borderRadius: BorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: Colors.surface,
   },
   listContent: {
-    paddingBottom: 200,
+    paddingBottom: 180,
   },
   chargerCard: {
     backgroundColor: Colors.surface,
-    marginHorizontal: Spacing.md,
-    marginTop: Spacing.md,
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    ...Shadows.md,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
+    marginHorizontal: Spacing.md,    // 16px - using theme
+    marginTop: Spacing.md,           // 16px - using theme
+    padding: Spacing.lg,             // 24px - improved padding
+    borderRadius: BorderRadius.lg,   // 18px - more modern curves
+    ...Shadows.md,                   // Enhanced HD shadows
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: Spacing['3'],
+    marginBottom: Spacing['3'],      // 12px - using theme
   },
   cardIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: BorderRadius.full,
-    backgroundColor: Colors.primarySubtle,
+    width: 44,                       // Improved touch target
+    height: 44,                      // Improved touch target
+    borderRadius: BorderRadius.full, // Perfect circle
+    backgroundColor: Colors.successLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing['3'],
-    borderWidth: 2,
-    borderColor: Colors.borderAccent,
+    marginRight: Spacing['3'],       // 12px - using theme
   },
   cardInfo: {
     flex: 1,
   },
   chargerName: {
-    ...Typography.titleMedium,
+    ...Typography.titleMedium,      // Enhanced typography (20px)
     color: Colors.textPrimary,
-    marginBottom: 4,
-    letterSpacing: 0.2,
+    marginBottom: Spacing['1'],     // 4px - using theme
   },
   chargerAddress: {
-    ...Typography.bodySmall,
+    ...Typography.bodySmall,        // Enhanced typography (13px)
     color: Colors.textSecondary,
-    lineHeight: 18,
   },
   cardDetails: {
     flexDirection: 'row',
-    gap: Spacing.md,
-    marginBottom: Spacing['3'],
+    gap: Spacing.md,                // 16px - using theme
+    marginBottom: Spacing['3'],     // 12px - using theme
   },
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: Spacing['1'],              // 4px - using theme
   },
   detailText: {
-    ...Typography.bodySmall,
+    ...Typography.labelMedium,      // Enhanced typography (13px)
     color: Colors.textSecondary,
   },
   cardMeta: {
@@ -530,21 +552,21 @@ const styles = StyleSheet.create({
   },
   portTypes: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 6,                           // 6px
     alignItems: 'center',
   },
   portBadge: {
-    backgroundColor: Colors.backgroundTertiary,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.backgroundSecondary,
+    paddingHorizontal: Spacing.sm,    // 8px - using theme
+    paddingVertical: Spacing['1'],    // 4px - using theme
+    borderRadius: BorderRadius.xs,    // 6px - using theme
   },
   portBadgeText: {
-    ...Typography.labelSmall,
+    ...Typography.labelSmall,         // Enhanced typography (11px)
     color: Colors.textSecondary,
   },
   moreText: {
-    ...Typography.labelSmall,
+    ...Typography.labelSmall,         // Enhanced typography (11px)
     color: Colors.textTertiary,
   },
   cardFooter: {
@@ -570,107 +592,107 @@ const styles = StyleSheet.create({
   },
   sourceTag: {
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
+    paddingVertical: Spacing['1'],
+    borderRadius: BorderRadius.xs,
   },
   officialTag: {
-    backgroundColor: Colors.infoLight,
+    backgroundColor: Colors.primarySubtle,
   },
   communityTag: {
     backgroundColor: Colors.warningLight,
   },
   sourceText: {
-    ...Typography.labelSmall,
+    fontSize: 10,
+    fontWeight: '600',
     color: Colors.textSecondary,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 64,
+    paddingVertical: Spacing.xxxl,
   },
   emptyText: {
-    ...Typography.titleMedium,
+    ...Typography.bodyMedium,
     color: Colors.textTertiary,
     marginTop: Spacing.md,
+    fontWeight: '500',
   },
   emptySubtext: {
-    ...Typography.bodyMedium,
+    ...Typography.bodySmall,
     color: Colors.textDisabled,
     marginTop: Spacing.sm,
   },
   guestBanner: {
     position: 'absolute',
-    bottom: 140,
+    bottom: 160,
     left: Spacing.md,
     right: Spacing.md,
     backgroundColor: Colors.warningLight,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
+    padding: Spacing['3'],
+    borderRadius: BorderRadius.xs,
     gap: Spacing.sm,
-    ...Shadows.sm,
   },
   guestBannerText: {
     flex: 1,
-    ...Typography.bodyMedium,
+    ...Typography.bodySmall,
     color: Colors.warningDark,
+    fontWeight: '500',
   },
   viewToggle: {
     position: 'absolute',
-    bottom: Spacing.xxl,
-    right: Spacing.xl,
+    bottom: 90,
+    right: Spacing.lg,                // 24px - using theme
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.primary,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl,
-    borderRadius: BorderRadius.full,
-    gap: Spacing.sm,
-    ...Shadows.primaryGlow,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: Colors.info,
+    paddingVertical: Spacing['3'],    // 12px - using theme
+    paddingHorizontal: Spacing.lg,    // 24px - improved padding
+    borderRadius: BorderRadius.full,  // Perfect pill shape
+    gap: Spacing.sm,                  // 8px - using theme
+    ...Shadows.lg,                    // Enhanced HD shadows
   },
   viewToggleText: {
-    ...Typography.labelLarge,
+    ...Typography.labelLarge,         // Enhanced typography (15px)
     color: Colors.textInverse,
-    letterSpacing: 0.5,
   },
   fab: {
     position: 'absolute',
-    bottom: Spacing.lg,
-    right: Spacing.lg,
+    bottom: Spacing.lg,               // 24px - using theme
+    right: Spacing.lg,                // 24px - using theme
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.success,
-    paddingVertical: Spacing['3'],
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.full,
-    gap: Spacing.sm,
-    ...Shadows.lg,
+    paddingVertical: Spacing['3'],    // 12px - using theme
+    paddingHorizontal: Spacing.lg,    // 24px - improved padding
+    borderRadius: BorderRadius.full,  // Perfect pill shape
+    gap: Spacing.sm,                  // 8px - using theme
+    ...Shadows.lg,                    // Enhanced HD shadows
   },
   fabText: {
-    ...Typography.labelMedium,
+    ...Typography.labelMedium,        // Enhanced typography (13px)
     color: Colors.textInverse,
   },
   webMapFallback: {
     flex: 1,
-    backgroundColor: Colors.backgroundSecondary,
+    backgroundColor: Colors.background,
   },
   mapPlaceholder: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.xxl,
+    padding: Spacing.xl,
   },
   mapPlaceholderText: {
-    ...Typography.titleMedium,
+    ...Typography.bodyMedium,
+    fontWeight: '600',
     color: Colors.textTertiary,
     marginTop: Spacing.md,
     textAlign: 'center',
   },
   mapPlaceholderSubtext: {
-    ...Typography.bodyMedium,
+    ...Typography.bodySmall,
     color: Colors.textDisabled,
     marginTop: Spacing.sm,
     textAlign: 'center',
