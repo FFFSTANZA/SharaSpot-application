@@ -398,7 +398,7 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF9F5', // Warm subtle background tint
+    backgroundColor: '#F0FDFB', // Cool subtle background tint
     overflow: 'hidden',
   },
   backgroundOrb1: {
