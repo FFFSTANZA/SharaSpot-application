@@ -66,12 +66,12 @@ import { AnimatedRadio } from '../components/ui';
 
 ### 🃏 AnimatedCard
 
-Pressable card with scale and shadow animations.
+Pressable card with smooth scale animation.
 
 **Features:**
-- ✅ Press: Scales to 0.98x with shadow increase
+- ✅ Press: Scales to 0.98x
 - ✅ Release: Springs back with bounce (friction: 3, tension: 100)
-- ✅ Smooth shadow interpolation
+- ✅ Uses native driver for 60fps performance
 - ✅ Optional swipe support (work in progress)
 
 **Usage:**

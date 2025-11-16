@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   signupButton: {
-    backgroundColor: Colors.accentTeal,
+    backgroundColor: Colors.primary,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.sm,
     alignItems: 'center',

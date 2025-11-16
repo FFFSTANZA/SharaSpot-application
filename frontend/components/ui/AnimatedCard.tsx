@@ -1,6 +1,6 @@
 import React, { useRef, ReactNode } from 'react';
 import { Animated, Pressable, StyleSheet, ViewStyle, PressableProps } from 'react-native';
-import { Colors, Shadows, BorderRadius } from '../../constants/theme';
+import { Colors, BorderRadius } from '../../constants/theme';
 
 interface AnimatedCardProps extends Omit<PressableProps, 'style'> {
   children: ReactNode;
@@ -20,52 +20,26 @@ export default function AnimatedCard({
 }: AnimatedCardProps) {
   // Animation values
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const shadowAnim = useRef(new Animated.Value(0)).current;
   const swipeAnim = useRef(new Animated.Value(0)).current;
 
   const handlePressIn = () => {
-    // Press: Scale down to 0.98x and increase shadow
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: 0.98,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(shadowAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: false,
-      }),
-    ]).start();
+    // Press: Scale down to 0.98x
+    Animated.timing(scaleAnim, {
+      toValue: 0.98,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
   };
 
   const handlePressOut = () => {
     // Release: Spring back with bounce
-    Animated.parallel([
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 3,
-        tension: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(shadowAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }),
-    ]).start();
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      tension: 100,
+      useNativeDriver: true,
+    }).start();
   };
-
-  // Interpolate shadow
-  const shadowOpacity = shadowAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.08, 0.15],
-  });
-
-  const shadowRadius = shadowAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [8, 16],
-  });
 
   const animatedStyle = {
     transform: [
@@ -74,15 +48,10 @@ export default function AnimatedCard({
     ],
   };
 
-  const animatedShadowStyle = {
-    shadowOpacity,
-    shadowRadius,
-  };
-
   if (!onPress && !pressableProps.onLongPress) {
     // Non-pressable card
     return (
-      <Animated.View style={[styles.card, style, animatedShadowStyle]}>
+      <Animated.View style={[styles.card, style]}>
         {children}
       </Animated.View>
     );
@@ -101,7 +70,6 @@ export default function AnimatedCard({
           styles.card,
           style,
           animatedStyle,
-          animatedShadowStyle,
           { opacity: disabled ? 0.5 : 1 },
         ]}
       >

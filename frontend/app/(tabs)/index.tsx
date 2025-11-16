@@ -165,7 +165,7 @@ export default function Discover() {
       >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={22} color={Colors.accentTeal} />
+          <Ionicons name="flash" size={22} color={Colors.primary} />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
