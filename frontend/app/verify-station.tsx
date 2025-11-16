@@ -1155,6 +1155,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#4CAF50',
     marginTop: 8,
+    marginBottom: 20,
     backgroundColor: '#E8F5E9',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -1276,6 +1277,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    marginTop: 24,
     marginBottom: 16,
   },
   backButton: {
