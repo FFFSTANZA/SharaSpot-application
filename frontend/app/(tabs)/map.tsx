@@ -640,7 +640,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 20,
     alignItems: 'center',
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
