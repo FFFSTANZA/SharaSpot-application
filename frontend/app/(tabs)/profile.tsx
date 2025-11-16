@@ -440,14 +440,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...Typography.titleLarge,
     color: Colors.textPrimary,
-    marginBottom: Spacing.md,
-    marginTop: Spacing.lg,
+    marginBottom: Spacing.lg,
+    marginTop: Spacing.xl,
   },
   coinsCard: {
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
     ...Shadows.primaryGlow,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xl,
   },
   coinsGradient: {
     padding: Spacing.xl,
@@ -476,14 +476,14 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing['3'],
-    marginBottom: Spacing.lg,
+    gap: Spacing.md,
+    marginBottom: Spacing.xl,
   },
   statCard: {
-    width: (width - 60) / 2,
+    width: (width - 64) / 2,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
+    padding: Spacing.lg,
     alignItems: 'center',
     ...Shadows.sm,
   },

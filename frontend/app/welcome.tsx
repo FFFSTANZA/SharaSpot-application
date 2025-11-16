@@ -48,32 +48,32 @@ export default function Welcome() {
       ])
     ).start();
 
-    // Floating orb animations (different speeds for each)
+    // Floating orb animations (different speeds for each) - faster and more energetic
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatingOrb1Y, {
-          toValue: -30,
-          duration: 3000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatingOrb1Y, {
-          toValue: 0,
-          duration: 3000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatingOrb2Y, {
           toValue: -40,
-          duration: 4000,
+          duration: 2200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb1Y, {
+          toValue: 0,
+          duration: 2200,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb2Y, {
+          toValue: -50,
+          duration: 2800,
           useNativeDriver: true,
         }),
         Animated.timing(floatingOrb2Y, {
           toValue: 0,
-          duration: 4000,
+          duration: 2800,
           useNativeDriver: true,
         }),
       ])
@@ -82,28 +82,28 @@ export default function Welcome() {
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatingOrb3Y, {
-          toValue: -25,
-          duration: 3500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatingOrb3Y, {
-          toValue: 0,
-          duration: 3500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatingOrb4Y, {
           toValue: -35,
-          duration: 4500,
+          duration: 2500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb3Y, {
+          toValue: 0,
+          duration: 2500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb4Y, {
+          toValue: -45,
+          duration: 3000,
           useNativeDriver: true,
         }),
         Animated.timing(floatingOrb4Y, {
           toValue: 0,
-          duration: 4500,
+          duration: 3000,
           useNativeDriver: true,
         }),
       ])
@@ -112,13 +112,13 @@ export default function Welcome() {
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatingOrb5Y, {
-          toValue: -20,
-          duration: 2800,
+          toValue: -30,
+          duration: 2000,
           useNativeDriver: true,
         }),
         Animated.timing(floatingOrb5Y, {
           toValue: 0,
-          duration: 2800,
+          duration: 2000,
           useNativeDriver: true,
         }),
       ])
@@ -127,13 +127,13 @@ export default function Welcome() {
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatingOrb6Y, {
-          toValue: -28,
-          duration: 3200,
+          toValue: -38,
+          duration: 2400,
           useNativeDriver: true,
         }),
         Animated.timing(floatingOrb6Y, {
           toValue: 0,
-          duration: 3200,
+          duration: 2400,
           useNativeDriver: true,
         }),
       ])
@@ -404,61 +404,61 @@ const styles = StyleSheet.create({
   },
   backgroundOrb1: {
     position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
     backgroundColor: Colors.primary,
-    opacity: 0.18,
+    opacity: 0.25,
     top: -100,
     right: -80,
   },
   backgroundOrb2: {
     position: 'absolute',
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: Colors.primary,
-    opacity: 0.15,
+    width: 270,
+    height: 270,
+    borderRadius: 135,
+    backgroundColor: Colors.accentAmber,
+    opacity: 0.22,
     bottom: -50,
     left: -60,
   },
   backgroundOrb3: {
     position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
     backgroundColor: Colors.accent,
-    opacity: 0.12,
+    opacity: 0.20,
     top: '40%',
     right: -40,
   },
   backgroundOrb4: {
     position: 'absolute',
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     backgroundColor: Colors.accentAmber,
-    opacity: 0.14,
+    opacity: 0.23,
     top: '25%',
     left: -50,
   },
   backgroundOrb5: {
     position: 'absolute',
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
     backgroundColor: Colors.accentPurple,
-    opacity: 0.13,
+    opacity: 0.21,
     bottom: '30%',
     right: 20,
   },
   backgroundOrb6: {
     position: 'absolute',
-    width: 220,
-    height: 220,
-    borderRadius: 110,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
     backgroundColor: Colors.accentCyan,
-    opacity: 0.11,
+    opacity: 0.19,
     top: '60%',
     left: -70,
   },
