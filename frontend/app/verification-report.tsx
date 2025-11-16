@@ -164,69 +164,69 @@ export default function VerificationReport() {
     headerFadeAnim.setValue(0);
     riskBadgeAnim.setValue(0);
 
-    // Stagger animations for smooth sequence with improved timing
+    // Stagger animations for smooth, polished sequence
     Animated.sequence([
       Animated.timing(headerFadeAnim, {
         toValue: 1,
-        duration: 350,
-        easing: Easing.out(Easing.quad),
+        duration: 300,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         useNativeDriver: true,
       }),
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 400,
-        easing: Easing.out(Easing.quad),
+        duration: 350,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         useNativeDriver: true,
       }),
       Animated.parallel([
         Animated.spring(scoreScaleAnim, {
           toValue: 1,
-          tension: 60,
-          friction: 8,
+          tension: 70,
+          friction: 9,
           useNativeDriver: true,
         }),
         Animated.timing(scoreRotateAnim, {
           toValue: 1,
-          duration: 900,
-          easing: Easing.out(Easing.cubic),
+          duration: 800,
+          easing: Easing.bezier(0.33, 0, 0.2, 1),
           useNativeDriver: true,
         }),
         Animated.spring(riskBadgeAnim, {
           toValue: 1,
-          tension: 50,
-          friction: 7,
+          tension: 65,
+          friction: 8,
           useNativeDriver: true,
         }),
       ]),
-      Animated.stagger(100, [
+      Animated.stagger(80, [
         Animated.timing(insightsFadeAnim, {
           toValue: 1,
-          duration: 450,
-          easing: Easing.out(Easing.quad),
+          duration: 400,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           useNativeDriver: true,
         }),
         Animated.timing(trendsFadeAnim, {
           toValue: 1,
-          duration: 450,
-          easing: Easing.out(Easing.quad),
+          duration: 400,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           useNativeDriver: true,
         }),
       ]),
     ]).start();
 
-    // Continuous pulse animation for risk badge with improved easing
+    // Smooth, subtle pulse animation for risk badge
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.06,
-          duration: 1200,
-          easing: Easing.inOut(Easing.sin),
+          toValue: 1.05,
+          duration: 1500,
+          easing: Easing.bezier(0.42, 0, 0.58, 1),
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 1200,
-          easing: Easing.inOut(Easing.sin),
+          duration: 1500,
+          easing: Easing.bezier(0.42, 0, 0.58, 1),
           useNativeDriver: true,
         }),
       ])
@@ -884,6 +884,7 @@ export default function VerificationReport() {
 
       <ScrollView
         style={styles.content}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={Animated.event(
@@ -1551,7 +1552,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.md,
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
@@ -1573,9 +1574,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: Spacing.xxl + Spacing.xl,
+  },
   section: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.xl,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.lg,
     backgroundColor: Colors.surface,
     marginBottom: Spacing['3'],
     ...Shadows.xs,
@@ -1603,10 +1607,12 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
   statCard: {
     flex: 1,
+    minWidth: 100,
     backgroundColor: Colors.surface,
     padding: 20,
     borderRadius: 16,
@@ -2026,13 +2032,13 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   riskBadge: {
-    borderRadius: 16,
-    padding: 22,
+    borderRadius: 14,
+    padding: 18,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
   },
   riskBadgeContent: {
     flexDirection: 'row',
@@ -2090,19 +2096,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   contributorsContainer: {
-    gap: 12,
+    gap: 10,
   },
   contributorCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.surface,
-    padding: 18,
-    borderRadius: 14,
-    gap: 14,
+    padding: 14,
+    borderRadius: 12,
+    gap: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowRadius: 4,
     elevation: 2,
     borderWidth: 1,
     borderColor: Colors.borderLight,
@@ -2147,28 +2153,29 @@ const styles = StyleSheet.create({
   availabilityCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20,
+    flexWrap: 'wrap',
+    gap: 16,
     backgroundColor: Colors.surface,
-    padding: 22,
-    borderRadius: 16,
+    padding: 18,
+    borderRadius: 14,
     shadowColor: Colors.info,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   probabilityCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     backgroundColor: Colors.backgroundTertiary,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
+    borderWidth: 3,
     borderColor: Colors.border,
   },
   probabilityNumber: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
   },
   probabilityLabel: {
@@ -2239,11 +2246,13 @@ const styles = StyleSheet.create({
   },
   ratingsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
     marginBottom: 16,
   },
   ratingCard: {
     flex: 1,
+    minWidth: 100,
     backgroundColor: Colors.surface,
     padding: 18,
     borderRadius: 14,
