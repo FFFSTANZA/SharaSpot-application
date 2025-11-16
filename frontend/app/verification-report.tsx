@@ -2198,6 +2198,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     lineHeight: 21,
+    textAlign: 'left',
   },
   peakTimesContainer: {
     gap: Spacing.sm,
