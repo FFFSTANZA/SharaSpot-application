@@ -169,29 +169,29 @@ export const LightColors = {
   accentCyan: '#06B6D4',              // Information
   accentCopper: '#CD7F32',            // Metallic accent
 
-  // Background - Clean Warm Foundation
-  background: '#FFFFFF',              // Pure white base
-  backgroundSecondary: neutral[50],   // #FAFAF9 - Warm sections
-  backgroundTertiary: neutral[100],   // #F5F5F4 - Subtle gray
+  // Background - Clean Warm Foundation (Eye-friendly soft tones)
+  background: '#FDFCFB',              // Soft warm white (reduced glare)
+  backgroundSecondary: '#FAF9F8',     // Warm off-white for sections
+  backgroundTertiary: '#F5F4F2',      // Gentle gray-beige
 
-  // Surface - Card Layers
-  surface: '#FFFFFF',                 // Clean white surfaces
-  surfaceElevated: '#FFFFFF',         // Elevated elements
-  surfaceOverlay: 'rgba(255, 255, 255, 0.96)',
+  // Surface - Card Layers (Softer whites for comfort)
+  surface: '#FEFEFE',                 // Very soft white (not pure white)
+  surfaceElevated: '#FEFEFE',         // Elevated elements
+  surfaceOverlay: 'rgba(253, 252, 251, 0.96)',
   surfaceTinted: 'rgba(255, 247, 237, 0.6)',  // Warm orange tint
 
-  // Text - Sharp Contrast with Warmth
-  textPrimary: neutral[900],          // #1C1917 - Main text
-  textSecondary: neutral[600],        // #57534E - Secondary
-  textTertiary: neutral[500],         // #78716C - Hints
-  textDisabled: neutral[400],         // #A8A29E - Disabled
-  textInverse: '#FFFFFF',             // White on dark
+  // Text - Comfortable contrast (Eye-friendly, reduced harshness)
+  textPrimary: '#2A2827',             // Softer dark (not pure black)
+  textSecondary: '#6B6662',           // Comfortable mid-tone
+  textTertiary: '#8B8682',            // Gentle hints
+  textDisabled: '#B0ABA7',            // Soft disabled state
+  textInverse: '#FEFEFE',             // Soft white on dark
   textAccent: burntOrange[600],       // Orange highlights
 
-  // Border - Warm Subtle Definition
-  border: neutral[200],               // #E7E5E4 - Default
-  borderLight: neutral[100],          // #F5F5F4 - Subtle
-  borderStrong: neutral[300],         // #D6D3D1 - Emphasized
+  // Border - Warm Subtle Definition (Softer for eye comfort)
+  border: '#EDECEA',                  // Gentle border (softer than default)
+  borderLight: '#F7F6F5',             // Very subtle
+  borderStrong: '#DDD9D6',            // Emphasized but not harsh
   borderAccent: burntOrange[200],     // #FED7AA - Accent borders
 
   // States - Clear Feedback
@@ -603,42 +603,42 @@ export const Shadows = {
   xs: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.03,       // Softer (was 0.05)
     shadowRadius: 2,
     elevation: 1,
   },
   sm: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.04,       // Softer (was 0.08)
     shadowRadius: 4,
     elevation: 2,
   },
   md: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.06,       // Softer (was 0.1)
     shadowRadius: 8,
     elevation: 4,
   },
   lg: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.08,       // Softer (was 0.12)
     shadowRadius: 16,
     elevation: 8,
   },
   xl: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.14,
+    shadowOpacity: 0.09,       // Softer (was 0.14)
     shadowRadius: 24,
     elevation: 12,
   },
   xxl: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.16,
+    shadowOpacity: 0.1,        // Softer (was 0.16)
     shadowRadius: 40,
     elevation: 20,
   },

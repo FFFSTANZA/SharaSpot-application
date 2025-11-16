@@ -308,7 +308,7 @@ export default function SmartEcoRouting() {
     if (Platform.OS === 'web' || !MapView) {
       return (
         <View style={styles.webMapFallback}>
-          <Ionicons name="map" size={64} color="#CCCCCC" />
+          <Ionicons name="map" size={64} color={Colors.borderStrong} />
           <Text style={styles.mapPlaceholderText}>Map view available on mobile</Text>
           <Text style={styles.mapPlaceholderSubtext}>Download the app to see interactive routes</Text>
         </View>
@@ -318,7 +318,7 @@ export default function SmartEcoRouting() {
     if (!selectedRoute || !selectedRoute.coordinates || selectedRoute.coordinates.length === 0) {
       return (
         <View style={styles.webMapFallback}>
-          <Ionicons name="map-outline" size={64} color="#CCCCCC" />
+          <Ionicons name="map-outline" size={64} color={Colors.borderStrong} />
           <Text style={styles.mapPlaceholderText}>Loading route...</Text>
         </View>
       );
@@ -354,8 +354,8 @@ export default function SmartEcoRouting() {
           title="Origin"
           description={origin}
         >
-          <View style={[styles.markerCircle, { backgroundColor: '#2196F3' }]}>
-            <Ionicons name="location" size={20} color="#FFFFFF" />
+          <View style={[styles.markerCircle, { backgroundColor: Colors.info }]}>
+            <Ionicons name="location" size={20} color={Colors.textInverse} />
           </View>
         </Marker>
 
@@ -365,8 +365,8 @@ export default function SmartEcoRouting() {
           title="Destination"
           description={destination}
         >
-          <View style={[styles.markerCircle, { backgroundColor: '#F44336' }]}>
-            <Ionicons name="flag" size={20} color="#FFFFFF" />
+          <View style={[styles.markerCircle, { backgroundColor: Colors.error }]}>
+            <Ionicons name="flag" size={20} color={Colors.textInverse} />
           </View>
         </Marker>
 
@@ -382,7 +382,7 @@ export default function SmartEcoRouting() {
             description={`${charger.available_ports}/${charger.total_ports} available • ${charger.distance_from_route_km} km from route`}
           >
             <View style={[styles.markerCircle, { backgroundColor: Colors.primary }]}>
-              <Ionicons name="flash" size={16} color="#FFFFFF" />
+              <Ionicons name="flash" size={16} color={Colors.textInverse} />
             </View>
           </Marker>
         ))}
@@ -394,7 +394,7 @@ export default function SmartEcoRouting() {
   if (viewMode === 'input') {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.container}
@@ -464,13 +464,13 @@ export default function SmartEcoRouting() {
                     placeholder="Starting point (e.g., T Nagar, Chennai)"
                     value={origin}
                     onChangeText={setOrigin}
-                    placeholderTextColor="#999999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
 
                 <View style={styles.routeDivider}>
                   <View style={styles.dividerLine} />
-                  <Ionicons name="arrow-down" size={20} color="#CCCCCC" />
+                  <Ionicons name="arrow-down" size={20} color={Colors.borderStrong} />
                   <View style={styles.dividerLine} />
                 </View>
 
@@ -481,7 +481,7 @@ export default function SmartEcoRouting() {
                     placeholder="Destination (e.g., Anna Nagar)"
                     value={destination}
                     onChangeText={setDestination}
-                    placeholderTextColor="#999999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
               </View>
@@ -496,12 +496,12 @@ export default function SmartEcoRouting() {
             >
               {loading ? (
                 <>
-                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <ActivityIndicator size="small" color={Colors.textInverse} />
                   <Text style={styles.calculateButtonText}>Calculating routes...</Text>
                 </>
               ) : (
                 <>
-                  <Ionicons name="analytics" size={20} color="#FFFFFF" />
+                  <Ionicons name="analytics" size={20} color={Colors.textInverse} />
                   <Text style={styles.calculateButtonText}>Find Best EV Routes</Text>
                 </>
               )}
@@ -542,7 +542,7 @@ export default function SmartEcoRouting() {
   // Render results view
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
       <View style={styles.resultsContainer}>
         {/* Map Section */}
         <View style={styles.mapSection}>
@@ -564,10 +564,10 @@ export default function SmartEcoRouting() {
           {/* Route type indicator */}
           {selectedRoute && (
             <View style={[styles.routeTypeIndicator, { backgroundColor: getRouteTypeInfo(selectedRoute.type).color }]}>
-              <Ionicons 
-                name={getRouteTypeInfo(selectedRoute.type).icon as any} 
-                size={16} 
-                color="#FFFFFF" 
+              <Ionicons
+                name={getRouteTypeInfo(selectedRoute.type).icon as any}
+                size={16}
+                color={Colors.textInverse}
               />
               <Text style={styles.routeTypeText}>{getRouteTypeInfo(selectedRoute.type).name}</Text>
             </View>
@@ -633,7 +633,7 @@ export default function SmartEcoRouting() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   scrollView: {
@@ -642,9 +642,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 24,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   headerIconContainer: {
     marginBottom: 16,
@@ -652,13 +652,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     textAlign: 'center',
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#666666',
+    color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 32,
   },
@@ -668,16 +668,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   batteryCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.03,
     shadowRadius: 8,
     elevation: 3,
   },
@@ -692,11 +692,11 @@ const styles = StyleSheet.create({
   batteryPercent: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   batteryCapacity: {
     fontSize: 14,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   batterySlider: {
     flexDirection: 'row',
@@ -707,14 +707,14 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundTertiary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   sliderTrack: {
     flex: 1,
     height: 8,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: Colors.borderLight,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -723,12 +723,12 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   inputContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.03,
     shadowRadius: 8,
     elevation: 3,
   },
@@ -737,14 +737,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     borderRadius: 12,
     gap: 12,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   routeDivider: {
     flexDirection: 'row',
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     width: 1,
     height: 20,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: Colors.border,
   },
   calculateButton: {
     flexDirection: 'row',
@@ -779,7 +779,7 @@ const styles = StyleSheet.create({
   calculateButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   featuresSection: {
     paddingHorizontal: 24,
@@ -787,27 +787,27 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   featureCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.03,
     shadowRadius: 4,
     elevation: 2,
   },
   featureTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginTop: 12,
     marginBottom: 8,
     textAlign: 'center',
   },
   featureText: {
     fontSize: 13,
-    color: '#666666',
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -826,19 +826,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.backgroundTertiary,
     padding: 20,
   },
   mapPlaceholderText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#999999',
+    color: Colors.textTertiary,
     marginTop: 12,
     textAlign: 'center',
   },
   mapPlaceholderSubtext: {
     fontSize: 12,
-    color: '#CCCCCC',
+    color: Colors.textDisabled,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -849,10 +849,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.surface,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 4,
   },
@@ -863,12 +863,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 4,
   },
@@ -891,7 +891,7 @@ const styles = StyleSheet.create({
   routeTypeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   weatherBadge: {
     position: 'absolute',
@@ -899,25 +899,25 @@ const styles = StyleSheet.create({
     left: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
     gap: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
   },
   weatherText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   routeOptionsSection: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     marginTop: -24,
@@ -930,18 +930,18 @@ const styles = StyleSheet.create({
   routeOptionsTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   routeOptionsSubtitle: {
     fontSize: 13,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   routeOptionsList: {
     flex: 1,
   },
   routeCard: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     marginHorizontal: 16,
     marginBottom: 12,
     padding: 16,
@@ -950,7 +950,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   routeCardSelected: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     borderColor: Colors.primary,
   },
   routeHeader: {
@@ -972,12 +972,12 @@ const styles = StyleSheet.create({
   routeName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   routeDescription: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   quickStats: {
     flexDirection: 'row',
@@ -985,7 +985,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: Colors.borderLight,
   },
   statItem: {
     flexDirection: 'column',
@@ -996,7 +996,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   scoresSection: {
     gap: 12,
@@ -1014,11 +1014,11 @@ const styles = StyleSheet.create({
   scoreLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   scoreBar: {
     height: 6,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: Colors.borderLight,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -1029,19 +1029,19 @@ const styles = StyleSheet.create({
   scoreValue: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   batteryPrediction: {
     marginBottom: 12,
   },
   predictionLabel: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 6,
   },
   batteryBar: {
     height: 28,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: Colors.borderLight,
     borderRadius: 8,
     overflow: 'hidden',
     position: 'relative',
@@ -1057,7 +1057,7 @@ const styles = StyleSheet.create({
   batteryText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     textAlign: 'center',
     zIndex: 1,
   },
@@ -1070,7 +1070,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 12,
@@ -1080,25 +1080,25 @@ const styles = StyleSheet.create({
   infoChipText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   chargersSection: {
     marginHorizontal: 16,
     marginTop: 8,
     marginBottom: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.03,
     shadowRadius: 4,
     elevation: 2,
   },
   chargersSectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   chargerItem: {
@@ -1106,13 +1106,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.borderLight,
   },
   chargerIconCircle: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -1123,15 +1123,15 @@ const styles = StyleSheet.create({
   chargerItemName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 2,
   },
   chargerItemDetails: {
     fontSize: 11,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   reliabilityBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 8,

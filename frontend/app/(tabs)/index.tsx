@@ -191,7 +191,7 @@ export default function Discover() {
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <Ionicons name="locate" size={16} color="#666666" />
+          <Ionicons name="locate" size={16} color={Colors.textSecondary} />
           <Text style={styles.detailText}>
             {item.distance} {user?.distance_unit || 'km'} away
           </Text>
@@ -257,7 +257,7 @@ export default function Discover() {
       return (
         <View style={styles.webMapFallback}>
           <View style={styles.mapPlaceholder}>
-            <Ionicons name="map" size={64} color="#CCCCCC" />
+            <Ionicons name="map" size={64} color={Colors.borderStrong} />
             <Text style={styles.mapPlaceholderText}>Map view available on mobile</Text>
             <Text style={styles.mapPlaceholderSubtext}>Download Expo Go app to view interactive map</Text>
           </View>
@@ -293,7 +293,7 @@ export default function Discover() {
               onPress={() => handleChargerPress(charger)}
             >
               <View style={[styles.markerContainer, { backgroundColor: markerColor }]}>
-                <Ionicons name="flash" size={16} color="#FFFFFF" />
+                <Ionicons name="flash" size={16} color={Colors.textInverse} />
               </View>
             </Marker>
           );
@@ -350,7 +350,7 @@ export default function Discover() {
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="flash-off" size={64} color="#CCCCCC" />
+              <Ionicons name="flash-off" size={64} color={Colors.borderStrong} />
               <Text style={styles.emptyText}>No charging stations found</Text>
               <Text style={styles.emptySubtext}>Try adjusting your filters</Text>
             </View>
@@ -361,7 +361,7 @@ export default function Discover() {
       {/* Guest Banner */}
       {user?.is_guest && (
         <View style={styles.guestBanner}>
-          <Ionicons name="information-circle" size={20} color="#FF9800" />
+          <Ionicons name="information-circle" size={20} color={Colors.warning} />
           <Text style={styles.guestBannerText}>Guest mode - Sign in to add chargers</Text>
         </View>
       )}
@@ -372,7 +372,7 @@ export default function Discover() {
         onPress={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
         activeOpacity={0.85}
       >
-        <Ionicons name={viewMode === 'map' ? 'list' : 'map'} size={22} color="#FFFFFF" />
+        <Ionicons name={viewMode === 'map' ? 'list' : 'map'} size={22} color={Colors.textInverse} />
         <Text style={styles.viewToggleText}>{viewMode === 'map' ? 'List View' : 'Map View'}</Text>
       </TouchableOpacity>
 
