@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -1534,6 +1535,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.backgroundSecondary,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   loadingContainer: {
     flex: 1,
@@ -2165,14 +2167,15 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   probabilityCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: Colors.backgroundTertiary,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
     borderColor: Colors.border,
+    flexShrink: 0,
   },
   probabilityNumber: {
     fontSize: 28,
