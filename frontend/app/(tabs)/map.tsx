@@ -634,6 +634,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   scrollView: {
     flex: 1,
@@ -894,7 +895,7 @@ const styles = StyleSheet.create({
   },
   weatherBadge: {
     position: 'absolute',
-    bottom: 32,
+    bottom: 8,
     left: 16,
     flexDirection: 'row',
     alignItems: 'center',
