@@ -19,7 +19,6 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { AmenitiesIcons } from '../components/AmenitiesIcons';
-import { VerificationReportModal } from '../components/VerificationReportModal';
 import { useAuth } from '../contexts/AuthContext';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
@@ -31,7 +30,6 @@ export default function ChargerDetail() {
   
   const [charger, setCharger] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [reportModalVisible, setReportModalVisible] = useState(false);
 
   useEffect(() => {
     loadChargerDetails();
@@ -340,7 +338,12 @@ export default function ChargerDetail() {
         <View style={styles.section}>
           <TouchableOpacity
             style={styles.reportButton}
-            onPress={() => setReportModalVisible(true)}
+            onPress={() => router.push({
+              pathname: '/verification-report',
+              params: {
+                charger: JSON.stringify(charger),
+              },
+            })}
           >
             <Ionicons name="document-text" size={20} color="#2196F3" />
             <Text style={styles.reportButtonText}>View Verification Report</Text>
@@ -349,13 +352,6 @@ export default function ChargerDetail() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
-
-      {/* Verification Report Modal */}
-      <VerificationReportModal
-        visible={reportModalVisible}
-        onClose={() => setReportModalVisible(false)}
-        charger={charger}
-      />
     </SafeAreaView>
   );
 }
