@@ -140,13 +140,13 @@ export default function Profile() {
               style={styles.headerButton}
               onPress={handleGoHome}
             >
-              <Ionicons name="home" size={24} color="#FFFFFF" />
+              <Ionicons name="home" size={24} color={Colors.textInverse} />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerButton}
               onPress={handleEditProfile}
             >
-              <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
+              <Ionicons name="settings-outline" size={24} color={Colors.textInverse} />
             </TouchableOpacity>
           </View>
 
@@ -203,13 +203,13 @@ export default function Profile() {
             >
               <View style={styles.coinsContent}>
                 <View style={styles.coinsLeft}>
-                  <Ionicons name="diamond" size={32} color="#FFFFFF" />
+                  <Ionicons name="diamond" size={32} color={Colors.textInverse} />
                   <View style={styles.coinsInfo}>
                     <Text style={styles.coinsLabel}>SharaCoins</Text>
                     <Text style={styles.coinsValue}>{stats?.shara_coins || 0}</Text>
                   </View>
                 </View>
-                <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
+                <Ionicons name="chevron-forward" size={24} color={Colors.textInverse} />
               </View>
             </LinearGradient>
           </TouchableOpacity>
