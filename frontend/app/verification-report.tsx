@@ -717,7 +717,7 @@ export default function VerificationReport() {
         currentProbability: probability,
         status: 'high',
         message: 'Very likely available now',
-        color: '#4CAF50'
+        color: 'Colors.accent'
       };
     } else if (probability >= 50) {
       return {
@@ -785,7 +785,7 @@ export default function VerificationReport() {
   const getActionColor = (action: string) => {
     switch (action) {
       case 'active':
-        return '#4CAF50';
+        return 'Colors.accent';
       case 'not_working':
         return '#F44336';
       case 'partial':
@@ -817,7 +817,7 @@ export default function VerificationReport() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4CAF50" />
+          <ActivityIndicator size="large" color="Colors.accent" />
           <Text style={styles.loadingText}>Loading verification data...</Text>
         </View>
       </SafeAreaView>
@@ -893,8 +893,8 @@ export default function VerificationReport() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#4CAF50"
-            colors={['#4CAF50']}
+            tintColor="Colors.accent"
+            colors={['Colors.accent']}
           />
         }
       >
@@ -1035,7 +1035,7 @@ export default function VerificationReport() {
 
               {communityRatings.avgChargingSpeed > 0 && (
                 <View style={styles.ratingCard}>
-                  <Ionicons name="flash" size={32} color="#4CAF50" />
+                  <Ionicons name="flash" size={32} color="Colors.accent" />
                   <View style={styles.ratingStars}>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Ionicons
@@ -1073,14 +1073,14 @@ export default function VerificationReport() {
             {communityRatings.recommendationRate > 0 && (
               <View style={styles.recommendationCard}>
                 <View style={styles.recommendationIcon}>
-                  <Ionicons name="thumbs-up" size={28} color="#4CAF50" />
+                  <Ionicons name="thumbs-up" size={28} color="Colors.accent" />
                 </View>
                 <View style={styles.recommendationContent}>
                   <Text style={styles.recommendationValue}>{communityRatings.recommendationRate}%</Text>
                   <Text style={styles.recommendationLabel}>Would Recommend</Text>
                 </View>
                 <View style={styles.recommendationBadge}>
-                  <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                  <Ionicons name="checkmark-circle" size={20} color="Colors.accent" />
                 </View>
               </View>
             )}
@@ -1113,7 +1113,7 @@ export default function VerificationReport() {
               </View>
             </View>
             <View style={styles.peakTimeRow}>
-              <Ionicons name="arrow-down-circle" size={20} color="#4CAF50" />
+              <Ionicons name="arrow-down-circle" size={20} color="Colors.accent" />
               <View style={styles.peakTimeInfo}>
                 <Text style={styles.peakTimeLabel}>Quietest Time</Text>
                 <Text style={styles.peakTimeValue}>{peakAnalysis.quietHours}</Text>
@@ -1136,7 +1136,7 @@ export default function VerificationReport() {
                 <Ionicons
                   name={networkComparison.betterThanAverage ? 'trending-up' : 'analytics'}
                   size={14}
-                  color={networkComparison.betterThanAverage ? '#4CAF50' : '#FF9800'}
+                  color={networkComparison.betterThanAverage ? 'Colors.accent' : '#FF9800'}
                 />
                 <Text style={[
                   styles.comparisonText,
@@ -1174,7 +1174,7 @@ export default function VerificationReport() {
                   Based on {safeCharger.verified_by_count} community verifications
                 </Text>
                 <View style={styles.bestTimeChip}>
-                  <Ionicons name="time-outline" size={14} color="#4CAF50" />
+                  <Ionicons name="time-outline" size={14} color="Colors.accent" />
                   <Text style={styles.bestTimeText}>{bestTime.recommendation}</Text>
                 </View>
                 {bestTime.timeSlots.length > 0 && (
@@ -1285,7 +1285,7 @@ export default function VerificationReport() {
                           <View
                             style={[
                               styles.trendProgressSegment,
-                              { width: `${activePercent}%`, backgroundColor: '#4CAF50' }
+                              { width: `${activePercent}%`, backgroundColor: 'Colors.accent' }
                             ]}
                           />
                         )}
@@ -1310,7 +1310,7 @@ export default function VerificationReport() {
                       <View style={styles.trendBreakdown}>
                         {trend.activeCount > 0 && (
                           <View style={styles.trendRow}>
-                            <View style={[styles.trendDot, { backgroundColor: '#4CAF50' }]} />
+                            <View style={[styles.trendDot, { backgroundColor: 'Colors.accent' }]} />
                             <Text style={styles.trendValue}>{trend.activeCount} active</Text>
                           </View>
                         )}
@@ -1367,7 +1367,7 @@ export default function VerificationReport() {
                 <Ionicons
                   name={safeCharger.uptime_percentage >= 90 ? 'trending-up' : 'analytics'}
                   size={24}
-                  color={safeCharger.uptime_percentage >= 90 ? '#4CAF50' : '#FF9800'}
+                  color={safeCharger.uptime_percentage >= 90 ? 'Colors.accent' : '#FF9800'}
                 />
               </View>
               <Text style={styles.statValue}>{safeCharger.uptime_percentage.toFixed(1)}%</Text>
@@ -1378,7 +1378,7 @@ export default function VerificationReport() {
                     styles.statBarFill,
                     {
                       width: `${safeCharger.uptime_percentage}%`,
-                      backgroundColor: safeCharger.uptime_percentage >= 90 ? '#4CAF50' : '#FF9800',
+                      backgroundColor: safeCharger.uptime_percentage >= 90 ? 'Colors.accent' : '#FF9800',
                     },
                   ]}
                 />
@@ -1735,11 +1735,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   retryButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'Colors.accent',
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
-    shadowColor: '#4CAF50',
+    shadowColor: 'Colors.accent',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -1825,7 +1825,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
     borderRadius: 16,
     padding: 22,
-    shadowColor: '#4CAF50',
+    shadowColor: 'Colors.accent',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 14,
@@ -1844,12 +1844,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#4CAF50',
+    borderColor: 'Colors.accent',
   },
   scoreNumber: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#4CAF50',
+    color: 'Colors.accent',
   },
   scoreMax: {
     fontSize: 12,
@@ -1878,7 +1878,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     alignSelf: 'flex-start',
-    shadowColor: '#4CAF50',
+    shadowColor: 'Colors.accent',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -1932,7 +1932,7 @@ const styles = StyleSheet.create({
   },
   insightCardPositive: {
     backgroundColor: '#E8F5E9',
-    borderLeftColor: '#4CAF50',
+    borderLeftColor: 'Colors.accent',
   },
   insightCardWarning: {
     backgroundColor: '#FFF3E0',
@@ -2081,7 +2081,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     borderLeftWidth: 3,
-    borderLeftColor: '#4CAF50',
+    borderLeftColor: 'Colors.accent',
   },
   expectationText: {
     fontSize: 13,

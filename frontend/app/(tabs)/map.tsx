@@ -19,6 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { SessionManager } from '../../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { Colors } from '../../constants/theme';
 
 // Conditional import for MapView (mobile only)
 let MapView: any = null;
@@ -167,7 +168,7 @@ export default function SmartEcoRouting() {
       eco: {
         name: 'Eco-Optimized',
         icon: 'leaf',
-        color: '#4CAF50',
+        color: 'Colors.primary',
         description: 'Lowest energy consumption'
       },
       balanced: {
@@ -218,7 +219,7 @@ export default function SmartEcoRouting() {
             <Text style={styles.routeDescription}>{typeInfo.description}</Text>
           </View>
           {isSelected && (
-            <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+            <Ionicons name="checkmark-circle" size={24} color="Colors.primary" />
           )}
         </View>
 
@@ -242,11 +243,11 @@ export default function SmartEcoRouting() {
         <View style={styles.scoresSection}>
           <View style={styles.scoreItem}>
             <View style={styles.scoreHeader}>
-              <Ionicons name="leaf" size={14} color="#4CAF50" />
+              <Ionicons name="leaf" size={14} color="Colors.primary" />
               <Text style={styles.scoreLabel}>Eco Score</Text>
             </View>
             <View style={styles.scoreBar}>
-              <View style={[styles.scoreBarFill, { width: `${route.eco_score}%`, backgroundColor: '#4CAF50' }]} />
+              <View style={[styles.scoreBarFill, { width: `${route.eco_score}%`, backgroundColor: 'Colors.primary' }]} />
             </View>
             <Text style={styles.scoreValue}>{Math.round(route.eco_score)}/100</Text>
           </View>
@@ -272,7 +273,7 @@ export default function SmartEcoRouting() {
                 styles.batteryFill, 
                 { 
                   width: `${batteryAtArrival}%`,
-                  backgroundColor: batteryAtArrival > 30 ? '#4CAF50' : batteryAtArrival > 15 ? '#FF9800' : '#F44336'
+                  backgroundColor: batteryAtArrival > 30 ? 'Colors.primary' : batteryAtArrival > 15 ? '#FF9800' : '#F44336'
                 }
               ]} 
             />
@@ -293,7 +294,7 @@ export default function SmartEcoRouting() {
             <Text style={styles.infoChipText}>↑{route.elevation_gain_m}m</Text>
           </View>
           <View style={styles.infoChip}>
-            <Ionicons name="flash" size={14} color="#4CAF50" />
+            <Ionicons name="flash" size={14} color="Colors.primary" />
             <Text style={styles.infoChipText}>{route.summary.chargers_available} chargers</Text>
           </View>
         </View>
@@ -379,7 +380,7 @@ export default function SmartEcoRouting() {
             title={charger.name}
             description={`${charger.available_ports}/${charger.total_ports} available • ${charger.distance_from_route_km} km from route`}
           >
-            <View style={[styles.markerCircle, { backgroundColor: '#4CAF50' }]}>
+            <View style={[styles.markerCircle, { backgroundColor: 'Colors.primary' }]}>
               <Ionicons name="flash" size={16} color="#FFFFFF" />
             </View>
           </Marker>
@@ -400,7 +401,7 @@ export default function SmartEcoRouting() {
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerIconContainer}>
-                <Ionicons name="navigate-circle" size={48} color="#4CAF50" />
+                <Ionicons name="navigate-circle" size={48} color="Colors.primary" />
               </View>
               <Text style={styles.headerTitle}>Smart Eco-Routing</Text>
               <Text style={styles.headerSubtitle}>
@@ -413,7 +414,7 @@ export default function SmartEcoRouting() {
               <Text style={styles.sectionTitle}>Current Battery Status</Text>
               <View style={styles.batteryCard}>
                 <View style={styles.batteryHeader}>
-                  <Ionicons name="battery-charging" size={32} color="#4CAF50" />
+                  <Ionicons name="battery-charging" size={32} color="Colors.primary" />
                   <View style={styles.batteryInfo}>
                     <Text style={styles.batteryPercent}>{batteryPercent}%</Text>
                     <Text style={styles.batteryCapacity}>
@@ -434,7 +435,7 @@ export default function SmartEcoRouting() {
                         styles.sliderFill, 
                         { 
                           width: `${batteryPercent}%`,
-                          backgroundColor: batteryPercent > 30 ? '#4CAF50' : '#FF9800'
+                          backgroundColor: batteryPercent > 30 ? 'Colors.primary' : '#FF9800'
                         }
                       ]} 
                     />
@@ -507,7 +508,7 @@ export default function SmartEcoRouting() {
             {/* Feature Cards */}
             <View style={styles.featuresSection}>
               <View style={styles.featureCard}>
-                <Ionicons name="leaf" size={28} color="#4CAF50" />
+                <Ionicons name="leaf" size={28} color="Colors.primary" />
                 <Text style={styles.featureTitle}>Energy First</Text>
                 <Text style={styles.featureText}>
                   Routes optimized for lowest battery consumption using real terrain and traffic data
@@ -602,7 +603,7 @@ export default function SmartEcoRouting() {
                 {chargersAlongRoute.slice(0, 3).map((charger) => (
                   <View key={charger.id} style={styles.chargerItem}>
                     <View style={styles.chargerIconCircle}>
-                      <Ionicons name="flash" size={18} color="#4CAF50" />
+                      <Ionicons name="flash" size={18} color="Colors.primary" />
                     </View>
                     <View style={styles.chargerItemInfo}>
                       <Text style={styles.chargerItemName}>{charger.name}</Text>
@@ -756,13 +757,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'Colors.primary',
     marginHorizontal: 24,
     marginBottom: 24,
     paddingVertical: 16,
     borderRadius: 16,
     gap: 8,
-    shadowColor: '#4CAF50',
+    shadowColor: 'Colors.primary',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -946,7 +947,7 @@ const styles = StyleSheet.create({
   },
   routeCardSelected: {
     backgroundColor: '#E8F5E9',
-    borderColor: '#4CAF50',
+    borderColor: 'Colors.primary',
   },
   routeHeader: {
     flexDirection: 'row',
@@ -1134,7 +1135,7 @@ const styles = StyleSheet.create({
   reliabilityText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#4CAF50',
+    color: 'Colors.primary',
   },
   bottomPadding: {
     height: 20,

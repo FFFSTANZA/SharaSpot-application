@@ -49,7 +49,7 @@ type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
   1: '#9E9E9E',  // Grey - New Entry
-  2: '#4CAF50',  // Green - Community Verified
+  2: Colors.primary,  // Burnt Orange - Community Verified
   3: '#2196F3',  // Blue - Reliable
   4: '#FFB300',  // Gold - Trusted
   5: '#9C27B0',  // Platinum - Certified Partner
@@ -164,7 +164,7 @@ export default function Discover() {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={22} color="#4CAF50" />
+          <Ionicons name="flash" size={22} color={Colors.primary} />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
@@ -200,7 +200,7 @@ export default function Discover() {
           <Ionicons
             name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"}
             size={16}
-            color={item.available_ports > 0 ? "#4CAF50" : "#F44336"}
+            color={item.available_ports > 0 ? Colors.accent : Colors.error}
           />
           <Text style={styles.detailText}>
             {item.available_ports}/{item.total_ports} ports available
@@ -305,7 +305,7 @@ export default function Discover() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -320,7 +320,7 @@ export default function Discover() {
           style={styles.filterButton}
           onPress={() => setFilterModalVisible(true)}
         >
-          <Ionicons name="funnel" size={20} color="#4CAF50" />
+          <Ionicons name="funnel" size={20} color={Colors.primary} />
           <Text style={styles.filterButtonText}>Filters</Text>
           {getActiveFilterCount() > 0 && (
             <View style={styles.filterBadge}>
@@ -342,7 +342,7 @@ export default function Discover() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#4CAF50']} />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.primary]} tintColor={Colors.primary} />
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>

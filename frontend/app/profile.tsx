@@ -18,6 +18,7 @@ import { SessionManager } from '../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors } from '../constants/theme';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -90,7 +91,7 @@ export default function Profile() {
   };
 
   const getTrustScoreColor = (score: number) => {
-    if (score >= 80) return '#4CAF50';
+    if (score >= 80) return 'Colors.primary';
     if (score >= 50) return '#2196F3';
     if (score >= 30) return '#FF9800';
     return '#F44336';
@@ -109,7 +110,7 @@ export default function Profile() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color="Colors.primary" />
       </View>
     );
   }
@@ -122,21 +123,21 @@ export default function Profile() {
           style={[styles.tab, selectedTab === 'profile' && styles.tabActive]}
           onPress={() => setSelectedTab('profile')}
         >
-          <Ionicons name="person" size={24} color={selectedTab === 'profile' ? '#4CAF50' : '#999999'} />
+          <Ionicons name="person" size={24} color={selectedTab === 'profile' ? 'Colors.primary' : '#999999'} />
           <Text style={[styles.tabText, selectedTab === 'profile' && styles.tabTextActive]}>Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, selectedTab === 'wallet' && styles.tabActive]}
           onPress={() => setSelectedTab('wallet')}
         >
-          <Ionicons name="wallet" size={24} color={selectedTab === 'wallet' ? '#4CAF50' : '#999999'} />
+          <Ionicons name="wallet" size={24} color={selectedTab === 'wallet' ? 'Colors.primary' : '#999999'} />
           <Text style={[styles.tabText, selectedTab === 'wallet' && styles.tabTextActive]}>Wallet</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, selectedTab === 'settings' && styles.tabActive]}
           onPress={() => setSelectedTab('settings')}
         >
-          <Ionicons name="settings" size={24} color={selectedTab === 'settings' ? '#4CAF50' : '#999999'} />
+          <Ionicons name="settings" size={24} color={selectedTab === 'settings' ? 'Colors.primary' : '#999999'} />
           <Text style={[styles.tabText, selectedTab === 'settings' && styles.tabTextActive]}>Settings</Text>
         </TouchableOpacity>
       </View>
@@ -185,7 +186,7 @@ export default function Profile() {
             <Text style={styles.sectionTitle}>Activity Stats</Text>
             <View style={styles.statsGrid}>
               <View style={styles.statBox}>
-                <Ionicons name="add-circle" size={24} color="#4CAF50" />
+                <Ionicons name="add-circle" size={24} color="Colors.primary" />
                 <Text style={styles.statNumber}>{stats?.chargers_added || 0}</Text>
                 <Text style={styles.statLabel}>Added</Text>
               </View>
@@ -231,7 +232,7 @@ export default function Profile() {
             <Text style={styles.sectionTitle}>Earning Guide</Text>
             <View style={styles.earningCard}>
               <View style={styles.earningRow}>
-                <Ionicons name="add-circle" size={20} color="#4CAF50" />
+                <Ionicons name="add-circle" size={20} color="Colors.primary" />
                 <Text style={styles.earningText}>+5 coins</Text>
                 <Text style={styles.earningLabel}>Add charger</Text>
               </View>
@@ -254,13 +255,13 @@ export default function Profile() {
               transactions.transactions.map((txn: any, idx: number) => (
                 <View key={idx} style={styles.transactionCard}>
                   <View style={styles.transactionLeft}>
-                    <Ionicons name={txn.amount > 0 ? 'add-circle' : 'remove-circle'} size={24} color={txn.amount > 0 ? '#4CAF50' : '#F44336'} />
+                    <Ionicons name={txn.amount > 0 ? 'add-circle' : 'remove-circle'} size={24} color={txn.amount > 0 ? 'Colors.primary' : '#F44336'} />
                     <View style={styles.transactionInfo}>
                       <Text style={styles.transactionDescription}>{txn.description}</Text>
                       <Text style={styles.transactionDate}>{formatDate(txn.timestamp)}</Text>
                     </View>
                   </View>
-                  <Text style={[styles.transactionAmount, { color: txn.amount > 0 ? '#4CAF50' : '#F44336' }]}>
+                  <Text style={[styles.transactionAmount, { color: txn.amount > 0 ? 'Colors.primary' : '#F44336' }]}>
                     {txn.amount > 0 ? '+' : ''}{txn.amount}
                   </Text>
                 </View>
@@ -345,11 +346,11 @@ const styles = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   tabBar: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E0E0E0' },
   tab: { flex: 1, paddingVertical: 16, alignItems: 'center', gap: 4 },
-  tabActive: { borderBottomWidth: 2, borderBottomColor: '#4CAF50' },
+  tabActive: { borderBottomWidth: 2, borderBottomColor: 'Colors.primary' },
   tabText: { fontSize: 12, color: '#999999' },
-  tabTextActive: { color: '#4CAF50', fontWeight: '600' },
+  tabTextActive: { color: 'Colors.primary', fontWeight: '600' },
   profileHeader: { backgroundColor: '#FFFFFF', padding: 24, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#E0E0E0' },
-  avatarPlaceholder: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+  avatarPlaceholder: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'Colors.primary', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
   userName: { fontSize: 24, fontWeight: '700', color: '#1A1A1A', marginBottom: 4 },
   userEmail: { fontSize: 14, color: '#666666' },
   coinCard: { backgroundColor: '#FFFFFF', margin: 16, padding: 20, borderRadius: 16, elevation: 3 },
@@ -357,7 +358,7 @@ const styles = StyleSheet.create({
   coinInfo: { flex: 1 },
   coinLabel: { fontSize: 14, color: '#666666', marginBottom: 4 },
   coinValue: { fontSize: 28, fontWeight: '700', color: '#FFB300' },
-  redeemButton: { backgroundColor: '#4CAF50', paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
+  redeemButton: { backgroundColor: 'Colors.primary', paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
   redeemButtonText: { fontSize: 16, fontWeight: '600', color: '#FFFFFF' },
   section: { backgroundColor: '#FFFFFF', marginHorizontal: 16, marginBottom: 16, padding: 20, borderRadius: 16 },
   sectionTitle: { fontSize: 16, fontWeight: '600', color: '#1A1A1A', marginBottom: 16 },
@@ -372,12 +373,12 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 11, color: '#666666', textAlign: 'center' },
   walletSummary: { flexDirection: 'row', backgroundColor: '#FFFFFF', margin: 16, padding: 20, borderRadius: 16, elevation: 3 },
   walletStat: { flex: 1, alignItems: 'center' },
-  walletStatValue: { fontSize: 24, fontWeight: '700', color: '#4CAF50', marginBottom: 4 },
+  walletStatValue: { fontSize: 24, fontWeight: '700', color: 'Colors.primary', marginBottom: 4 },
   walletStatLabel: { fontSize: 12, color: '#666666' },
   walletDivider: { width: 1, backgroundColor: '#E0E0E0' },
   earningCard: { gap: 12 },
   earningRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  earningText: { fontSize: 14, fontWeight: '600', color: '#4CAF50', width: 70 },
+  earningText: { fontSize: 14, fontWeight: '600', color: 'Colors.primary', width: 70 },
   earningLabel: { flex: 1, fontSize: 14, color: '#666666' },
   transactionCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 12, backgroundColor: '#F8F9FA', borderRadius: 8, marginBottom: 8 },
   transactionLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
   settingLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   settingLabel: { fontSize: 16, color: '#1A1A1A' },
   themeToggle: { backgroundColor: '#F8F9FA', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
-  themeText: { fontSize: 14, fontWeight: '600', color: '#4CAF50' },
+  themeText: { fontSize: 14, fontWeight: '600', color: 'Colors.primary' },
   actionButton: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   emptyText: { fontSize: 14, color: '#999999', textAlign: 'center', paddingVertical: 16 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center' },
@@ -401,6 +402,6 @@ const styles = StyleSheet.create({
   modalContent: { padding: 32, alignItems: 'center' },
   modalHeading: { fontSize: 20, fontWeight: '700', color: '#1A1A1A', marginTop: 16, marginBottom: 12 },
   modalText: { fontSize: 14, color: '#666666', textAlign: 'center', lineHeight: 20 },
-  modalButton: { backgroundColor: '#4CAF50', paddingVertical: 16, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, alignItems: 'center' },
+  modalButton: { backgroundColor: 'Colors.primary', paddingVertical: 16, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, alignItems: 'center' },
   modalButtonText: { fontSize: 16, fontWeight: '600', color: '#FFFFFF' },
 });
