@@ -19,6 +19,7 @@ import { VerificationBadge } from '../components/VerificationBadge';
 import { SessionManager } from '../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -457,8 +458,8 @@ export default function VerificationReport() {
       level: 'medium',
       score: 50,
       label: 'Medium Risk',
-      color: '#F57C00',
-      backgroundColor: '#FFF3E0',
+      color: Colors.warningDark,
+      backgroundColor: Colors.warningLight,
       recommendation: 'Loading data...'
     };
 
@@ -485,8 +486,8 @@ export default function VerificationReport() {
         level: 'low',
         score: riskScore,
         label: 'Low Risk - Highly Reliable',
-        color: '#2E7D32',
-        backgroundColor: '#E8F5E9',
+        color: Colors.successDark,
+        backgroundColor: Colors.successLight,
         recommendation: 'Safe to visit anytime. This station is consistently reliable.'
       };
     } else if (riskScore < 60) {
@@ -494,8 +495,8 @@ export default function VerificationReport() {
         level: 'medium',
         score: riskScore,
         label: 'Medium Risk - Generally Reliable',
-        color: '#F57C00',
-        backgroundColor: '#FFF3E0',
+        color: Colors.warningDark,
+        backgroundColor: Colors.warningLight,
         recommendation: 'Usually works well. Check recent status before visiting.'
       };
     } else {
@@ -503,8 +504,8 @@ export default function VerificationReport() {
         level: 'high',
         score: riskScore,
         label: 'High Risk - Verify First',
-        color: '#D32F2F',
-        backgroundColor: '#FFEBEE',
+        color: Colors.error,
+        backgroundColor: Colors.errorLight,
         recommendation: 'Exercise caution. Contact station or verify status before traveling.'
       };
     }
@@ -717,21 +718,21 @@ export default function VerificationReport() {
         currentProbability: probability,
         status: 'high',
         message: 'Very likely available now',
-        color: 'Colors.accent'
+        color: Colors.primary
       };
     } else if (probability >= 50) {
       return {
         currentProbability: probability,
         status: 'medium',
         message: 'Might have some wait time',
-        color: '#FF9800'
+        color: Colors.warning
       };
     } else {
       return {
         currentProbability: probability,
         status: 'low',
         message: 'Call ahead recommended',
-        color: '#F44336'
+        color: Colors.error
       };
     }
   };
@@ -785,13 +786,13 @@ export default function VerificationReport() {
   const getActionColor = (action: string) => {
     switch (action) {
       case 'active':
-        return 'Colors.accent';
+        return Colors.primary;
       case 'not_working':
-        return '#F44336';
+        return Colors.error;
       case 'partial':
-        return '#FF9800';
+        return Colors.warning;
       default:
-        return '#999999';
+        return Colors.textTertiary;
     }
   };
 
@@ -815,9 +816,9 @@ export default function VerificationReport() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="Colors.accent" />
+          <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>Loading verification data...</Text>
         </View>
       </SafeAreaView>
@@ -827,16 +828,16 @@ export default function VerificationReport() {
   if (!charger || !safeCharger) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.title}>Verification Report</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.emptyState}>
-          <Ionicons name="alert-circle-outline" size={64} color="#CCCCCC" />
+          <Ionicons name="alert-circle-outline" size={64} color={Colors.textDisabled} />
           <Text style={styles.emptyText}>No charger data available</Text>
           <TouchableOpacity
             style={styles.retryButton}
@@ -864,7 +865,7 @@ export default function VerificationReport() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
       <Animated.View
         style={[
           styles.header,
@@ -875,7 +876,7 @@ export default function VerificationReport() {
         ]}
       >
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>Verification Report</Text>
         <View style={{ width: 40 }} />
@@ -893,8 +894,8 @@ export default function VerificationReport() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="Colors.accent"
-            colors={['Colors.accent']}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
           />
         }
       >
@@ -907,7 +908,7 @@ export default function VerificationReport() {
           ]}
         >
           <View style={styles.decisionHeader}>
-            <Ionicons name="flash" size={24} color="#FFB300" />
+            <Ionicons name="flash" size={24} color={Colors.accentGold} />
             <Text style={styles.decisionTitle}>Quick Decision</Text>
           </View>
           <Animated.View
@@ -970,7 +971,7 @@ export default function VerificationReport() {
           ]}
         >
           <View style={styles.availabilityHeader}>
-            <Ionicons name="pulse" size={22} color="#2196F3" />
+            <Ionicons name="pulse" size={22} color={Colors.info} />
             <Text style={styles.sectionTitle}>Availability Right Now</Text>
           </View>
           <View style={styles.availabilityCard}>
@@ -1007,7 +1008,7 @@ export default function VerificationReport() {
             ]}
           >
             <View style={styles.ratingsSectionHeader}>
-              <Ionicons name="star" size={22} color="#FFB300" />
+              <Ionicons name="star" size={22} color={Colors.accentGold} />
               <Text style={styles.sectionTitle}>Community Ratings</Text>
               <View style={styles.ratingsCount}>
                 <Text style={styles.ratingsCountText}>{communityRatings.totalRatings} ratings</Text>
@@ -1017,14 +1018,14 @@ export default function VerificationReport() {
             <View style={styles.ratingsGrid}>
               {communityRatings.avgCleanliness > 0 && (
                 <View style={styles.ratingCard}>
-                  <Ionicons name="sparkles" size={32} color="#9C27B0" />
+                  <Ionicons name="sparkles" size={32} color={Colors.accentPurple} />
                   <View style={styles.ratingStars}>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Ionicons
                         key={star}
                         name={star <= Math.round(communityRatings.avgCleanliness) ? 'star' : 'star-outline'}
                         size={16}
-                        color="#FFB300"
+                        color={Colors.accentGold}
                       />
                     ))}
                   </View>
@@ -1035,14 +1036,14 @@ export default function VerificationReport() {
 
               {communityRatings.avgChargingSpeed > 0 && (
                 <View style={styles.ratingCard}>
-                  <Ionicons name="flash" size={32} color="Colors.accent" />
+                  <Ionicons name="flash" size={32} color={Colors.primary} />
                   <View style={styles.ratingStars}>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Ionicons
                         key={star}
                         name={star <= Math.round(communityRatings.avgChargingSpeed) ? 'star' : 'star-outline'}
                         size={16}
-                        color="#FFB300"
+                        color={Colors.accentGold}
                       />
                     ))}
                   </View>
@@ -1053,14 +1054,14 @@ export default function VerificationReport() {
 
               {communityRatings.avgAmenities > 0 && (
                 <View style={styles.ratingCard}>
-                  <Ionicons name="restaurant" size={32} color="#FF9800" />
+                  <Ionicons name="restaurant" size={32} color={Colors.warning} />
                   <View style={styles.ratingStars}>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Ionicons
                         key={star}
                         name={star <= Math.round(communityRatings.avgAmenities) ? 'star' : 'star-outline'}
                         size={16}
-                        color="#FFB300"
+                        color={Colors.accentGold}
                       />
                     ))}
                   </View>
@@ -1073,14 +1074,14 @@ export default function VerificationReport() {
             {communityRatings.recommendationRate > 0 && (
               <View style={styles.recommendationCard}>
                 <View style={styles.recommendationIcon}>
-                  <Ionicons name="thumbs-up" size={28} color="Colors.accent" />
+                  <Ionicons name="thumbs-up" size={28} color={Colors.primary} />
                 </View>
                 <View style={styles.recommendationContent}>
                   <Text style={styles.recommendationValue}>{communityRatings.recommendationRate}%</Text>
                   <Text style={styles.recommendationLabel}>Would Recommend</Text>
                 </View>
                 <View style={styles.recommendationBadge}>
-                  <Ionicons name="checkmark-circle" size={20} color="Colors.accent" />
+                  <Ionicons name="checkmark-circle" size={20} color={Colors.primary} />
                 </View>
               </View>
             )}
@@ -1097,7 +1098,7 @@ export default function VerificationReport() {
           <Text style={styles.sectionTitle}>Usage Patterns</Text>
           {peakAnalysis.avgWaitTime > 0 && (
             <View style={styles.waitTimeCard}>
-              <Ionicons name="time-outline" size={32} color="#9C27B0" />
+              <Ionicons name="time-outline" size={32} color={Colors.accentPurple} />
               <View style={styles.waitTimeInfo}>
                 <Text style={styles.waitTimeValue}>{peakAnalysis.avgWaitTime} min</Text>
                 <Text style={styles.waitTimeLabel}>Average Wait Time</Text>
@@ -1106,14 +1107,14 @@ export default function VerificationReport() {
           )}
           <View style={styles.peakTimesContainer}>
             <View style={styles.peakTimeRow}>
-              <Ionicons name="arrow-up-circle" size={20} color="#F44336" />
+              <Ionicons name="arrow-up-circle" size={20} color={Colors.error} />
               <View style={styles.peakTimeInfo}>
                 <Text style={styles.peakTimeLabel}>Busiest Time</Text>
                 <Text style={styles.peakTimeValue}>{peakAnalysis.peakHours}</Text>
               </View>
             </View>
             <View style={styles.peakTimeRow}>
-              <Ionicons name="arrow-down-circle" size={20} color="Colors.accent" />
+              <Ionicons name="arrow-down-circle" size={20} color={Colors.primary} />
               <View style={styles.peakTimeInfo}>
                 <Text style={styles.peakTimeLabel}>Quietest Time</Text>
                 <Text style={styles.peakTimeValue}>{peakAnalysis.quietHours}</Text>
@@ -1136,11 +1137,11 @@ export default function VerificationReport() {
                 <Ionicons
                   name={networkComparison.betterThanAverage ? 'trending-up' : 'analytics'}
                   size={14}
-                  color={networkComparison.betterThanAverage ? 'Colors.accent' : '#FF9800'}
+                  color={networkComparison.betterThanAverage ? Colors.primary : Colors.warning}
                 />
                 <Text style={[
                   styles.comparisonText,
-                  { color: networkComparison.betterThanAverage ? '#2E7D32' : '#F57C00' }
+                  { color: networkComparison.betterThanAverage ? Colors.successDark : Colors.warningDark }
                 ]}>
                   {networkComparison.message}
                 </Text>
@@ -1174,7 +1175,7 @@ export default function VerificationReport() {
                   Based on {safeCharger.verified_by_count} community verifications
                 </Text>
                 <View style={styles.bestTimeChip}>
-                  <Ionicons name="time-outline" size={14} color="Colors.accent" />
+                  <Ionicons name="time-outline" size={14} color={Colors.primary} />
                   <Text style={styles.bestTimeText}>{bestTime.recommendation}</Text>
                 </View>
                 {bestTime.timeSlots.length > 0 && (
@@ -1182,7 +1183,7 @@ export default function VerificationReport() {
                     <Text style={styles.timeSlotsLabel}>Best times:</Text>
                     {bestTime.timeSlots.map((slot, idx) => (
                       <View key={idx} style={styles.timeSlot}>
-                        <Ionicons name="time" size={12} color="#2E7D32" />
+                        <Ionicons name="time" size={12} color={Colors.successDark} />
                         <Text style={styles.timeSlotText}>{slot}</Text>
                       </View>
                     ))}
@@ -1227,9 +1228,9 @@ export default function VerificationReport() {
                     name={insight.icon as any}
                     size={20}
                     color={
-                      insight.type === 'positive' ? '#2E7D32' :
-                      insight.type === 'warning' ? '#F57C00' :
-                      '#1976D2'
+                      insight.type === 'positive' ? Colors.successDark :
+                      insight.type === 'warning' ? Colors.warningDark :
+                      Colors.infoDark
                     }
                   />
                   <Text
@@ -1285,7 +1286,7 @@ export default function VerificationReport() {
                           <View
                             style={[
                               styles.trendProgressSegment,
-                              { width: `${activePercent}%`, backgroundColor: 'Colors.accent' }
+                              { width: `${activePercent}%`, backgroundColor: Colors.primary }
                             ]}
                           />
                         )}
@@ -1293,7 +1294,7 @@ export default function VerificationReport() {
                           <View
                             style={[
                               styles.trendProgressSegment,
-                              { width: `${partialPercent}%`, backgroundColor: '#FF9800' }
+                              { width: `${partialPercent}%`, backgroundColor: Colors.warning }
                             ]}
                           />
                         )}
@@ -1301,7 +1302,7 @@ export default function VerificationReport() {
                           <View
                             style={[
                               styles.trendProgressSegment,
-                              { width: `${failPercent}%`, backgroundColor: '#F44336' }
+                              { width: `${failPercent}%`, backgroundColor: Colors.error }
                             ]}
                           />
                         )}
@@ -1310,19 +1311,19 @@ export default function VerificationReport() {
                       <View style={styles.trendBreakdown}>
                         {trend.activeCount > 0 && (
                           <View style={styles.trendRow}>
-                            <View style={[styles.trendDot, { backgroundColor: 'Colors.accent' }]} />
+                            <View style={[styles.trendDot, { backgroundColor: Colors.primary }]} />
                             <Text style={styles.trendValue}>{trend.activeCount} active</Text>
                           </View>
                         )}
                         {trend.partialCount > 0 && (
                           <View style={styles.trendRow}>
-                            <View style={[styles.trendDot, { backgroundColor: '#FF9800' }]} />
+                            <View style={[styles.trendDot, { backgroundColor: Colors.warning }]} />
                             <Text style={styles.trendValue}>{trend.partialCount} partial</Text>
                           </View>
                         )}
                         {trend.notWorkingCount > 0 && (
                           <View style={styles.trendRow}>
-                            <View style={[styles.trendDot, { backgroundColor: '#F44336' }]} />
+                            <View style={[styles.trendDot, { backgroundColor: Colors.error }]} />
                             <Text style={styles.trendValue}>{trend.notWorkingCount} down</Text>
                           </View>
                         )}
@@ -1343,7 +1344,7 @@ export default function VerificationReport() {
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <View style={styles.statIconCircle}>
-                <Ionicons name="people" size={24} color="#2196F3" />
+                <Ionicons name="people" size={24} color={Colors.info} />
               </View>
               <Text style={styles.statValue}>{safeCharger.verified_by_count}</Text>
               <Text style={styles.statLabel}>Community Verifiers</Text>
@@ -1353,7 +1354,7 @@ export default function VerificationReport() {
                     styles.statBarFill,
                     {
                       width: `${Math.min((safeCharger.verified_by_count / 30) * 100, 100)}%`,
-                      backgroundColor: '#2196F3',
+                      backgroundColor: Colors.info,
                     },
                   ]}
                 />
@@ -1362,12 +1363,12 @@ export default function VerificationReport() {
             <View style={styles.statCard}>
               <View style={[
                 styles.statIconCircle,
-                { backgroundColor: safeCharger.uptime_percentage >= 90 ? '#E8F5E9' : '#FFF3E0' }
+                { backgroundColor: safeCharger.uptime_percentage >= 90 ? Colors.successLight : Colors.warningLight }
               ]}>
                 <Ionicons
                   name={safeCharger.uptime_percentage >= 90 ? 'trending-up' : 'analytics'}
                   size={24}
-                  color={safeCharger.uptime_percentage >= 90 ? 'Colors.accent' : '#FF9800'}
+                  color={safeCharger.uptime_percentage >= 90 ? Colors.primary : Colors.warning}
                 />
               </View>
               <Text style={styles.statValue}>{safeCharger.uptime_percentage.toFixed(1)}%</Text>
@@ -1378,7 +1379,7 @@ export default function VerificationReport() {
                     styles.statBarFill,
                     {
                       width: `${safeCharger.uptime_percentage}%`,
-                      backgroundColor: safeCharger.uptime_percentage >= 90 ? 'Colors.accent' : '#FF9800',
+                      backgroundColor: safeCharger.uptime_percentage >= 90 ? Colors.primary : Colors.warning,
                     },
                   ]}
                 />
@@ -1386,7 +1387,7 @@ export default function VerificationReport() {
             </View>
             <View style={styles.statCard}>
               <View style={styles.statIconCircle}>
-                <Ionicons name="time" size={24} color="#9C27B0" />
+                <Ionicons name="time" size={24} color={Colors.accentPurple} />
               </View>
               <Text style={styles.statValue}>
                 {safeCharger.last_verified
@@ -1414,7 +1415,7 @@ export default function VerificationReport() {
                     <Ionicons
                       name={index === 0 ? 'trophy' : index === 1 ? 'medal' : 'ribbon'}
                       size={20}
-                      color={index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : '#CD7F32'}
+                      color={index === 0 ? Colors.accentGold : index === 1 ? Colors.borderStrong : Colors.accentCopper}
                     />
                   </View>
                   <View style={styles.contributorInfo}>
@@ -1447,7 +1448,7 @@ export default function VerificationReport() {
                     <Ionicons
                       name={getActionIcon(action.action) as any}
                       size={16}
-                      color="#FFFFFF"
+                      color={Colors.textInverse}
                     />
                   </View>
                   <View style={styles.timelineContent}>
@@ -1471,7 +1472,7 @@ export default function VerificationReport() {
             </View>
           ) : (
             <View style={styles.emptyState}>
-              <Ionicons name="document-text-outline" size={48} color="#CCCCCC" />
+              <Ionicons name="document-text-outline" size={48} color={Colors.textDisabled} />
               <Text style={styles.emptyText}>No verification history yet</Text>
             </View>
           )}
@@ -1516,7 +1517,7 @@ export default function VerificationReport() {
             </View>
             {safeCharger.source_type === 'official' && (
               <View style={styles.adminBadge}>
-                <Ionicons name="shield-checkmark" size={16} color="#2196F3" />
+                <Ionicons name="shield-checkmark" size={16} color={Colors.info} />
                 <Text style={styles.adminText}>Admin Verified</Text>
               </View>
             )}
@@ -1532,91 +1533,73 @@ export default function VerificationReport() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
   },
   loadingText: {
-    marginTop: 16,
-    fontSize: 14,
-    color: '#666666',
-    fontWeight: '500',
+    ...Typography.bodyMedium,
+    marginTop: Spacing.md,
+    color: Colors.textSecondary,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 18,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 3,
+    borderBottomColor: Colors.border,
+    ...Shadows.sm,
     zIndex: 10,
   },
   backButton: {
-    padding: 8,
+    padding: Spacing['2'],
     minWidth: 40,
     minHeight: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: BorderRadius.full,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    letterSpacing: -0.5,
+    ...Typography.headlineSmall,
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
   },
   section: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    backgroundColor: '#FFFFFF',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 1,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
+    backgroundColor: Colors.surface,
+    marginBottom: Spacing['3'],
+    ...Shadows.xs,
   },
   sectionTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 16,
-    letterSpacing: -0.3,
+    ...Typography.titleMedium,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
   },
   levelCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    padding: 18,
-    borderRadius: 16,
-    gap: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: Colors.backgroundSecondary,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.md,
+    ...Shadows.sm,
   },
   levelInfo: {
     flex: 1,
   },
   levelDescription: {
-    fontSize: 14,
-    color: '#666666',
-    lineHeight: 20,
+    ...Typography.bodyMedium,
+    color: Colors.textSecondary,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -1624,7 +1607,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 20,
     borderRadius: 16,
     alignItems: 'center',
@@ -1634,13 +1617,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: Colors.borderLight,
   },
   statIconCircle: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.infoLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -1648,26 +1631,26 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginTop: 4,
   },
   statLabel: {
     fontSize: 11,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
     fontWeight: '600',
   },
   statSubtext: {
     fontSize: 9,
-    color: '#999999',
+    color: Colors.textTertiary,
     marginTop: 2,
     textAlign: 'center',
   },
   statBar: {
     width: '100%',
     height: 4,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: Colors.border,
     borderRadius: 2,
     marginTop: 8,
     overflow: 'hidden',
@@ -1694,7 +1677,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.borderLight,
   },
   timelineHeader: {
     flexDirection: 'row',
@@ -1705,20 +1688,20 @@ const styles = StyleSheet.create({
   timelineAction: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   timelineDate: {
     fontSize: 12,
-    color: '#999999',
+    color: Colors.textTertiary,
   },
   timelineUser: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   timelineNotes: {
     fontSize: 12,
-    color: '#999999',
+    color: Colors.textTertiary,
     fontStyle: 'italic',
   },
   emptyState: {
@@ -1729,26 +1712,23 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 15,
-    color: '#999999',
+    color: Colors.textTertiary,
     marginTop: 16,
     marginBottom: 24,
     fontWeight: '500',
   },
   retryButton: {
-    backgroundColor: 'Colors.accent',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 12,
-    shadowColor: 'Colors.accent',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadows.md,
   },
   retryButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.labelLarge,
+    color: Colors.textInverse,
   },
   photosGrid: {
     flexDirection: 'row',
@@ -1761,7 +1741,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   sourceCard: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 18,
     borderRadius: 16,
     gap: 12,
@@ -1779,11 +1759,11 @@ const styles = StyleSheet.create({
   sourceLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   sourceValue: {
     fontSize: 14,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   sourceTag: {
     paddingHorizontal: 14,
@@ -1791,26 +1771,26 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   officialTag: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.infoLight,
   },
   communityTag: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: Colors.warningLight,
   },
   sourceText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   adminBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.infoLight,
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 16,
     alignSelf: 'flex-start',
-    shadowColor: '#2196F3',
+    shadowColor: Colors.info,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -1819,13 +1799,13 @@ const styles = StyleSheet.create({
   adminText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#2196F3',
+    color: Colors.info,
   },
   reliabilityCard: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     borderRadius: 16,
     padding: 22,
-    shadowColor: 'Colors.accent',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 14,
@@ -1840,20 +1820,20 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: 'Colors.accent',
+    borderColor: Colors.primary,
   },
   scoreNumber: {
     fontSize: 28,
     fontWeight: '700',
-    color: 'Colors.accent',
+    color: Colors.primary,
   },
   scoreMax: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   scoreInfo: {
     flex: 1,
@@ -1861,24 +1841,24 @@ const styles = StyleSheet.create({
   scoreTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   scoreDescription: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   bestTimeChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     alignSelf: 'flex-start',
-    shadowColor: 'Colors.accent',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -1887,7 +1867,7 @@ const styles = StyleSheet.create({
   bestTimeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#2E7D32',
+    color: Colors.successDark,
   },
   timeSlotsContainer: {
     marginTop: 8,
@@ -1896,14 +1876,14 @@ const styles = StyleSheet.create({
   timeSlotsLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   timeSlot: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F1F8E9',
+    backgroundColor: Colors.successLight,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
@@ -1912,7 +1892,7 @@ const styles = StyleSheet.create({
   timeSlotText: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#2E7D32',
+    color: Colors.successDark,
   },
   insightsContainer: {
     gap: 10,
@@ -1931,29 +1911,29 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   insightCardPositive: {
-    backgroundColor: '#E8F5E9',
-    borderLeftColor: 'Colors.accent',
+    backgroundColor: Colors.successLight,
+    borderLeftColor: Colors.primary,
   },
   insightCardWarning: {
-    backgroundColor: '#FFF3E0',
-    borderLeftColor: '#FF9800',
+    backgroundColor: Colors.warningLight,
+    borderLeftColor: Colors.warning,
   },
   insightCardNeutral: {
-    backgroundColor: '#E3F2FD',
-    borderLeftColor: '#2196F3',
+    backgroundColor: Colors.infoLight,
+    borderLeftColor: Colors.info,
   },
   insightText: {
     flex: 1,
     fontSize: 13,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     lineHeight: 19,
     fontWeight: '500',
   },
   insightTextPositive: {
-    color: '#1B5E20',
+    color: Colors.successDark,
   },
   insightTextWarning: {
-    color: '#E65100',
+    color: Colors.warningDark,
   },
   trendsContainer: {
     flexDirection: 'row',
@@ -1961,7 +1941,7 @@ const styles = StyleSheet.create({
   },
   trendCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 18,
     borderRadius: 16,
     alignItems: 'center',
@@ -1971,29 +1951,29 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: Colors.borderLight,
   },
   trendPeriod: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
     textTransform: 'uppercase',
     marginBottom: 6,
   },
   trendTotal: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   trendLabel: {
     fontSize: 11,
-    color: '#999999',
+    color: Colors.textTertiary,
     marginBottom: 10,
   },
   trendProgressBar: {
     flexDirection: 'row',
     height: 8,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: Colors.backgroundTertiary,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 10,
@@ -2019,17 +1999,17 @@ const styles = StyleSheet.create({
   trendValue: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   noDataText: {
     fontSize: 11,
-    color: '#999999',
+    color: Colors.textTertiary,
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: 8,
   },
   decisionSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     paddingTop: 20,
     paddingBottom: 20,
     marginBottom: 12,
@@ -2043,7 +2023,7 @@ const styles = StyleSheet.create({
   decisionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   riskBadge: {
     borderRadius: 16,
@@ -2069,7 +2049,7 @@ const styles = StyleSheet.create({
   },
   riskRecommendation: {
     fontSize: 13,
-    color: '#424242',
+    color: Colors.textPrimary,
     lineHeight: 19,
     fontWeight: '500',
   },
@@ -2077,15 +2057,15 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   expectationItem: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 14,
     borderRadius: 12,
     borderLeftWidth: 3,
-    borderLeftColor: 'Colors.accent',
+    borderLeftColor: Colors.primary,
   },
   expectationText: {
     fontSize: 13,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     lineHeight: 19,
     fontWeight: '500',
   },
@@ -2093,7 +2073,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
@@ -2115,7 +2095,7 @@ const styles = StyleSheet.create({
   contributorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 18,
     borderRadius: 14,
     gap: 14,
@@ -2125,13 +2105,13 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: Colors.borderLight,
   },
   contributorRank: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -2146,17 +2126,17 @@ const styles = StyleSheet.create({
   contributorName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   contributorCount: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   availabilitySection: {
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   availabilityHeader: {
     flexDirection: 'row',
@@ -2168,10 +2148,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 22,
     borderRadius: 16,
-    shadowColor: '#2196F3',
+    shadowColor: Colors.info,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 10,
@@ -2181,11 +2161,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundTertiary,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   probabilityNumber: {
     fontSize: 32,
@@ -2193,7 +2173,7 @@ const styles = StyleSheet.create({
   },
   probabilityLabel: {
     fontSize: 10,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginTop: 4,
     fontWeight: '600',
   },
@@ -2216,7 +2196,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 16,
     borderRadius: 12,
   },
@@ -2225,19 +2205,19 @@ const styles = StyleSheet.create({
   },
   peakTimeLabel: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 4,
     fontWeight: '600',
   },
   peakTimeValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   ratingsSection: {
-    backgroundColor: '#FFFEF7',
+    backgroundColor: Colors.primarySubtle,
     borderWidth: 1,
-    borderColor: '#FFE082',
+    borderColor: Colors.accentGold,
   },
   ratingsSectionHeader: {
     flexDirection: 'row',
@@ -2247,7 +2227,7 @@ const styles = StyleSheet.create({
   },
   ratingsCount: {
     marginLeft: 'auto',
-    backgroundColor: '#FFF8E1',
+    backgroundColor: Colors.warningLight,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -2255,7 +2235,7 @@ const styles = StyleSheet.create({
   ratingsCountText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#F57C00',
+    color: Colors.warningDark,
   },
   ratingsGrid: {
     flexDirection: 'row',
@@ -2264,11 +2244,11 @@ const styles = StyleSheet.create({
   },
   ratingCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 18,
     borderRadius: 14,
     alignItems: 'center',
-    shadowColor: '#FFB300',
+    shadowColor: Colors.accentGold,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -2283,12 +2263,12 @@ const styles = StyleSheet.create({
   ratingValue: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginTop: 4,
   },
   ratingLabel: {
     fontSize: 11,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
     fontWeight: '600',
@@ -2296,7 +2276,7 @@ const styles = StyleSheet.create({
   recommendationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     padding: 18,
     borderRadius: 14,
     gap: 14,
@@ -2310,7 +2290,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -2325,26 +2305,26 @@ const styles = StyleSheet.create({
   recommendationValue: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#2E7D32',
+    color: Colors.successDark,
     marginBottom: 2,
   },
   recommendationLabel: {
     fontSize: 13,
-    color: '#1B5E20',
+    color: Colors.successDark,
     fontWeight: '600',
   },
   recommendationBadge: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#C8E6C9',
+    backgroundColor: Colors.successLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   waitTimeCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundTertiary,
     padding: 18,
     borderRadius: 14,
     gap: 16,
@@ -2361,12 +2341,12 @@ const styles = StyleSheet.create({
   waitTimeValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   waitTimeLabel: {
     fontSize: 13,
-    color: '#666666',
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
   bottomSpacing: {
