@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   },
   guestBanner: {
     position: 'absolute',
-    bottom: 140,
+    bottom: 100,
     left: Spacing.md,
     right: Spacing.md,
     backgroundColor: Colors.warningLight,
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
   },
   viewToggle: {
     position: 'absolute',
-    bottom: 90,
+    bottom: 20,
     right: Spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',
