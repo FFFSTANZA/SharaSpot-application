@@ -10,6 +10,7 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors, Spacing, BorderRadius } from '../constants/theme';
 
 interface EnhancedVerificationModalProps {
   visible: boolean;
@@ -847,53 +848,53 @@ const styles = StyleSheet.create({
     color: '#F57C00',
   },
   progressContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#F8F9FA',
+    paddingHorizontal: Spacing['5'],
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.backgroundSecondary,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 3,
+    backgroundColor: Colors.border,
+    borderRadius: BorderRadius.xs,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 3,
+    backgroundColor: Colors.success,
+    borderRadius: BorderRadius.xs,
   },
   progressText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   content: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+    paddingHorizontal: Spacing['5'],
+    paddingVertical: Spacing.lg,
   },
   chargerName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 24,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.lg,
     textAlign: 'center',
   },
   instructionText: {
     fontSize: 16,
-    color: '#666666',
-    marginBottom: 24,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.lg,
     textAlign: 'center',
     lineHeight: 22,
   },
   actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 16,
+    backgroundColor: Colors.backgroundSecondary,
+    padding: Spacing['5'],
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -902,18 +903,18 @@ const styles = StyleSheet.create({
   },
   activeCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50',
+    borderLeftColor: Colors.success,
   },
   notWorkingCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#F44336',
+    borderLeftColor: Colors.error,
   },
   partialCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#FF9800',
+    borderLeftColor: Colors.warning,
   },
   actionIconCircle: {
-    marginRight: 16,
+    marginRight: Spacing.md,
   },
   actionContent: {
     flex: 1,
@@ -959,24 +960,24 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   questionSection: {
-    marginBottom: 28,
+    marginBottom: Spacing.xl,
   },
   questionTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 12,
+    color: Colors.textPrimary,
+    marginBottom: Spacing['3'],
   },
   questionSubtitle: {
     fontSize: 13,
-    color: '#666666',
-    marginBottom: 12,
+    color: Colors.textSecondary,
+    marginBottom: Spacing['3'],
     lineHeight: 18,
   },
   waitTimeButtons: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: Spacing.sm,
   },
   waitTimeButton: {
     paddingHorizontal: 16,
@@ -1001,7 +1002,7 @@ const styles = StyleSheet.create({
   optionButtons: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: Spacing.sm,
   },
   optionButton: {
     paddingHorizontal: 16,
@@ -1025,7 +1026,7 @@ const styles = StyleSheet.create({
   },
   yesNoButtons: {
     flexDirection: 'row',
-    gap: 12,
+    gap: Spacing['3'],
   },
   yesNoButton: {
     flex: 1,
@@ -1062,22 +1063,22 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   ratingsSection: {
-    marginBottom: 28,
+    marginBottom: Spacing.xl,
   },
   sectionTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 16,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
   },
   ratingContainer: {
-    marginBottom: 20,
+    marginBottom: Spacing['5'],
   },
   ratingHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
+    gap: Spacing.sm,
+    marginBottom: Spacing['3'],
   },
   ratingLabel: {
     fontSize: 14,
@@ -1086,7 +1087,7 @@ const styles = StyleSheet.create({
   },
   starsContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: Spacing.sm,
   },
   starButton: {
     padding: 4,
@@ -1161,8 +1162,8 @@ const styles = StyleSheet.create({
   },
   navigationButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
+    gap: Spacing['3'],
+    marginBottom: Spacing.md,
   },
   backButton: {
     flexDirection: 'row',

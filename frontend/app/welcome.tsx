@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   signupButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.accentTeal,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.sm,
     ...Shadows.md,
