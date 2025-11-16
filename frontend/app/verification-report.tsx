@@ -10,6 +10,8 @@ import {
   Animated,
   Easing,
   ActivityIndicator,
+  RefreshControl,
+  StatusBar,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -100,6 +102,7 @@ export default function VerificationReport() {
   const params = useLocalSearchParams();
   const [charger, setCharger] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -110,6 +113,7 @@ export default function VerificationReport() {
   const headerFadeAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const riskBadgeAnim = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadChargerData();
@@ -121,7 +125,11 @@ export default function VerificationReport() {
     }
   }, [charger]);
 
-  const loadChargerData = async () => {
+  const loadChargerData = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    }
+
     try {
       if (params.charger) {
         const chargerData = JSON.parse(params.charger as string);
@@ -137,7 +145,12 @@ export default function VerificationReport() {
       console.error('Load charger error:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = () => {
+    loadChargerData(true);
   };
 
   const triggerAnimations = () => {
@@ -150,63 +163,69 @@ export default function VerificationReport() {
     headerFadeAnim.setValue(0);
     riskBadgeAnim.setValue(0);
 
-    // Stagger animations for smooth sequence
+    // Stagger animations for smooth sequence with improved timing
     Animated.sequence([
       Animated.timing(headerFadeAnim, {
         toValue: 1,
-        duration: 250,
+        duration: 350,
+        easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 300,
+        duration: 400,
+        easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
       Animated.parallel([
         Animated.spring(scoreScaleAnim, {
           toValue: 1,
-          tension: 50,
-          friction: 7,
+          tension: 60,
+          friction: 8,
           useNativeDriver: true,
         }),
         Animated.timing(scoreRotateAnim, {
           toValue: 1,
-          duration: 800,
+          duration: 900,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.spring(riskBadgeAnim, {
           toValue: 1,
-          tension: 40,
-          friction: 6,
+          tension: 50,
+          friction: 7,
           useNativeDriver: true,
         }),
       ]),
-      Animated.timing(insightsFadeAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(trendsFadeAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
+      Animated.stagger(100, [
+        Animated.timing(insightsFadeAnim, {
+          toValue: 1,
+          duration: 450,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(trendsFadeAnim, {
+          toValue: 1,
+          duration: 450,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]),
     ]).start();
 
-    // Continuous pulse animation for risk badge
+    // Continuous pulse animation for risk badge with improved easing
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.08,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
+          toValue: 1.06,
+          duration: 1200,
+          easing: Easing.inOut(Easing.sine),
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
+          duration: 1200,
+          easing: Easing.inOut(Easing.sine),
           useNativeDriver: true,
         }),
       ])
@@ -795,15 +814,20 @@ export default function VerificationReport() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4CAF50" />
+          <Text style={styles.loadingText}>Loading verification data...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (!charger || !safeCharger) {
     return (
       <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
@@ -814,22 +838,66 @@ export default function VerificationReport() {
         <View style={styles.emptyState}>
           <Ionicons name="alert-circle-outline" size={64} color="#CCCCCC" />
           <Text style={styles.emptyText}>No charger data available</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.retryButtonText}>Go Back</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
   }
 
+  // Header animation based on scroll
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 50],
+    outputRange: [1, 0.95],
+    extrapolate: 'clamp',
+  });
+
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, 50],
+    outputRange: [0, -5],
+    extrapolate: 'clamp',
+  });
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <Animated.View
+        style={[
+          styles.header,
+          {
+            opacity: headerOpacity,
+            transform: [{ translateY: headerTranslateY }],
+          }
+        ]}
+      >
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.title}>Verification Report</Text>
         <View style={{ width: 40 }} />
-      </View>
+      </Animated.View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#4CAF50"
+            colors={['#4CAF50']}
+          />
+        }
+      >
         {/* Quick Decision Helper */}
         <Animated.View
           style={[
@@ -1455,7 +1523,7 @@ export default function VerificationReport() {
           </View>
         </View>
 
-        <View style={{ height: 40 }} />
+        <View style={styles.bottomSpacing} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -1464,22 +1532,35 @@ export default function VerificationReport() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FA',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FA',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 14,
+    color: '#666666',
+    fontWeight: '500',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 18,
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 10,
   },
   backButton: {
     padding: 8,
@@ -1487,25 +1568,34 @@ const styles = StyleSheet.create({
     minHeight: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 20,
   },
   title: {
     fontSize: 20,
     fontWeight: '700',
     color: '#1A1A1A',
+    letterSpacing: -0.5,
   },
   content: {
     flex: 1,
   },
   section: {
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     color: '#1A1A1A',
     marginBottom: 16,
+    letterSpacing: -0.3,
   },
   levelCard: {
     flexDirection: 'row',
@@ -1534,15 +1624,17 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
-    padding: 18,
+    backgroundColor: '#FFFFFF',
+    padding: 20,
     borderRadius: 16,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   statIconCircle: {
     width: 48,
@@ -1630,13 +1722,33 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   emptyState: {
+    flex: 1,
     alignItems: 'center',
-    paddingVertical: 32,
+    justifyContent: 'center',
+    paddingHorizontal: 32,
   },
   emptyText: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#999999',
-    marginTop: 12,
+    marginTop: 16,
+    marginBottom: 24,
+    fontWeight: '500',
+  },
+  retryButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  retryButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   photosGrid: {
     flexDirection: 'row',
@@ -1711,13 +1823,13 @@ const styles = StyleSheet.create({
   },
   reliabilityCard: {
     backgroundColor: '#F8F9FA',
-    borderRadius: 18,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    borderRadius: 16,
+    padding: 22,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 14,
+    elevation: 4,
   },
   reliabilityHeader: {
     flexDirection: 'row',
@@ -1808,14 +1920,14 @@ const styles = StyleSheet.create({
   insightCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    padding: 16,
+    gap: 14,
+    padding: 18,
     borderRadius: 14,
     borderLeftWidth: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
     elevation: 2,
   },
   insightCardPositive: {
@@ -1849,15 +1961,17 @@ const styles = StyleSheet.create({
   },
   trendCard: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 18,
     borderRadius: 16,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   trendPeriod: {
     fontSize: 11,
@@ -1915,9 +2029,10 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   decisionSection: {
-    backgroundColor: 'transparent',
-    paddingTop: 16,
-    paddingBottom: 12,
+    backgroundColor: '#FFFFFF',
+    paddingTop: 20,
+    paddingBottom: 20,
+    marginBottom: 12,
   },
   decisionHeader: {
     flexDirection: 'row',
@@ -1931,13 +2046,13 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   riskBadge: {
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 16,
+    padding: 22,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
   },
   riskBadgeContent: {
     flexDirection: 'row',
@@ -2000,15 +2115,17 @@ const styles = StyleSheet.create({
   contributorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 18,
     borderRadius: 14,
     gap: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   contributorRank: {
     width: 44,
@@ -2052,13 +2169,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 20,
     backgroundColor: '#FFFFFF',
-    padding: 20,
+    padding: 22,
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowColor: '#2196F3',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 5,
   },
   probabilityCircle: {
     width: 100,
@@ -2148,14 +2265,14 @@ const styles = StyleSheet.create({
   ratingCard: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    padding: 16,
+    padding: 18,
     borderRadius: 14,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowColor: '#FFB300',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   ratingStars: {
     flexDirection: 'row',
@@ -2251,5 +2368,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#666666',
     fontWeight: '600',
+  },
+  bottomSpacing: {
+    height: 60,
   },
 });
