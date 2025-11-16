@@ -26,7 +26,6 @@ export default function Welcome() {
   // Content animations
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
-  const iconPulse = useRef(new Animated.Value(1)).current;
   const buttonsFadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -114,22 +113,6 @@ export default function Welcome() {
       delay: 300,
       useNativeDriver: true,
     }).start();
-
-    // Icon pulse animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(iconPulse, {
-          toValue: 1.1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(iconPulse, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
   }, []);
 
   useEffect(() => {
@@ -217,6 +200,7 @@ export default function Welcome() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Animated Background Elements */}
+      <View style={styles.backgroundGradient} />
       <Animated.View
         style={[
           styles.backgroundOrb1,
@@ -244,6 +228,15 @@ export default function Welcome() {
           },
         ]}
       />
+      <Animated.View
+        style={[
+          styles.backgroundOrb4,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb1Y }],
+          },
+        ]}
+      />
 
       <View style={styles.content}>
         <Animated.View
@@ -255,18 +248,11 @@ export default function Welcome() {
             },
           ]}
         >
-          <Animated.View
-            style={[
-              styles.iconContainer,
-              {
-                transform: [{ scale: iconPulse }],
-              },
-            ]}
-          >
+          <View style={styles.iconContainer}>
             <View style={styles.iconGlow}>
               <Ionicons name="flash" size={80} color={Colors.primary} />
             </View>
-          </Animated.View>
+          </View>
           <Text style={styles.title}>SharaSpot</Text>
           <Text style={styles.subtitle}>⚡ Whether you drive, Charge Nearby ⚡</Text>
         </Animated.View>
@@ -319,38 +305,68 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.surface,
+    backgroundColor: '#F8FAFC',
     overflow: 'hidden',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#F8FAFC',
   },
   backgroundOrb1: {
     position: 'absolute',
-    width: 350,
-    height: 350,
-    borderRadius: 175,
-    backgroundColor: Colors.primary,
-    opacity: 0.2,
-    top: -120,
-    right: -100,
+    width: 400,
+    height: 400,
+    borderRadius: 200,
+    backgroundColor: '#3B82F6',
+    opacity: 0.08,
+    top: -150,
+    right: -120,
+    shadowColor: '#3B82F6',
+    shadowOpacity: 0.1,
+    shadowRadius: 40,
   },
   backgroundOrb2: {
     position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: Colors.accentTeal,
-    opacity: 0.18,
-    bottom: -70,
-    left: -80,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: '#06B6D4',
+    opacity: 0.08,
+    bottom: -100,
+    left: -100,
+    shadowColor: '#06B6D4',
+    shadowOpacity: 0.1,
+    shadowRadius: 40,
   },
   backgroundOrb3: {
     position: 'absolute',
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: Colors.accent,
-    opacity: 0.12,
-    top: '40%',
-    right: -50,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: '#8B5CF6',
+    opacity: 0.06,
+    top: '45%',
+    right: -80,
+    shadowColor: '#8B5CF6',
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
+  },
+  backgroundOrb4: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: '#10B981',
+    opacity: 0.05,
+    top: '25%',
+    left: -60,
+    shadowColor: '#10B981',
+    shadowOpacity: 0.1,
+    shadowRadius: 25,
   },
   content: {
     flex: 1,
@@ -366,14 +382,14 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   iconGlow: {
-    backgroundColor: Colors.surface,
-    borderRadius: 60,
-    padding: Spacing.lg,
-    ...Shadows.lg,
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 70,
+    padding: Spacing.xl,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 5,
   },
   title: {
     ...Typography.displaySmall,
@@ -397,51 +413,59 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.surface,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    paddingVertical: Spacing.lg,
-    borderRadius: BorderRadius.md,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    paddingVertical: 16,
+    borderRadius: 14,
     gap: Spacing.sm,
-    ...Shadows.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   googleButtonText: {
     ...Typography.labelLarge,
-    color: Colors.textPrimary,
+    color: '#1E293B',
     fontWeight: '600',
   },
   emailButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primary,
-    paddingVertical: Spacing.lg,
-    borderRadius: BorderRadius.md,
+    backgroundColor: '#3B82F6',
+    paddingVertical: 16,
+    borderRadius: 14,
     gap: Spacing.sm,
-    ...Shadows.lg,
-    shadowColor: Colors.primary,
-    elevation: 6,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 3,
   },
   emailButtonText: {
     ...Typography.labelLarge,
-    color: Colors.textInverse,
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   signupButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.accentTeal,
-    paddingVertical: Spacing.lg,
-    borderRadius: BorderRadius.md,
+    backgroundColor: '#06B6D4',
+    paddingVertical: 16,
+    borderRadius: 14,
     gap: Spacing.sm,
-    ...Shadows.lg,
-    shadowColor: Colors.accentTeal,
-    elevation: 6,
+    shadowColor: '#06B6D4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 3,
   },
   signupButtonText: {
     ...Typography.labelLarge,
-    color: Colors.textInverse,
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   guestButton: {

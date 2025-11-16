@@ -164,7 +164,7 @@ export default function Discover() {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={22} color={Colors.accentTeal} />
+          <Ionicons name="flash" size={22} color="#06B6D4" />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
@@ -305,9 +305,9 @@ export default function Discover() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color="#3B82F6" />
         </View>
       </SafeAreaView>
     );
@@ -315,7 +315,7 @@ export default function Discover() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
       {renderHeader()}
 
       {/* Filter Bar */}
@@ -390,66 +390,77 @@ export default function Discover() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundSecondary,
+    backgroundColor: '#F8FAFC',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: '#FFFFFF',
   },
   homeHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.lg,
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
+    backgroundColor: '#F8FAFC',
   },
   greeting: {
-    ...Typography.headlineSmall,
-    color: Colors.textPrimary,
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1E293B',
+    letterSpacing: 0.3,
   },
   subtitle: {
-    ...Typography.bodyMedium,
-    color: Colors.textSecondary,
-    marginTop: 4,
+    fontSize: 15,
+    color: '#64748B',
+    marginTop: 6,
+    fontWeight: '400',
   },
   filterBar: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#F8FAFC',
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing['3'],
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingVertical: Spacing.md,
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.successLight,
-    paddingVertical: 10,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.full,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: 12,
     gap: Spacing.sm,
     minHeight: 44,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   filterButtonText: {
-    ...Typography.labelLarge,
-    color: Colors.successDark,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#3B82F6',
   },
   filterBadge: {
-    backgroundColor: Colors.success,
-    width: 20,
+    backgroundColor: '#3B82F6',
+    minWidth: 20,
     height: 20,
-    borderRadius: BorderRadius.full,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 6,
   },
   filterBadgeText: {
-    ...Typography.labelSmall,
-    color: Colors.textInverse,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   mapContainer: {
     flex: 1,
@@ -471,49 +482,52 @@ const styles = StyleSheet.create({
     paddingBottom: 200,
   },
   chargerCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#FFFFFF',
     marginHorizontal: Spacing.md,
     marginTop: Spacing.md,
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    ...Shadows.md,
+    padding: 18,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: '#F1F5F9',
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: Spacing['3'],
+    marginBottom: 14,
   },
   cardIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: BorderRadius.full,
-    backgroundColor: Colors.primarySubtle,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#CFFAFE',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing['3'],
-    borderWidth: 2,
-    borderColor: Colors.borderAccent,
+    marginRight: 12,
   },
   cardInfo: {
     flex: 1,
   },
   chargerName: {
-    ...Typography.titleMedium,
-    color: Colors.textPrimary,
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#0F172A',
     marginBottom: 4,
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
   chargerAddress: {
-    ...Typography.bodySmall,
-    color: Colors.textSecondary,
-    lineHeight: 18,
+    fontSize: 14,
+    color: '#64748B',
+    lineHeight: 19,
   },
   cardDetails: {
     flexDirection: 'row',
     gap: Spacing.md,
-    marginBottom: Spacing['3'],
+    marginBottom: 12,
   },
   detailRow: {
     flexDirection: 'row',
@@ -521,14 +535,14 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   detailText: {
-    ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    fontSize: 13,
+    color: '#64748B',
   },
   cardMeta: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing['3'],
+    marginBottom: 12,
   },
   portTypes: {
     flexDirection: 'row',
@@ -536,26 +550,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   portBadge: {
-    backgroundColor: Colors.backgroundTertiary,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
   portBadgeText: {
-    ...Typography.labelSmall,
-    color: Colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#475569',
   },
   moreText: {
-    ...Typography.labelSmall,
-    color: Colors.textTertiary,
+    fontSize: 12,
+    color: '#94A3B8',
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: Spacing['3'],
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
+    borderTopColor: '#F1F5F9',
   },
   footerLeft: {
     flexDirection: 'row',
@@ -563,27 +578,29 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   uptimeText: {
-    ...Typography.labelSmall,
-    color: Colors.success,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#10B981',
   },
   verifiedText: {
-    ...Typography.labelSmall,
-    color: Colors.textTertiary,
+    fontSize: 12,
+    color: '#94A3B8',
   },
   sourceTag: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
   officialTag: {
-    backgroundColor: Colors.infoLight,
+    backgroundColor: '#DBEAFE',
   },
   communityTag: {
-    backgroundColor: Colors.warningLight,
+    backgroundColor: '#FEF3C7',
   },
   sourceText: {
-    ...Typography.labelSmall,
-    color: Colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#64748B',
   },
   emptyContainer: {
     alignItems: 'center',
@@ -591,13 +608,14 @@ const styles = StyleSheet.create({
     paddingVertical: 64,
   },
   emptyText: {
-    ...Typography.titleMedium,
-    color: Colors.textTertiary,
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#94A3B8',
     marginTop: Spacing.md,
   },
   emptySubtext: {
-    ...Typography.bodyMedium,
-    color: Colors.textDisabled,
+    fontSize: 14,
+    color: '#CBD5E1',
     marginTop: Spacing.sm,
   },
   guestBanner: {
@@ -605,18 +623,23 @@ const styles = StyleSheet.create({
     bottom: 100,
     left: Spacing.md,
     right: Spacing.md,
-    backgroundColor: Colors.warningLight,
+    backgroundColor: '#FEF3C7',
     flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
+    padding: 14,
+    borderRadius: 12,
     gap: Spacing.sm,
-    ...Shadows.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   guestBannerText: {
     flex: 1,
-    ...Typography.bodyMedium,
-    color: Colors.warningDark,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#92400E',
   },
   viewToggle: {
     position: 'absolute',
@@ -624,19 +647,22 @@ const styles = StyleSheet.create({
     right: Spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.primary,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl,
-    borderRadius: BorderRadius.full,
+    backgroundColor: '#3B82F6',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 30,
     gap: Spacing.sm,
-    ...Shadows.primaryGlow,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 6,
   },
   viewToggleText: {
-    ...Typography.labelLarge,
-    color: Colors.textInverse,
-    letterSpacing: 0.5,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
   webMapFallback: {
     flex: 1,
