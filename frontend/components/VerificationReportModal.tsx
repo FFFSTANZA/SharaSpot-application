@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { VerificationBadge } from './VerificationBadge';
+import { Colors } from '../constants/theme';
 
 interface VerificationAction {
   user_id: string;
@@ -357,8 +358,8 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
         level: 'low',
         score: riskScore,
         label: 'Low Risk - Highly Reliable',
-        color: '#2E7D32',
-        backgroundColor: '#E8F5E9',
+        color: Colors.successDark,
+        backgroundColor: Colors.successLight,
         recommendation: 'Safe to visit anytime. This station is consistently reliable.'
       };
     } else if (riskScore < 60) {
@@ -366,8 +367,8 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
         level: 'medium',
         score: riskScore,
         label: 'Medium Risk - Generally Reliable',
-        color: '#F57C00',
-        backgroundColor: '#FFF3E0',
+        color: Colors.warningDark,
+        backgroundColor: Colors.warningLight,
         recommendation: 'Usually works well. Check recent status before visiting.'
       };
     } else {
@@ -375,8 +376,8 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
         level: 'high',
         score: riskScore,
         label: 'High Risk - Verify First',
-        color: '#D32F2F',
-        backgroundColor: '#FFEBEE',
+        color: Colors.error,
+        backgroundColor: Colors.errorLight,
         recommendation: 'Exercise caution. Contact station or verify status before traveling.'
       };
     }
@@ -781,11 +782,11 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               <View style={styles.header}>
                 <Text style={styles.title}>Verification Report</Text>
                 <TouchableOpacity onPress={onClose}>
-                  <Ionicons name="close" size={28} color="#1A1A1A" />
+                  <Ionicons name="close" size={28} color={Colors.textPrimary} />
                 </TouchableOpacity>
               </View>
               <View style={styles.emptyState}>
-                <Ionicons name="alert-circle-outline" size={64} color="#CCCCCC" />
+                <Ionicons name="alert-circle-outline" size={64} color={Colors.border} />
                 <Text style={styles.emptyText}>No charger data available</Text>
               </View>
             </SafeAreaView>
@@ -807,7 +808,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
           <View style={styles.header}>
             <Text style={styles.title}>Verification Report</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={28} color="#1A1A1A" />
+              <Ionicons name="close" size={28} color={Colors.textPrimary} />
             </TouchableOpacity>
           </View>
 
@@ -821,7 +822,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               ]}
             >
               <View style={styles.decisionHeader}>
-                <Ionicons name="flash" size={24} color="#FFB300" />
+                <Ionicons name="flash" size={24} color={Colors.warning} />
                 <Text style={styles.decisionTitle}>Quick Decision</Text>
               </View>
               <Animated.View
@@ -884,7 +885,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               ]}
             >
               <View style={styles.availabilityHeader}>
-                <Ionicons name="pulse" size={22} color="#2196F3" />
+                <Ionicons name="pulse" size={22} color={Colors.info} />
                 <Text style={styles.sectionTitle}>Availability Right Now</Text>
               </View>
               <View style={styles.availabilityCard}>
@@ -921,7 +922,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                 ]}
               >
                 <View style={styles.ratingsSectionHeader}>
-                  <Ionicons name="star" size={22} color="#FFB300" />
+                  <Ionicons name="star" size={22} color={Colors.warning} />
                   <Text style={styles.sectionTitle}>Community Ratings</Text>
                   <View style={styles.ratingsCount}>
                     <Text style={styles.ratingsCountText}>{communityRatings.totalRatings} ratings</Text>
@@ -931,14 +932,14 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                 <View style={styles.ratingsGrid}>
                   {communityRatings.avgCleanliness > 0 && (
                     <View style={styles.ratingCard}>
-                      <Ionicons name="sparkles" size={32} color="#9C27B0" />
+                      <Ionicons name="sparkles" size={32} color={Colors.accentPurple} />
                       <View style={styles.ratingStars}>
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Ionicons
                             key={star}
                             name={star <= Math.round(communityRatings.avgCleanliness) ? 'star' : 'star-outline'}
                             size={16}
-                            color="#FFB300"
+                            color={Colors.warning}
                           />
                         ))}
                       </View>
@@ -949,14 +950,14 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
 
                   {communityRatings.avgChargingSpeed > 0 && (
                     <View style={styles.ratingCard}>
-                      <Ionicons name="flash" size={32} color="#4CAF50" />
+                      <Ionicons name="flash" size={32} color={Colors.success} />
                       <View style={styles.ratingStars}>
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Ionicons
                             key={star}
                             name={star <= Math.round(communityRatings.avgChargingSpeed) ? 'star' : 'star-outline'}
                             size={16}
-                            color="#FFB300"
+                            color={Colors.warning}
                           />
                         ))}
                       </View>
@@ -967,14 +968,14 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
 
                   {communityRatings.avgAmenities > 0 && (
                     <View style={styles.ratingCard}>
-                      <Ionicons name="restaurant" size={32} color="#FF9800" />
+                      <Ionicons name="restaurant" size={32} color={Colors.warning} />
                       <View style={styles.ratingStars}>
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Ionicons
                             key={star}
                             name={star <= Math.round(communityRatings.avgAmenities) ? 'star' : 'star-outline'}
                             size={16}
-                            color="#FFB300"
+                            color={Colors.warning}
                           />
                         ))}
                       </View>
@@ -987,14 +988,14 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                 {communityRatings.recommendationRate > 0 && (
                   <View style={styles.recommendationCard}>
                     <View style={styles.recommendationIcon}>
-                      <Ionicons name="thumbs-up" size={28} color="#4CAF50" />
+                      <Ionicons name="thumbs-up" size={28} color={Colors.success} />
                     </View>
                     <View style={styles.recommendationContent}>
                       <Text style={styles.recommendationValue}>{communityRatings.recommendationRate}%</Text>
                       <Text style={styles.recommendationLabel}>Would Recommend</Text>
                     </View>
                     <View style={styles.recommendationBadge}>
-                      <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                      <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
                     </View>
                   </View>
                 )}
@@ -1011,7 +1012,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               <Text style={styles.sectionTitle}>Usage Patterns</Text>
               {peakAnalysis.avgWaitTime > 0 && (
                 <View style={styles.waitTimeCard}>
-                  <Ionicons name="time-outline" size={32} color="#9C27B0" />
+                  <Ionicons name="time-outline" size={32} color={Colors.accentPurple} />
                   <View style={styles.waitTimeInfo}>
                     <Text style={styles.waitTimeValue}>{peakAnalysis.avgWaitTime} min</Text>
                     <Text style={styles.waitTimeLabel}>Average Wait Time</Text>
@@ -1020,14 +1021,14 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               )}
               <View style={styles.peakTimesContainer}>
                 <View style={styles.peakTimeRow}>
-                  <Ionicons name="arrow-up-circle" size={20} color="#F44336" />
+                  <Ionicons name="arrow-up-circle" size={20} color={Colors.error} />
                   <View style={styles.peakTimeInfo}>
                     <Text style={styles.peakTimeLabel}>Busiest Time</Text>
                     <Text style={styles.peakTimeValue}>{peakAnalysis.peakHours}</Text>
                   </View>
                 </View>
                 <View style={styles.peakTimeRow}>
-                  <Ionicons name="arrow-down-circle" size={20} color="#4CAF50" />
+                  <Ionicons name="arrow-down-circle" size={20} color={Colors.success} />
                   <View style={styles.peakTimeInfo}>
                     <Text style={styles.peakTimeLabel}>Quietest Time</Text>
                     <Text style={styles.peakTimeValue}>{peakAnalysis.quietHours}</Text>
@@ -1088,7 +1089,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                       Based on {safeCharger.verified_by_count} community verifications
                     </Text>
                     <View style={styles.bestTimeChip}>
-                      <Ionicons name="time-outline" size={14} color="#4CAF50" />
+                      <Ionicons name="time-outline" size={14} color={Colors.success} />
                       <Text style={styles.bestTimeText}>{bestTime.recommendation}</Text>
                     </View>
                     {bestTime.timeSlots.length > 0 && (
@@ -1259,7 +1260,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
                   <View style={styles.statIconCircle}>
-                    <Ionicons name="people" size={24} color="#2196F3" />
+                    <Ionicons name="people" size={24} color={Colors.info} />
                   </View>
                   <Text style={styles.statValue}>{safeCharger.verified_by_count}</Text>
                   <Text style={styles.statLabel}>Community Verifiers</Text>
@@ -1302,7 +1303,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                 </View>
                 <View style={styles.statCard}>
                   <View style={styles.statIconCircle}>
-                    <Ionicons name="time" size={24} color="#9C27B0" />
+                    <Ionicons name="time" size={24} color={Colors.accentPurple} />
                   </View>
                   <Text style={styles.statValue}>
                     {safeCharger.last_verified
@@ -1363,7 +1364,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                         <Ionicons
                           name={getActionIcon(action.action) as any}
                           size={16}
-                          color="#FFFFFF"
+                          color={Colors.textInverse}
                         />
                       </View>
                       <View style={styles.timelineContent}>
@@ -1387,7 +1388,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                 </View>
               ) : (
                 <View style={styles.emptyState}>
-                  <Ionicons name="document-text-outline" size={48} color="#CCCCCC" />
+                  <Ionicons name="document-text-outline" size={48} color={Colors.border} />
                   <Text style={styles.emptyText}>No verification history yet</Text>
                 </View>
               )}
@@ -1432,7 +1433,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                 </View>
                 {safeCharger.source_type === 'official' && (
                   <View style={styles.adminBadge}>
-                    <Ionicons name="shield-checkmark" size={16} color="#2196F3" />
+                    <Ionicons name="shield-checkmark" size={16} color={Colors.info} />
                     <Text style={styles.adminText}>Admin Verified</Text>
                   </View>
                 )}
@@ -1453,7 +1454,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     maxHeight: '90%',
@@ -1469,12 +1470,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -1482,18 +1483,18 @@ const styles = StyleSheet.create({
   section: {
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.backgroundSecondary,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   levelCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 18,
     borderRadius: 16,
     gap: 16,
@@ -1508,7 +1509,7 @@ const styles = StyleSheet.create({
   },
   levelDescription: {
     fontSize: 14,
-    color: '#666666',
+    color: Colors.textSecondary,
     lineHeight: 20,
   },
   statsGrid: {
@@ -1517,7 +1518,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 18,
     borderRadius: 16,
     alignItems: 'center',
@@ -1531,7 +1532,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.infoLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -1539,26 +1540,26 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginTop: 4,
   },
   statLabel: {
     fontSize: 11,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
     fontWeight: '600',
   },
   statSubtext: {
     fontSize: 9,
-    color: '#999999',
+    color: Colors.textTertiary,
     marginTop: 2,
     textAlign: 'center',
   },
   statBar: {
     width: '100%',
     height: 4,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: Colors.border,
     borderRadius: 2,
     marginTop: 8,
     overflow: 'hidden',
@@ -1585,7 +1586,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.backgroundSecondary,
   },
   timelineHeader: {
     flexDirection: 'row',
@@ -1596,20 +1597,20 @@ const styles = StyleSheet.create({
   timelineAction: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   timelineDate: {
     fontSize: 12,
-    color: '#999999',
+    color: Colors.textTertiary,
   },
   timelineUser: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   timelineNotes: {
     fontSize: 12,
-    color: '#999999',
+    color: Colors.textTertiary,
     fontStyle: 'italic',
   },
   emptyState: {
@@ -1618,7 +1619,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#999999',
+    color: Colors.textTertiary,
     marginTop: 12,
   },
   photosGrid: {
@@ -1632,7 +1633,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   sourceCard: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 18,
     borderRadius: 16,
     gap: 12,
@@ -1650,11 +1651,11 @@ const styles = StyleSheet.create({
   sourceLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   sourceValue: {
     fontSize: 14,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   sourceTag: {
     paddingHorizontal: 14,
@@ -1662,21 +1663,21 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   officialTag: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.infoLight,
   },
   communityTag: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: Colors.warningLight,
   },
   sourceText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   adminBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.infoLight,
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 16,
@@ -1693,7 +1694,7 @@ const styles = StyleSheet.create({
     color: '#2196F3',
   },
   reliabilityCard: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     borderRadius: 18,
     padding: 20,
     shadowColor: '#000',
@@ -1711,7 +1712,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
@@ -1724,7 +1725,7 @@ const styles = StyleSheet.create({
   },
   scoreMax: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   scoreInfo: {
     flex: 1,
@@ -1732,19 +1733,19 @@ const styles = StyleSheet.create({
   scoreTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   scoreDescription: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   bestTimeChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -1758,7 +1759,7 @@ const styles = StyleSheet.create({
   bestTimeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#2E7D32',
+    color: Colors.successDark,
   },
   timeSlotsContainer: {
     marginTop: 8,
@@ -1767,7 +1768,7 @@ const styles = StyleSheet.create({
   timeSlotsLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   timeSlot: {
@@ -1783,7 +1784,7 @@ const styles = StyleSheet.create({
   timeSlotText: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#2E7D32',
+    color: Colors.successDark,
   },
   insightsContainer: {
     gap: 10,
@@ -1802,29 +1803,29 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   insightCardPositive: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     borderLeftColor: '#4CAF50',
   },
   insightCardWarning: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: Colors.warningLight,
     borderLeftColor: '#FF9800',
   },
   insightCardNeutral: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.infoLight,
     borderLeftColor: '#2196F3',
   },
   insightText: {
     flex: 1,
     fontSize: 13,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     lineHeight: 19,
     fontWeight: '500',
   },
   insightTextPositive: {
-    color: '#1B5E20',
+    color: Colors.successDark,
   },
   insightTextWarning: {
-    color: '#E65100',
+    color: Colors.warningDark,
   },
   trendsContainer: {
     flexDirection: 'row',
@@ -1832,7 +1833,7 @@ const styles = StyleSheet.create({
   },
   trendCard: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 16,
     borderRadius: 16,
     alignItems: 'center',
@@ -1845,18 +1846,18 @@ const styles = StyleSheet.create({
   trendPeriod: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
     textTransform: 'uppercase',
     marginBottom: 6,
   },
   trendTotal: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   trendLabel: {
     fontSize: 11,
-    color: '#999999',
+    color: Colors.textTertiary,
     marginBottom: 10,
   },
   trendProgressBar: {
@@ -1888,11 +1889,11 @@ const styles = StyleSheet.create({
   trendValue: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   noDataText: {
     fontSize: 11,
-    color: '#999999',
+    color: Colors.textTertiary,
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: 8,
@@ -1911,7 +1912,7 @@ const styles = StyleSheet.create({
   decisionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   riskBadge: {
     borderRadius: 20,
@@ -1937,7 +1938,7 @@ const styles = StyleSheet.create({
   },
   riskRecommendation: {
     fontSize: 13,
-    color: '#424242',
+    color: Colors.textSecondary,
     lineHeight: 19,
     fontWeight: '500',
   },
@@ -1945,7 +1946,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   expectationItem: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 14,
     borderRadius: 12,
     borderLeftWidth: 3,
@@ -1953,7 +1954,7 @@ const styles = StyleSheet.create({
   },
   expectationText: {
     fontSize: 13,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     lineHeight: 19,
     fontWeight: '500',
   },
@@ -1961,7 +1962,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
@@ -1983,7 +1984,7 @@ const styles = StyleSheet.create({
   contributorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 16,
     borderRadius: 14,
     gap: 14,
@@ -1997,7 +1998,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -2012,17 +2013,17 @@ const styles = StyleSheet.create({
   contributorName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   contributorCount: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   availabilitySection: {
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   availabilityHeader: {
     flexDirection: 'row',
@@ -2034,7 +2035,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 20,
     borderRadius: 16,
     shadowColor: '#000',
@@ -2047,11 +2048,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
     paddingHorizontal: 8,
   },
   probabilityNumber: {
@@ -2060,7 +2061,7 @@ const styles = StyleSheet.create({
   },
   probabilityLabel: {
     fontSize: 9,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginTop: 2,
     fontWeight: '600',
     textAlign: 'center',
@@ -2085,7 +2086,7 @@ const styles = StyleSheet.create({
   },
   usageCard: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 20,
     borderRadius: 14,
     alignItems: 'center',
@@ -2098,13 +2099,13 @@ const styles = StyleSheet.create({
   usageValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginTop: 12,
     marginBottom: 4,
   },
   usageLabel: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     textAlign: 'center',
     fontWeight: '600',
   },
@@ -2115,7 +2116,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 16,
     borderRadius: 12,
   },
@@ -2124,19 +2125,19 @@ const styles = StyleSheet.create({
   },
   peakTimeLabel: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 4,
     fontWeight: '600',
   },
   peakTimeValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   ratingsSection: {
-    backgroundColor: '#FFFEF7',
+    backgroundColor: Colors.warningLight,
     borderWidth: 1,
-    borderColor: '#FFE082',
+    borderColor: Colors.warning,
   },
   ratingsSectionHeader: {
     flexDirection: 'row',
@@ -2146,7 +2147,7 @@ const styles = StyleSheet.create({
   },
   ratingsCount: {
     marginLeft: 'auto',
-    backgroundColor: '#FFF8E1',
+    backgroundColor: Colors.warningLight,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -2154,7 +2155,7 @@ const styles = StyleSheet.create({
   ratingsCountText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#F57C00',
+    color: Colors.warningDark,
   },
   ratingsGrid: {
     flexDirection: 'row',
@@ -2163,7 +2164,7 @@ const styles = StyleSheet.create({
   },
   ratingCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 14,
     alignItems: 'center',
@@ -2182,12 +2183,12 @@ const styles = StyleSheet.create({
   ratingValue: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginTop: 4,
   },
   ratingLabel: {
     fontSize: 11,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
     fontWeight: '600',
@@ -2195,7 +2196,7 @@ const styles = StyleSheet.create({
   recommendationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     padding: 18,
     borderRadius: 14,
     gap: 14,
@@ -2209,7 +2210,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -2224,26 +2225,26 @@ const styles = StyleSheet.create({
   recommendationValue: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#2E7D32',
+    color: Colors.successDark,
     marginBottom: 2,
   },
   recommendationLabel: {
     fontSize: 13,
-    color: '#1B5E20',
+    color: Colors.successDark,
     fontWeight: '600',
   },
   recommendationBadge: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#C8E6C9',
+    backgroundColor: Colors.successLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   waitTimeCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 18,
     borderRadius: 14,
     gap: 16,
@@ -2260,12 +2261,12 @@ const styles = StyleSheet.create({
   waitTimeValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   waitTimeLabel: {
     fontSize: 13,
-    color: '#666666',
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
 });

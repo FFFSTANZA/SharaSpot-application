@@ -253,7 +253,7 @@ export function EnhancedVerificationModal({
   ) => (
     <View style={styles.ratingContainer}>
       <View style={styles.ratingHeader}>
-        <Ionicons name={icon as any} size={24} color="#4CAF50" />
+        <Ionicons name={icon as any} size={24} color={Colors.success} />
         <Text style={styles.ratingLabel}>{label}</Text>
       </View>
       <View style={styles.starsContainer}>
@@ -285,7 +285,7 @@ export function EnhancedVerificationModal({
         onPress={() => handleActionSelect('active')}
       >
         <View style={styles.actionIconCircle}>
-          <Ionicons name="checkmark-circle" size={40} color="#4CAF50" />
+          <Ionicons name="checkmark-circle" size={40} color={Colors.success} />
         </View>
         <View style={styles.actionContent}>
           <Text style={styles.actionTitle}>Active & Working</Text>
@@ -294,7 +294,7 @@ export function EnhancedVerificationModal({
           </Text>
           <Text style={styles.actionReward}>Earn up to 9 🪙</Text>
         </View>
-        <Ionicons name="chevron-forward" size={24} color="#666666" />
+        <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -302,7 +302,7 @@ export function EnhancedVerificationModal({
         onPress={() => handleActionSelect('not_working')}
       >
         <View style={styles.actionIconCircle}>
-          <Ionicons name="close-circle" size={40} color="#F44336" />
+          <Ionicons name="close-circle" size={40} color={Colors.error} />
         </View>
         <View style={styles.actionContent}>
           <Text style={styles.actionTitle}>Not Working</Text>
@@ -311,7 +311,7 @@ export function EnhancedVerificationModal({
           </Text>
           <Text style={styles.actionReward}>Earn up to 7 🪙 (with photo)</Text>
         </View>
-        <Ionicons name="chevron-forward" size={24} color="#666666" />
+        <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -319,7 +319,7 @@ export function EnhancedVerificationModal({
         onPress={() => handleActionSelect('partial')}
       >
         <View style={styles.actionIconCircle}>
-          <Ionicons name="battery-half" size={40} color="#FF9800" />
+          <Ionicons name="battery-half" size={40} color={Colors.warning} />
         </View>
         <View style={styles.actionContent}>
           <Text style={styles.actionTitle}>Partially Working</Text>
@@ -328,7 +328,7 @@ export function EnhancedVerificationModal({
           </Text>
           <Text style={styles.actionReward}>Earn up to 9 🪙</Text>
         </View>
-        <Ionicons name="chevron-forward" size={24} color="#666666" />
+        <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
       </TouchableOpacity>
     </View>
   );
@@ -336,7 +336,7 @@ export function EnhancedVerificationModal({
   const renderWaitTimeStep = () => (
     <View>
       <View style={styles.bonusBanner}>
-        <Ionicons name="gift" size={24} color="#4CAF50" />
+        <Ionicons name="gift" size={24} color={Colors.success} />
         <View style={styles.bonusContent}>
           <Text style={styles.bonusTitle}>Earn Up To 9 Coins!</Text>
           <Text style={styles.bonusDescription}>
@@ -376,7 +376,7 @@ export function EnhancedVerificationModal({
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.skipButtonSmall} onPress={handleSkip}>
@@ -384,7 +384,7 @@ export function EnhancedVerificationModal({
         </TouchableOpacity>
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>Next</Text>
-          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+          <Ionicons name="chevron-forward" size={20} color={Colors.textInverse} />
         </TouchableOpacity>
       </View>
     </View>
@@ -498,7 +498,7 @@ export function EnhancedVerificationModal({
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.skipButtonSmall} onPress={handleSkip}>
@@ -506,7 +506,7 @@ export function EnhancedVerificationModal({
         </TouchableOpacity>
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>Next</Text>
-          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+          <Ionicons name="chevron-forward" size={20} color={Colors.textInverse} />
         </TouchableOpacity>
       </View>
     </View>
@@ -570,7 +570,7 @@ export function EnhancedVerificationModal({
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.skipButtonSmall} onPress={handleSkip}>
@@ -578,7 +578,7 @@ export function EnhancedVerificationModal({
         </TouchableOpacity>
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>Next</Text>
-          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+          <Ionicons name="chevron-forward" size={20} color={Colors.textInverse} />
         </TouchableOpacity>
       </View>
     </View>
@@ -688,14 +688,14 @@ export function EnhancedVerificationModal({
 
         <View style={styles.navigationButtons}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Ionicons name="chevron-back" size={20} color="#666666" />
+            <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
             <Text style={styles.backButtonText}>Back</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.submitButton} onPress={handleNext}>
             <Text style={styles.submitButtonText}>
               {action === 'not_working' ? 'Next' : `Submit (${getTotalCoins()} 🪙)`}
             </Text>
-            {action === 'not_working' && <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />}
+            {action === 'not_working' && <Ionicons name="chevron-forward" size={20} color={Colors.textInverse} />}
           </TouchableOpacity>
         </View>
       </View>
@@ -705,7 +705,7 @@ export function EnhancedVerificationModal({
   const renderPhotoStep = () => (
     <View>
       <View style={styles.photoBanner}>
-        <Ionicons name="camera" size={32} color="#4CAF50" />
+        <Ionicons name="camera" size={32} color={Colors.success} />
         <Text style={styles.photoBannerTitle}>Help Others With Photo Evidence</Text>
         <Text style={styles.photoBannerSubtitle}>
           Earn +2 extra coins by uploading a photo of the issue
@@ -720,7 +720,7 @@ export function EnhancedVerificationModal({
             setPhotoUrl(`https://example.com/photos/station_${Date.now()}.jpg`);
           }}
         >
-          <Ionicons name="cloud-upload" size={40} color="#4CAF50" />
+          <Ionicons name="cloud-upload" size={40} color={Colors.success} />
           <Text style={styles.uploadButtonText}>
             {photoUrl ? 'Photo Added ✓' : 'Upload Photo'}
           </Text>
@@ -736,7 +736,7 @@ export function EnhancedVerificationModal({
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
@@ -777,7 +777,7 @@ export function EnhancedVerificationModal({
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-              <Ionicons name="close" size={28} color="#1A1A1A" />
+              <Ionicons name="close" size={28} color={Colors.textPrimary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>
               {step === 'action' ? 'Verify Station' : 'Enhanced Details'}
@@ -807,7 +807,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -824,7 +824,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   closeButton: {
     padding: 4,
@@ -832,20 +832,20 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   coinBadge: {
-    backgroundColor: '#FFF8E1',
+    backgroundColor: Colors.warningLight,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#FFB300',
+    borderColor: Colors.warning,
   },
   coinBadgeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#F57C00',
+    color: Colors.warningDark,
   },
   progressContainer: {
     paddingHorizontal: Spacing['5'],
@@ -922,12 +922,12 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   actionDescription: {
     fontSize: 13,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 6,
     lineHeight: 18,
   },
@@ -938,7 +938,7 @@ const styles = StyleSheet.create({
   },
   bonusBanner: {
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     padding: 16,
     borderRadius: 14,
     marginBottom: 24,
@@ -950,7 +950,7 @@ const styles = StyleSheet.create({
   bonusTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#2E7D32',
+    color: Colors.successDark,
     marginBottom: 4,
   },
   bonusDescription: {
@@ -983,21 +983,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   waitTimeButtonSelected: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: Colors.success,
+    borderColor: Colors.success,
   },
   waitTimeButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   waitTimeButtonTextSelected: {
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   optionButtons: {
     flexDirection: 'row',
@@ -1008,21 +1008,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   optionButtonSelected: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: Colors.success,
+    borderColor: Colors.success,
   },
   optionButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   optionButtonTextSelected: {
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   yesNoButtons: {
     flexDirection: 'row',
@@ -1036,25 +1036,25 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 16,
     borderRadius: 14,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   yesNoButtonYes: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: Colors.success,
+    borderColor: Colors.success,
   },
   yesNoButtonNo: {
-    backgroundColor: '#F44336',
-    borderColor: '#F44336',
+    backgroundColor: Colors.error,
+    borderColor: Colors.error,
   },
   yesNoButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   yesNoButtonTextSelected: {
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   bonusIndicator: {
     fontSize: 12,
@@ -1083,7 +1083,7 @@ const styles = StyleSheet.create({
   ratingLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   starsContainer: {
     flexDirection: 'row',
@@ -1099,18 +1099,18 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   notesInput: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     borderRadius: 12,
     padding: 16,
     fontSize: 14,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     minHeight: 100,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   photoBanner: {
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     padding: 24,
     borderRadius: 14,
     marginBottom: 24,
@@ -1118,7 +1118,7 @@ const styles = StyleSheet.create({
   photoBannerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#2E7D32',
+    color: Colors.successDark,
     marginTop: 12,
     marginBottom: 8,
   },
@@ -1134,9 +1134,9 @@ const styles = StyleSheet.create({
   uploadButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 2,
-    borderColor: '#4CAF50',
+    borderColor: Colors.success,
     borderStyle: 'dashed',
     borderRadius: 14,
     padding: 32,
@@ -1151,12 +1151,12 @@ const styles = StyleSheet.create({
   uploadSuccess: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#2E7D32',
+    color: Colors.successDark,
     marginTop: 8,
   },
   photoHint: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 16,
   },
@@ -1173,14 +1173,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 14,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   backButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   skipButtonSmall: {
     flex: 1,
@@ -1188,14 +1188,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     borderRadius: 14,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   skipButtonSmallText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   nextButton: {
     flexDirection: 'row',
@@ -1205,7 +1205,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 14,
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.success,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -1215,7 +1215,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   submitButton: {
     flex: 1,
@@ -1225,7 +1225,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 16,
     borderRadius: 14,
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.success,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -1235,6 +1235,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
 });

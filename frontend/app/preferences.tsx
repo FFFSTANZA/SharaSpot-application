@@ -182,7 +182,7 @@ export default function Preferences() {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color={Colors.textInverse} />
           ) : (
             <Text style={styles.saveButtonText}>Continue</Text>
           )}

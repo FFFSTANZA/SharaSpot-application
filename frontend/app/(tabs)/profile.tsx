@@ -100,10 +100,10 @@ export default function Profile() {
   };
 
   const getTrustLevel = (score: number) => {
-    if (score >= 90) return { level: 'Platinum', color: '#9C27B0', icon: 'star' };
-    if (score >= 75) return { level: 'Gold', color: '#FFB300', icon: 'trophy' };
-    if (score >= 50) return { level: 'Silver', color: '#2196F3', icon: 'ribbon' };
-    return { level: 'Bronze', color: 'Colors.primary', icon: 'leaf' };
+    if (score >= 90) return { level: 'Platinum', color: Colors.accentPurple, icon: 'star' };
+    if (score >= 75) return { level: 'Gold', color: Colors.warning, icon: 'trophy' };
+    if (score >= 50) return { level: 'Silver', color: Colors.info, icon: 'ribbon' };
+    return { level: 'Bronze', color: Colors.primary, icon: 'leaf' };
   };
 
   if (loading) {

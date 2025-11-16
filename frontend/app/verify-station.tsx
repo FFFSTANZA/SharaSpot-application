@@ -315,7 +315,7 @@ export default function VerifyStation() {
             <Ionicons
               name={value && star <= value ? 'star' : 'star-outline'}
               size={36}
-              color={value && star <= value ? '#FFB300' : '#CCCCCC'}
+              color={value && star <= value ? Colors.warning : Colors.border}
             />
           </TouchableOpacity>
         ))}
@@ -343,7 +343,7 @@ export default function VerifyStation() {
           </Text>
           <Text style={styles.actionReward}>Earn up to 9 🪙</Text>
         </View>
-        <Ionicons name="chevron-forward" size={24} color="#666666" />
+        <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -351,7 +351,7 @@ export default function VerifyStation() {
         onPress={() => handleActionSelect('not_working')}
       >
         <View style={styles.actionIconCircle}>
-          <Ionicons name="close-circle" size={40} color="#F44336" />
+          <Ionicons name="close-circle" size={40} color={Colors.error} />
         </View>
         <View style={styles.actionContent}>
           <Text style={styles.actionTitle}>Not Working</Text>
@@ -360,7 +360,7 @@ export default function VerifyStation() {
           </Text>
           <Text style={styles.actionReward}>Earn up to 7 🪙 (with photo)</Text>
         </View>
-        <Ionicons name="chevron-forward" size={24} color="#666666" />
+        <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -368,7 +368,7 @@ export default function VerifyStation() {
         onPress={() => handleActionSelect('partial')}
       >
         <View style={styles.actionIconCircle}>
-          <Ionicons name="battery-half" size={40} color="#FF9800" />
+          <Ionicons name="battery-half" size={40} color={Colors.warning} />
         </View>
         <View style={styles.actionContent}>
           <Text style={styles.actionTitle}>Partially Working</Text>
@@ -377,7 +377,7 @@ export default function VerifyStation() {
           </Text>
           <Text style={styles.actionReward}>Earn up to 9 🪙</Text>
         </View>
-        <Ionicons name="chevron-forward" size={24} color="#666666" />
+        <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
       </TouchableOpacity>
     </View>
   );
@@ -425,7 +425,7 @@ export default function VerifyStation() {
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
@@ -433,7 +433,7 @@ export default function VerifyStation() {
         </TouchableOpacity>
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>Next</Text>
-          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+          <Ionicons name="chevron-forward" size={20} color={Colors.textInverse} />
         </TouchableOpacity>
       </View>
     </View>
@@ -504,7 +504,7 @@ export default function VerifyStation() {
             <Ionicons
               name="checkmark-circle"
               size={28}
-              color={chargingSuccess === true ? '#FFFFFF' : Colors.primary}
+              color={chargingSuccess === true ? Colors.textInverse : Colors.primary}
             />
             <Text
               style={[
@@ -525,7 +525,7 @@ export default function VerifyStation() {
             <Ionicons
               name="close-circle"
               size={28}
-              color={chargingSuccess === false ? '#FFFFFF' : '#F44336'}
+              color={chargingSuccess === false ? Colors.textInverse : Colors.error}
             />
             <Text
               style={[
@@ -547,7 +547,7 @@ export default function VerifyStation() {
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
@@ -555,7 +555,7 @@ export default function VerifyStation() {
         </TouchableOpacity>
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>Next</Text>
-          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+          <Ionicons name="chevron-forward" size={20} color={Colors.textInverse} />
         </TouchableOpacity>
       </View>
     </View>
@@ -619,7 +619,7 @@ export default function VerifyStation() {
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
@@ -627,7 +627,7 @@ export default function VerifyStation() {
         </TouchableOpacity>
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>Next</Text>
-          <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+          <Ionicons name="chevron-forward" size={20} color={Colors.textInverse} />
         </TouchableOpacity>
       </View>
     </View>
@@ -681,7 +681,7 @@ export default function VerifyStation() {
               <Ionicons
                 name="thumbs-up"
                 size={28}
-                color={wouldRecommend === true ? '#FFFFFF' : Colors.primary}
+                color={wouldRecommend === true ? Colors.textInverse : Colors.primary}
               />
               <Text
                 style={[
@@ -703,7 +703,7 @@ export default function VerifyStation() {
               <Ionicons
                 name="thumbs-down"
                 size={28}
-                color={wouldRecommend === false ? '#FFFFFF' : '#F44336'}
+                color={wouldRecommend === false ? Colors.textInverse : Colors.error}
               />
               <Text
                 style={[
@@ -726,7 +726,7 @@ export default function VerifyStation() {
           <TextInput
             style={styles.notesInput}
             placeholder="Share any additional details about your experience..."
-            placeholderTextColor="#999999"
+            placeholderTextColor={Colors.textTertiary}
             multiline
             numberOfLines={4}
             value={notes}
@@ -737,12 +737,12 @@ export default function VerifyStation() {
 
         <View style={styles.navigationButtons}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Ionicons name="chevron-back" size={20} color="#666666" />
+            <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
             <Text style={styles.backButtonText}>Back</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.submitButton} onPress={handleNext} disabled={submitting}>
             {submitting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={Colors.textInverse} />
             ) : (
               <Text style={styles.submitButtonText}>
                 {action === 'not_working' ? 'Next' : `Submit (${getTotalCoins()} 🪙)`}
@@ -788,12 +788,12 @@ export default function VerifyStation() {
 
       <View style={styles.navigationButtons}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={20} color="#666666" />
+          <Ionicons name="chevron-back" size={20} color={Colors.textSecondary} />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={submitting}>
           {submitting ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color={Colors.textInverse} />
           ) : (
             <Text style={styles.submitButtonText}>Submit ({getTotalCoins()} 🪙)</Text>
           )}
@@ -826,7 +826,7 @@ export default function VerifyStation() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
-          <Ionicons name="close" size={28} color="#1A1A1A" />
+          <Ionicons name="close" size={28} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {step === 'action' ? 'Verify Station' : 'Enhanced Details'}
@@ -868,7 +868,7 @@ export default function VerifyStation() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
   },
   header: {
     flexDirection: 'row',
@@ -877,8 +877,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: Colors.border,
+    backgroundColor: Colors.surface,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -891,16 +891,16 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   coinBadge: {
-    backgroundColor: '#FFF8E1',
+    backgroundColor: Colors.warningLight,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#FFB300',
-    shadowColor: '#FFB300',
+    borderColor: Colors.warning,
+    shadowColor: Colors.warning,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -909,7 +909,7 @@ const styles = StyleSheet.create({
   coinBadgeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#F57C00',
+    color: Colors.warningDark,
     textShadowColor: 'rgba(245, 124, 0, 0.2)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -917,11 +917,11 @@ const styles = StyleSheet.create({
   progressContainer: {
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: Colors.border,
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: 8,
@@ -934,7 +934,7 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
   content: {
@@ -948,13 +948,13 @@ const styles = StyleSheet.create({
   chargerName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 24,
     textAlign: 'center',
   },
   instructionText: {
     fontSize: 16,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 24,
     textAlign: 'center',
     lineHeight: 22,
@@ -962,7 +962,7 @@ const styles = StyleSheet.create({
   actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 20,
     borderRadius: 16,
     marginBottom: 16,
@@ -972,7 +972,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: Colors.backgroundSecondary,
   },
   activeCard: {
     borderLeftWidth: 5,
@@ -982,14 +982,14 @@ const styles = StyleSheet.create({
   },
   notWorkingCard: {
     borderLeftWidth: 5,
-    borderLeftColor: '#F44336',
-    shadowColor: '#F44336',
+    borderLeftColor: Colors.error,
+    shadowColor: Colors.error,
     shadowOpacity: 0.15,
   },
   partialCard: {
     borderLeftWidth: 5,
-    borderLeftColor: '#FF9800',
-    shadowColor: '#FF9800',
+    borderLeftColor: Colors.warning,
+    shadowColor: Colors.warning,
     shadowOpacity: 0.15,
   },
   actionIconCircle: {
@@ -1001,12 +1001,12 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   actionDescription: {
     fontSize: 13,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 6,
     lineHeight: 18,
   },
@@ -1017,12 +1017,12 @@ const styles = StyleSheet.create({
   },
   bonusBanner: {
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     padding: 18,
     borderRadius: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#A5D6A7',
+    borderColor: Colors.success,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -1036,12 +1036,12 @@ const styles = StyleSheet.create({
   bonusTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#2E7D32',
+    color: Colors.successDark,
     marginBottom: 4,
   },
   bonusDescription: {
     fontSize: 13,
-    color: '#1B5E20',
+    color: Colors.successDark,
     textAlign: 'center',
     lineHeight: 18,
   },
@@ -1051,12 +1051,12 @@ const styles = StyleSheet.create({
   questionTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   questionSubtitle: {
     fontSize: 13,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 12,
     lineHeight: 18,
   },
@@ -1069,9 +1069,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   waitTimeButtonSelected: {
     backgroundColor: Colors.primary,
@@ -1080,10 +1080,10 @@ const styles = StyleSheet.create({
   waitTimeButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   waitTimeButtonTextSelected: {
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   optionButtons: {
     flexDirection: 'row',
@@ -1094,9 +1094,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   optionButtonSelected: {
     backgroundColor: Colors.primary,
@@ -1105,10 +1105,10 @@ const styles = StyleSheet.create({
   optionButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   optionButtonTextSelected: {
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   yesNoButtons: {
     flexDirection: 'row',
@@ -1122,9 +1122,9 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 16,
     borderRadius: 14,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -1138,18 +1138,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
   },
   yesNoButtonNo: {
-    backgroundColor: '#F44336',
-    borderColor: '#F44336',
-    shadowColor: '#F44336',
+    backgroundColor: Colors.error,
+    borderColor: Colors.error,
+    shadowColor: Colors.error,
     shadowOpacity: 0.3,
   },
   yesNoButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   yesNoButtonTextSelected: {
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
   bonusIndicator: {
     fontSize: 13,
@@ -1157,7 +1157,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     marginTop: 8,
     marginBottom: 20,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -1170,7 +1170,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   ratingContainer: {
@@ -1185,7 +1185,7 @@ const styles = StyleSheet.create({
   ratingLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   starsContainer: {
     flexDirection: 'row',
@@ -1201,23 +1201,23 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   notesInput: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     borderRadius: 12,
     padding: 16,
     fontSize: 14,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     minHeight: 100,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   photoBanner: {
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     padding: 24,
     borderRadius: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#A5D6A7',
+    borderColor: Colors.success,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -1227,13 +1227,13 @@ const styles = StyleSheet.create({
   photoBannerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#2E7D32',
+    color: Colors.successDark,
     marginTop: 12,
     marginBottom: 8,
   },
   photoBannerSubtitle: {
     fontSize: 13,
-    color: '#1B5E20',
+    color: Colors.successDark,
     textAlign: 'center',
     lineHeight: 18,
   },
@@ -1265,12 +1265,12 @@ const styles = StyleSheet.create({
   uploadSuccess: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#2E7D32',
+    color: Colors.successDark,
     marginTop: 8,
   },
   photoHint: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 16,
   },
@@ -1289,14 +1289,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: Colors.border,
   },
   backButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   skipButton: {
     flex: 1,
@@ -1304,10 +1304,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: '#FFF8E1',
+    backgroundColor: Colors.warningLight,
     borderWidth: 2,
-    borderColor: '#FFB300',
-    shadowColor: '#FFB300',
+    borderColor: Colors.warning,
+    shadowColor: Colors.warning,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -1316,7 +1316,7 @@ const styles = StyleSheet.create({
   skipButtonText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#F57C00',
+    color: Colors.warningDark,
   },
   nextButton: {
     flexDirection: 'row',
@@ -1336,7 +1336,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.textInverse,
     textShadowColor: 'rgba(0, 0, 0, 0.15)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -1359,7 +1359,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.textInverse,
     textShadowColor: 'rgba(0, 0, 0, 0.15)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,

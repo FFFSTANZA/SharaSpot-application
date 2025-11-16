@@ -398,7 +398,7 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0FDFB', // Cool subtle background tint
+    backgroundColor: Colors.background, // Clean white background
     overflow: 'hidden',
   },
   backgroundOrb1: {
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
     borderRadius: 125,
-    backgroundColor: Colors.accentTeal,
+    backgroundColor: Colors.primary,
     opacity: 0.15,
     bottom: -50,
     left: -60,
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   signupButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.accentTeal,
+    backgroundColor: Colors.primary,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.sm,
     ...Shadows.md,

@@ -175,7 +175,7 @@ export default function SmartEcoRouting() {
       balanced: {
         name: 'Balanced',
         icon: 'speedometer',
-        color: Colors.accentTeal,
+        color: Colors.primary,
         description: 'Good mix of time and energy'
       },
       fastest: {
@@ -227,15 +227,15 @@ export default function SmartEcoRouting() {
         {/* Quick Stats */}
         <View style={styles.quickStats}>
           <View style={styles.statItem}>
-            <Ionicons name="navigate" size={16} color={Colors.accentTeal} />
+            <Ionicons name="navigate" size={16} color={Colors.primary} />
             <Text style={styles.statValue}>{route.summary.distance_km} km</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="time" size={16} color={Colors.accentTeal} />
+            <Ionicons name="time" size={16} color={Colors.primary} />
             <Text style={styles.statValue}>{Math.round(route.summary.duration_min)} min</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name="battery-charging" size={16} color={Colors.accentTeal} />
+            <Ionicons name="battery-charging" size={16} color={Colors.primary} />
             <Text style={styles.statValue}>{route.energy_consumption_kwh.toFixed(1)} kWh</Text>
           </View>
         </View>
@@ -255,11 +255,11 @@ export default function SmartEcoRouting() {
 
           <View style={styles.scoreItem}>
             <View style={styles.scoreHeader}>
-              <Ionicons name="shield-checkmark" size={14} color={Colors.accentTeal} />
+              <Ionicons name="shield-checkmark" size={14} color={Colors.primary} />
               <Text style={styles.scoreLabel}>Reliability</Text>
             </View>
             <View style={styles.scoreBar}>
-              <View style={[styles.scoreBarFill, { width: `${route.reliability_score}%`, backgroundColor: Colors.accentTeal }]} />
+              <View style={[styles.scoreBarFill, { width: `${route.reliability_score}%`, backgroundColor: Colors.primary }]} />
             </View>
             <Text style={styles.scoreValue}>{Math.round(route.reliability_score)}/100</Text>
           </View>
@@ -291,7 +291,7 @@ export default function SmartEcoRouting() {
             </View>
           )}
           <View style={styles.infoChip}>
-            <Ionicons name="trending-up" size={14} color={Colors.accentTeal} />
+            <Ionicons name="trending-up" size={14} color={Colors.primary} />
             <Text style={styles.infoChipText}>↑{route.elevation_gain_m}m</Text>
           </View>
           <View style={styles.infoChip}>
@@ -429,7 +429,7 @@ export default function SmartEcoRouting() {
                     style={styles.sliderButton}
                     onPress={() => setBatteryPercent(Math.max(0, batteryPercent - 10))}
                   >
-                    <Ionicons name="remove" size={20} color={Colors.accentTeal} />
+                    <Ionicons name="remove" size={20} color={Colors.primary} />
                   </TouchableOpacity>
                   <View style={styles.sliderTrack}>
                     <View
@@ -446,7 +446,7 @@ export default function SmartEcoRouting() {
                     style={styles.sliderButton}
                     onPress={() => setBatteryPercent(Math.min(100, batteryPercent + 10))}
                   >
-                    <Ionicons name="add" size={20} color={Colors.accentTeal} />
+                    <Ionicons name="add" size={20} color={Colors.primary} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -458,7 +458,7 @@ export default function SmartEcoRouting() {
               
               <View style={styles.inputContainer}>
                 <View style={styles.inputWrapper}>
-                  <Ionicons name="location" size={20} color={Colors.accentTeal} />
+                  <Ionicons name="location" size={20} color={Colors.primary} />
                   <TextInput
                     style={styles.input}
                     placeholder="Starting point (e.g., T Nagar, Chennai)"
@@ -526,7 +526,7 @@ export default function SmartEcoRouting() {
               </View>
 
               <View style={styles.featureCard}>
-                <Ionicons name="cloudy" size={28} color={Colors.accentTeal} />
+                <Ionicons name="cloudy" size={28} color={Colors.primary} />
                 <Text style={styles.featureTitle}>Live Conditions</Text>
                 <Text style={styles.featureText}>
                   Adapts to real-time weather, traffic, and elevation for accurate predictions
