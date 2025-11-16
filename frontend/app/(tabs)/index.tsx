@@ -49,7 +49,7 @@ type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
   1: '#9E9E9E',  // Grey - New Entry
-  2: Colors.primary,  // Burnt Orange - Community Verified
+  2: Colors.primary,  // Deep Teal - Community Verified
   3: '#2196F3',  // Blue - Reliable
   4: '#FFB300',  // Gold - Trusted
   5: '#9C27B0',  // Platinum - Certified Partner
