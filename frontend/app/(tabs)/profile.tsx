@@ -284,7 +284,7 @@ export default function Profile() {
             <View style={styles.vehicleDivider} />
             <View style={styles.vehicleRow}>
               <View style={styles.vehicleIconCircle}>
-                <Ionicons name="plug" size={24} color={Colors.accentPurple} />
+                <Ionicons name="flash" size={24} color={Colors.accentPurple} />
               </View>
               <View style={styles.vehicleInfo}>
                 <Text style={styles.vehicleLabel}>Port Type</Text>

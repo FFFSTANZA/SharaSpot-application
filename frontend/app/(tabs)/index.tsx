@@ -164,7 +164,7 @@ export default function Discover() {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={22} color={Colors.primary} />
+          <Ionicons name="flash" size={22} color={Colors.accentTeal} />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
@@ -619,7 +619,7 @@ const styles = StyleSheet.create({
   },
   viewToggle: {
     position: 'absolute',
-    bottom: Spacing.xxl,
+    bottom: 90,
     right: Spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',

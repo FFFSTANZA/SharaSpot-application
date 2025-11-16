@@ -9,6 +9,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '../constants/theme';
 
 interface FilterModalProps {
   visible: boolean;
@@ -263,8 +264,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   optionButtonActive: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#4CAF50',
+    backgroundColor: Colors.primarySubtle,
+    borderColor: Colors.primary,
   },
   optionText: {
     fontSize: 14,
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   optionTextActive: {
-    color: '#2E7D32',
+    color: Colors.primaryDark,
     fontWeight: '600',
   },
   footer: {
@@ -296,7 +297,7 @@ const styles = StyleSheet.create({
   },
   applyButton: {
     flex: 2,
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

@@ -255,10 +255,10 @@ export default function AddCharger() {
                 disabled={locationLoading}
               >
                 {locationLoading ? (
-                  <ActivityIndicator size="small" color="Colors.primary" />
+                  <ActivityIndicator size="small" color={Colors.primary} />
                 ) : (
                   <>
-                    <Ionicons name="locate" size={16} color="Colors.primary" />
+                    <Ionicons name="locate" size={16} color={Colors.primary} />
                     <Text style={styles.currentLocationText}>Use Current</Text>
                   </>
                 )}
@@ -348,7 +348,7 @@ export default function AddCharger() {
                       amenity === 'shopping' ? 'cart' : 'ellipse'
                     }
                     size={16}
-                    color={selectedAmenities.includes(amenity) ? '#2E7D32' : '#666666'}
+                    color={selectedAmenities.includes(amenity) ? Colors.primaryDark : '#666666'}
                   />
                   <Text
                     style={[
@@ -396,7 +396,7 @@ export default function AddCharger() {
               <Text style={styles.photoCount}>{photos.length}/5</Text>
             </View>
             <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-              <Ionicons name="camera" size={24} color="Colors.primary" />
+              <Ionicons name="camera" size={24} color={Colors.primary} />
               <Text style={styles.uploadText}>Add Photos</Text>
             </TouchableOpacity>
             {photos.length > 0 && (
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
   currentLocationText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'Colors.primary',
+    color: Colors.primary,
   },
   coordsDisplay: {
     flexDirection: 'row',
@@ -570,8 +570,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   chipSelected: {
-    backgroundColor: '#E8F5E9',
-    borderColor: 'Colors.primary',
+    backgroundColor: Colors.primarySubtle,
+    borderColor: Colors.primary,
   },
   chipText: {
     fontSize: 14,
@@ -579,14 +579,14 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   chipTextSelected: {
-    color: '#2E7D32',
+    color: Colors.primaryDark,
     fontWeight: '600',
   },
   uploadButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.primarySubtle,
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
   uploadText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'Colors.primary',
+    color: Colors.primary,
   },
   photoCount: {
     fontSize: 12,
@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'Colors.primary',
+    backgroundColor: Colors.primary,
     marginHorizontal: 16,
     marginTop: 32,
     paddingVertical: 16,
