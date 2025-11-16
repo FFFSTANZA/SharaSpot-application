@@ -1,5 +1,5 @@
 // Premium Theme System for SharaSpot
-// Unique Brand Identity: "Ember Charge" - Warmth Meets Energy
+// Unique Brand Identity: "Ocean Charge" - Calm Meets Energy
 // Core Principles: Dynamic Energy, Premium Technology, Trusted Navigation
 
 import { Platform } from 'react-native';
@@ -8,24 +8,24 @@ import { Platform } from 'react-native';
 // COLOR SYSTEM - Unique & Energetic
 // ============================================================================
 
-// Primary Palette - Burnt Orange (Distinctive & Warm Energy)
-// Inspired by glowing embers - sophisticated warmth with electric energy
+// Primary Palette - Deep Teal (Distinctive & Warm Energy)
+// Inspired by ocean depths - sophisticated calm with electric energy
 const burntOrange = {
-  50: '#FFF7ED',
-  100: '#FFEDD5',
-  200: '#FED7AA',
-  300: '#FDBA74',
-  400: '#FB923C',
-  500: '#F97316',  // Base - Vibrant burnt orange
-  600: '#EA580C',  // Primary - Deep ember
-  700: '#C2410C',  // Primary Dark - Rich burnt tone
-  800: '#9A3412',
-  900: '#7C2D12',
-  950: '#431407',
+  50: '#F0FDFA',
+  100: '#CCFBF1',
+  200: '#99F6E4',
+  300: '#5EEAD4',
+  400: '#2DD4BF',
+  500: '#14B8A6',  // Base - Vibrant deep teal
+  600: '#0D9488',  // Primary - Deep teal
+  700: '#0F766E',  // Primary Dark - Rich teal tone
+  800: '#115E59',
+  900: '#134E4A',
+  950: '#042F2E',
 };
 
 // Secondary Palette - Charcoal (Premium & Grounding)
-// Sophisticated dark gray with subtle warmth to complement orange
+// Sophisticated dark gray with subtle warmth to complement teal
 const charcoal = {
   50: '#FAFAFA',
   100: '#F4F4F5',
@@ -41,7 +41,7 @@ const charcoal = {
 };
 
 // Accent Palette - Electric Lime (Energy & Innovation)
-// Vibrant green representing charging/energy - perfect contrast to orange
+// Vibrant green representing charging/energy - perfect contrast to teal
 const electricLime = {
   50: '#F7FEE7',
   100: '#ECFCCB',
@@ -56,20 +56,20 @@ const electricLime = {
   950: '#1A2E05',
 };
 
-// Complementary Palette - Deep Teal (Trust & Technology)
-// Cool counterbalance to warm orange - represents reliability
+// Complementary Palette - Deep Navy (Trust & Technology)
+// Cool counterbalance to teal - represents reliability
 const deepTeal = {
-  50: '#F0FDFA',
-  100: '#CCFBF1',
-  200: '#99F6E4',
-  300: '#5EEAD4',
-  400: '#2DD4BF',
-  500: '#14B8A6',
-  600: '#0D9488',  // Complement
-  700: '#0F766E',
-  800: '#115E59',
-  900: '#134E4A',
-  950: '#042F2E',
+  50: '#EBF2FF',
+  100: '#D6E4FF',
+  200: '#ADC9FF',
+  300: '#7DA3FF',
+  400: '#4D7DFF',
+  500: '#2452D6',
+  600: '#1B3DB8',  // Complement
+  700: '#132D99',
+  800: '#0C1F7A',
+  900: '#091176',
+  950: '#050955',
 };
 
 // Supporting Palette - Warm Amber
@@ -89,7 +89,7 @@ const warmAmber = {
 };
 
 // Neutral Palette - Warm Grays
-// Slight warm tint to harmonize with orange primary
+// Slight warm tint to harmonize with teal primary
 const neutral = {
   0: '#FFFFFF',
   50: '#FAFAF9',
@@ -143,11 +143,11 @@ const semantic = {
 
 // Light Theme Colors - Warm & Dynamic
 export const LightColors = {
-  // Primary - Burnt Orange (Energy & Warmth)
-  primary: burntOrange[600],          // #EA580C - Rich ember
-  primaryLight: burntOrange[500],     // #F97316 - Bright orange
-  primaryDark: burntOrange[700],      // #C2410C - Deep burnt
-  primarySubtle: burntOrange[50],     // #FFF7ED - Warm tint
+  // Primary - Deep Teal (Energy & Warmth)
+  primary: burntOrange[600],          // #0D9488 - Rich teal
+  primaryLight: burntOrange[500],     // #14B8A6 - Bright teal
+  primaryDark: burntOrange[700],      // #0F766E - Deep teal
+  primarySubtle: burntOrange[50],     // #F0FDFA - Cool tint
 
   // Secondary - Premium Charcoal
   secondary: charcoal[700],           // #3F3F46 - Strong contrast
@@ -162,7 +162,7 @@ export const LightColors = {
   accentSubtle: electricLime[50],     // #F7FEE7 - Subtle tint
 
   // Additional Accents - Supporting Colors
-  accentTeal: deepTeal[600],          // #0D9488 - Tech/Trust
+  accentTeal: deepTeal[600],          // #1B3DB8 - Deep Navy - Tech/Trust
   accentAmber: warmAmber[500],        // #F59E0B - Premium/Rewards
   accentGold: warmAmber[400],         // #FBBF24 - Highlights
   accentPurple: '#A78BFA',            // Premium features
@@ -178,7 +178,7 @@ export const LightColors = {
   surface: '#FEFEFE',                 // Very soft white (not pure white)
   surfaceElevated: '#FEFEFE',         // Elevated elements
   surfaceOverlay: 'rgba(253, 252, 251, 0.96)',
-  surfaceTinted: 'rgba(255, 247, 237, 0.6)',  // Warm orange tint
+  surfaceTinted: 'rgba(240, 253, 250, 0.6)',  // Cool teal tint
 
   // Text - Comfortable contrast (Eye-friendly, reduced harshness)
   textPrimary: '#2A2827',             // Softer dark (not pure black)
@@ -186,13 +186,13 @@ export const LightColors = {
   textTertiary: '#8B8682',            // Gentle hints
   textDisabled: '#B0ABA7',            // Soft disabled state
   textInverse: '#FEFEFE',             // Soft white on dark
-  textAccent: burntOrange[600],       // Orange highlights
+  textAccent: burntOrange[600],       // Teal highlights
 
   // Border - Warm Subtle Definition (Softer for eye comfort)
   border: '#EDECEA',                  // Gentle border (softer than default)
   borderLight: '#F7F6F5',             // Very subtle
   borderStrong: '#DDD9D6',            // Emphasized but not harsh
-  borderAccent: burntOrange[200],     // #FED7AA - Accent borders
+  borderAccent: burntOrange[200],     // #99F6E4 - Accent borders
 
   // States - Clear Feedback
   success: electricLime[600],         // #65A30D - Using accent for consistency
@@ -207,50 +207,50 @@ export const LightColors = {
   errorLight: semantic.error[50],
   errorDark: semantic.error[700],
 
-  info: deepTeal[600],                // #0D9488 - Calm info
+  info: deepTeal[600],                // #1B3DB8 - Calm info
   infoLight: deepTeal[50],
   infoDark: deepTeal[700],
 
   // Special States
   charging: electricLime[500],        // #84CC16 - Active charging
   chargingGlow: electricLime[400],    // #A3E635 - Glow effect
-  available: deepTeal[500],           // #14B8A6 - Available
-  occupied: burntOrange[500],         // #F97316 - In use
+  available: deepTeal[500],           // #2452D6 - Available
+  occupied: burntOrange[500],         // #14B8A6 - In use
 
   // Overlays - Professional Depth
   overlay: 'rgba(0, 0, 0, 0.5)',
   overlayLight: 'rgba(0, 0, 0, 0.25)',
   overlayHeavy: 'rgba(0, 0, 0, 0.7)',
-  overlayWarm: 'rgba(234, 88, 12, 0.08)',  // Warm orange overlay
+  overlayWarm: 'rgba(13, 148, 136, 0.08)',  // Cool teal overlay
 
   // Glass Effects - Modern Warm Glass
   glass: 'rgba(255, 255, 255, 0.75)',
   glassSubtle: 'rgba(255, 255, 255, 0.6)',
   glassStrong: 'rgba(255, 255, 255, 0.9)',
   glassBorder: 'rgba(255, 255, 255, 0.18)',
-  glassWarm: 'rgba(255, 247, 237, 0.8)',   // Warm tinted glass
+  glassWarm: 'rgba(240, 253, 250, 0.8)',   // Cool tinted glass
 
   // Gradients - Dynamic & Memorable
-  gradientPrimary: [burntOrange[500], burntOrange[700]],      // Ember glow
+  gradientPrimary: [burntOrange[500], burntOrange[700]],      // Teal glow
   gradientCharge: [electricLime[400], electricLime[600]],     // Charging gradient
   gradientPremium: [burntOrange[600], charcoal[700]],         // Premium dark
-  gradientEnergy: ['#EA580C', '#84CC16'],                     // Orange to green
-  gradientEmber: ['#F97316', '#EA580C', '#C2410C'],           // Burning ember
-  gradientSunrise: ['#FED7AA', '#FDBA74', '#FB923C'],         // Warm morning
-  gradientSpeed: ['#EA580C', '#FB923C', '#FBBF24'],           // Fast charging
+  gradientEnergy: ['#0D9488', '#84CC16'],                     // Teal to green
+  gradientEmber: ['#14B8A6', '#0D9488', '#0F766E'],           // Deep teal
+  gradientSunrise: ['#99F6E4', '#5EEAD4', '#2DD4BF'],         // Cool morning
+  gradientSpeed: ['#0D9488', '#2DD4BF', '#FBBF24'],           // Fast charging
   gradientNight: [charcoal[800], charcoal[950]],              // Dark mode base
-  gradientWarmth: ['#FFF7ED', '#FFEDD5', '#FED7AA'],          // Warm background
-  gradientFire: ['#FBBF24', '#F97316', '#EA580C'],            // Fire energy
-  gradientTech: [deepTeal[500], burntOrange[500]],            // Tech meets energy
+  gradientWarmth: ['#F0FDFA', '#CCFBF1', '#99F6E4'],          // Cool background
+  gradientFire: ['#FBBF24', '#14B8A6', '#0D9488'],            // Teal energy
+  gradientTech: [deepTeal[500], burntOrange[500]],            // Navy meets teal energy
 };
 
-// Dark Theme Colors - Sophisticated Night Mode with Warm Glow
+// Dark Theme Colors - Sophisticated Night Mode with Cool Glow
 export const DarkColors = {
-  // Primary - Glowing Ember
-  primary: burntOrange[500],          // #F97316 - Bright ember
-  primaryLight: burntOrange[400],     // #FB923C - Lighter glow
-  primaryDark: burntOrange[600],      // #EA580C - Deeper ember
-  primarySubtle: burntOrange[950],    // #431407 - Subtle tint
+  // Primary - Glowing Teal
+  primary: burntOrange[500],          // #14B8A6 - Bright teal
+  primaryLight: burntOrange[400],     // #2DD4BF - Lighter glow
+  primaryDark: burntOrange[600],      // #0D9488 - Deeper teal
+  primarySubtle: burntOrange[950],    // #042F2E - Subtle tint
 
   // Secondary - Lighter Charcoal
   secondary: charcoal[500],           // #71717A - Softer in dark
@@ -265,7 +265,7 @@ export const DarkColors = {
   accentSubtle: electricLime[950],    // #1A2E05 - Subtle tint
 
   // Additional Accents - Night Mode
-  accentTeal: deepTeal[400],          // #2DD4BF - Bright teal
+  accentTeal: deepTeal[400],          // #4D7DFF - Bright navy
   accentAmber: warmAmber[400],        // #FBBF24 - Warm gold
   accentGold: warmAmber[300],         // #FCD34D - Bright gold
   accentPurple: '#C4B5FD',            // Lighter purple
@@ -281,7 +281,7 @@ export const DarkColors = {
   surface: '#121110',                 // Slightly lighter than background
   surfaceElevated: neutral[800],      // #292524 - Raised
   surfaceOverlay: 'rgba(28, 25, 23, 0.96)',
-  surfaceTinted: 'rgba(67, 20, 7, 0.12)',  // Warm orange tint
+  surfaceTinted: 'rgba(4, 47, 46, 0.12)',  // Cool teal tint
 
   // Text - Optimized Contrast
   textPrimary: '#F5F5F4',             // Soft white
@@ -289,13 +289,13 @@ export const DarkColors = {
   textTertiary: neutral[500],         // #78716C - Hints
   textDisabled: neutral[600],         // #57534E - Disabled
   textInverse: neutral[950],          // Dark on light
-  textAccent: burntOrange[400],       // Orange highlights
+  textAccent: burntOrange[400],       // Teal highlights
 
   // Border - Subtle Dark with Warmth
   border: 'rgba(168, 162, 158, 0.15)',     // Subtle border
   borderLight: 'rgba(168, 162, 158, 0.08)', // Very subtle
   borderStrong: 'rgba(168, 162, 158, 0.25)', // Emphasized
-  borderAccent: 'rgba(249, 115, 22, 0.3)',  // Orange glow
+  borderAccent: 'rgba(20, 184, 166, 0.3)',  // Teal glow
 
   // States - Dark Adjusted
   success: electricLime[500],
@@ -317,32 +317,32 @@ export const DarkColors = {
   // Special States
   charging: electricLime[400],        // #A3E635 - Bright charging
   chargingGlow: electricLime[300],    // #BEF264 - Intense glow
-  available: deepTeal[400],           // #2DD4BF - Available
-  occupied: burntOrange[400],         // #FB923C - In use
+  available: deepTeal[400],           // #4D7DFF - Available
+  occupied: burntOrange[400],         // #2DD4BF - In use
 
   // Overlays - Dark Mode
   overlay: 'rgba(0, 0, 0, 0.75)',
   overlayLight: 'rgba(0, 0, 0, 0.5)',
   overlayHeavy: 'rgba(0, 0, 0, 0.85)',
-  overlayWarm: 'rgba(249, 115, 22, 0.12)',  // Warm glow overlay
+  overlayWarm: 'rgba(20, 184, 166, 0.12)',  // Cool glow overlay
 
   // Glass Effects - Dark Glass with Glow
   glass: 'rgba(28, 25, 23, 0.7)',
   glassSubtle: 'rgba(28, 25, 23, 0.5)',
   glassStrong: 'rgba(28, 25, 23, 0.85)',
   glassBorder: 'rgba(168, 162, 158, 0.12)',
-  glassWarm: 'rgba(67, 20, 7, 0.3)',       // Warm ember glass
+  glassWarm: 'rgba(4, 47, 46, 0.3)',       // Cool teal glass
 
   // Gradients - Night Versions with Glow
-  gradientPrimary: [burntOrange[400], burntOrange[600]],      // Ember glow
+  gradientPrimary: [burntOrange[400], burntOrange[600]],      // Teal glow
   gradientCharge: [electricLime[300], electricLime[500]],     // Charging
   gradientPremium: [burntOrange[500], charcoal[800]],         // Premium dark
-  gradientEnergy: ['#FB923C', '#A3E635'],                     // Orange to green
-  gradientEmber: ['#FB923C', '#F97316', '#EA580C'],           // Night ember
+  gradientEnergy: ['#2DD4BF', '#A3E635'],                     // Teal to green
+  gradientEmber: ['#2DD4BF', '#14B8A6', '#0D9488'],           // Night teal
   gradientNight: [neutral[900], neutral[950]],                // Deep dark
-  gradientNeon: ['#FB923C', '#FDBA74', '#FCD34D'],            // Neon glow
+  gradientNeon: ['#2DD4BF', '#5EEAD4', '#FCD34D'],            // Neon glow
   gradientMidnight: [charcoal[900], deepTeal[900]],           // Blue-black
-  gradientFire: ['#FCD34D', '#FB923C', '#F97316'],            // Fire glow
+  gradientFire: ['#FCD34D', '#2DD4BF', '#14B8A6'],            // Teal glow
   gradientCoal: ['#292524', '#0A0908'],                       // Hot coal
 };
 
@@ -643,9 +643,9 @@ export const Shadows = {
     elevation: 20,
   },
 
-  // Colored Glows - Ember & Energy
+  // Colored Glows - Teal & Energy
   primaryGlow: {
-    shadowColor: '#EA580C',
+    shadowColor: '#0D9488',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -659,14 +659,14 @@ export const Shadows = {
     elevation: 4,
   },
   emberGlow: {
-    shadowColor: '#F97316',
+    shadowColor: '#14B8A6',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 16,
     elevation: 6,
   },
   warmGlow: {
-    shadowColor: '#FDBA74',
+    shadowColor: '#5EEAD4',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 10,
