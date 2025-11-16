@@ -23,6 +23,12 @@ export default function Welcome() {
   const floatingOrb2Y = useRef(new Animated.Value(0)).current;
   const floatingOrb3Y = useRef(new Animated.Value(0)).current;
 
+  // Content animations
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const iconPulse = useRef(new Animated.Value(1)).current;
+  const buttonsFadeAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     // Animated gradient background
     Animated.loop(
@@ -81,6 +87,45 @@ export default function Welcome() {
         Animated.timing(floatingOrb3Y, {
           toValue: 0,
           duration: 3500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Content entrance animations
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Delayed buttons animation
+    Animated.timing(buttonsFadeAnim, {
+      toValue: 1,
+      duration: 800,
+      delay: 300,
+      useNativeDriver: true,
+    }).start();
+
+    // Icon pulse animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(iconPulse, {
+          toValue: 1.1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(iconPulse, {
+          toValue: 1,
+          duration: 1500,
           useNativeDriver: true,
         }),
       ])
@@ -201,19 +246,38 @@ export default function Welcome() {
       />
 
       <View style={styles.content}>
-        <View style={styles.header}>
-          <Ionicons name="flash" size={80} color={Colors.primary} />
+        <Animated.View
+          style={[
+            styles.header,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
+          <Animated.View
+            style={[
+              styles.iconContainer,
+              {
+                transform: [{ scale: iconPulse }],
+              },
+            ]}
+          >
+            <View style={styles.iconGlow}>
+              <Ionicons name="flash" size={80} color={Colors.primary} />
+            </View>
+          </Animated.View>
           <Text style={styles.title}>SharaSpot</Text>
-          <Text style={styles.subtitle}>Whether you drive, Charge Nearby</Text>
-        </View>
+          <Text style={styles.subtitle}>⚡ Whether you drive, Charge Nearby ⚡</Text>
+        </Animated.View>
 
         {isLoading ? (
-          <View style={styles.loadingContainer}>
+          <Animated.View style={[styles.loadingContainer, { opacity: fadeAnim }]}>
             <ActivityIndicator size="large" color={Colors.primary} />
             <Text style={styles.loadingText}>Signing in...</Text>
-          </View>
+          </Animated.View>
         ) : (
-          <View style={styles.buttonsContainer}>
+          <Animated.View style={[styles.buttonsContainer, { opacity: buttonsFadeAnim }]}>
             <TouchableOpacity
               style={styles.googleButton}
               onPress={handleGoogleSignIn}
@@ -229,6 +293,7 @@ export default function Welcome() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
+              <Ionicons name="user-add" size={24} color={Colors.textInverse} />
               <Text style={styles.signupButtonText}>Create Account</Text>
             </TouchableOpacity>
 
@@ -237,12 +302,15 @@ export default function Welcome() {
               onPress={handleGuest}
               disabled={isLoading}
             >
+              <Ionicons name="person-outline" size={20} color={Colors.textSecondary} />
               <Text style={styles.guestButtonText}>Continue as Guest</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         )}
 
-        <Text style={styles.disclaimer}>Guest mode has limited features</Text>
+        <Animated.Text style={[styles.disclaimer, { opacity: buttonsFadeAnim }]}>
+          💡 Guest mode has limited features
+        </Animated.Text>
       </View>
     </SafeAreaView>
   );
@@ -256,33 +324,33 @@ const styles = StyleSheet.create({
   },
   backgroundOrb1: {
     position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
+    width: 350,
+    height: 350,
+    borderRadius: 175,
     backgroundColor: Colors.primary,
-    opacity: 0.15,
-    top: -100,
-    right: -80,
+    opacity: 0.2,
+    top: -120,
+    right: -100,
   },
   backgroundOrb2: {
     position: 'absolute',
-    width: 250,
-    height: 250,
-    borderRadius: 125,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
     backgroundColor: Colors.accentTeal,
-    opacity: 0.12,
-    bottom: -50,
-    left: -60,
+    opacity: 0.18,
+    bottom: -70,
+    left: -80,
   },
   backgroundOrb3: {
     position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
     backgroundColor: Colors.accent,
-    opacity: 0.08,
+    opacity: 0.12,
     top: '40%',
-    right: -40,
+    right: -50,
   },
   content: {
     flex: 1,
@@ -293,15 +361,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.xxxl,
   },
+  iconContainer: {
+    position: 'relative',
+    marginBottom: Spacing.md,
+  },
+  iconGlow: {
+    backgroundColor: Colors.surface,
+    borderRadius: 60,
+    padding: Spacing.lg,
+    ...Shadows.lg,
+    shadowColor: Colors.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 8,
+  },
   title: {
     ...Typography.displaySmall,
     color: Colors.textPrimary,
-    marginTop: Spacing.md,
+    marginTop: Spacing.lg,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   subtitle: {
     ...Typography.bodyMedium,
     color: Colors.textSecondary,
     marginTop: Spacing.sm,
+    textAlign: 'center',
+    lineHeight: 24,
+    paddingHorizontal: Spacing.md,
   },
   buttonsContainer: {
     gap: Spacing.md,
@@ -311,57 +398,70 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.surface,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: Colors.border,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.sm,
-    gap: Spacing['3'],
-    ...Shadows.xs,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.sm,
+    ...Shadows.md,
   },
   googleButtonText: {
     ...Typography.labelLarge,
     color: Colors.textPrimary,
+    fontWeight: '600',
   },
   emailButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.primary,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.sm,
-    gap: Spacing['3'],
-    ...Shadows.md,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.sm,
+    ...Shadows.lg,
+    shadowColor: Colors.primary,
+    elevation: 6,
   },
   emailButtonText: {
     ...Typography.labelLarge,
     color: Colors.textInverse,
+    fontWeight: '600',
   },
   signupButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.accentTeal,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.sm,
-    ...Shadows.md,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.sm,
+    ...Shadows.lg,
+    shadowColor: Colors.accentTeal,
+    elevation: 6,
   },
   signupButtonText: {
     ...Typography.labelLarge,
     color: Colors.textInverse,
+    fontWeight: '600',
   },
   guestButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: Spacing.md,
+    gap: Spacing['2'],
   },
   guestButtonText: {
     ...Typography.labelLarge,
     color: Colors.textSecondary,
+    fontWeight: '500',
   },
   disclaimer: {
     textAlign: 'center',
     ...Typography.bodySmall,
     color: Colors.textTertiary,
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xl,
+    fontStyle: 'italic',
   },
   loadingContainer: {
     alignItems: 'center',
