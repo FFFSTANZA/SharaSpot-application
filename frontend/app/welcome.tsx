@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Alert, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
@@ -16,6 +16,101 @@ export default function Welcome() {
   const router = useRouter();
   const { continueAsGuest, handleGoogleCallback } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Animation refs
+  const logoScale = useRef(new Animated.Value(0)).current;
+  const logoPulse = useRef(new Animated.Value(1)).current;
+  const titleOpacity = useRef(new Animated.Value(0)).current;
+  const titleTranslateY = useRef(new Animated.Value(20)).current;
+  const subtitleOpacity = useRef(new Animated.Value(0)).current;
+  const button1TranslateY = useRef(new Animated.Value(50)).current;
+  const button2TranslateY = useRef(new Animated.Value(50)).current;
+  const button3TranslateY = useRef(new Animated.Value(50)).current;
+  const button4TranslateY = useRef(new Animated.Value(50)).current;
+  const buttonOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Start entrance animations
+    Animated.sequence([
+      // Logo entrance with scale
+      Animated.spring(logoScale, {
+        toValue: 1,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+      // Title fade in with slide up
+      Animated.parallel([
+        Animated.timing(titleOpacity, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(titleTranslateY, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Subtitle fade in
+      Animated.timing(subtitleOpacity, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Start button animations with stagger effect
+      Animated.parallel([
+        Animated.timing(buttonOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.stagger(100, [
+          Animated.spring(button1TranslateY, {
+            toValue: 0,
+            tension: 50,
+            friction: 8,
+            useNativeDriver: true,
+          }),
+          Animated.spring(button2TranslateY, {
+            toValue: 0,
+            tension: 50,
+            friction: 8,
+            useNativeDriver: true,
+          }),
+          Animated.spring(button3TranslateY, {
+            toValue: 0,
+            tension: 50,
+            friction: 8,
+            useNativeDriver: true,
+          }),
+          Animated.spring(button4TranslateY, {
+            toValue: 0,
+            tension: 50,
+            friction: 8,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]).start();
+    });
+
+    // Continuous pulse animation for logo
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(logoPulse, {
+          toValue: 1.1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(logoPulse, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   useEffect(() => {
     // Listen for deep link callbacks
@@ -98,9 +193,34 @@ export default function Welcome() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Ionicons name="flash" size={80} color={Colors.primary} />
-          <Text style={styles.title}>SharaSpot</Text>
-          <Text style={styles.subtitle}>Whether you drive, Charge Nearby</Text>
+          <Animated.View
+            style={{
+              transform: [
+                { scale: Animated.multiply(logoScale, logoPulse) }
+              ]
+            }}
+          >
+            <Ionicons name="flash" size={80} color={Colors.primary} />
+          </Animated.View>
+          <Animated.Text
+            style={[
+              styles.title,
+              {
+                opacity: titleOpacity,
+                transform: [{ translateY: titleTranslateY }]
+              }
+            ]}
+          >
+            SharaSpot
+          </Animated.Text>
+          <Animated.Text
+            style={[
+              styles.subtitle,
+              { opacity: subtitleOpacity }
+            ]}
+          >
+            Whether you drive, Charge Nearby
+          </Animated.Text>
         </View>
 
         {isLoading ? (
@@ -110,35 +230,70 @@ export default function Welcome() {
           </View>
         ) : (
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              style={styles.googleButton}
-              onPress={handleGoogleSignIn}
-              disabled={isLoading}
+            <Animated.View
+              style={{
+                opacity: buttonOpacity,
+                transform: [{ translateY: button1TranslateY }]
+              }}
             >
-              <Ionicons name="logo-google" size={24} color="#DB4437" />
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.googleButton}
+                onPress={handleGoogleSignIn}
+                disabled={isLoading}
+              >
+                <Ionicons name="logo-google" size={24} color="#DB4437" />
+                <Text style={styles.googleButtonText}>Continue with Google</Text>
+              </TouchableOpacity>
+            </Animated.View>
 
-          <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
-            <Ionicons name="mail" size={24} color={Colors.textInverse} />
-            <Text style={styles.emailButtonText}>Sign in with Email</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
-            <Text style={styles.signupButtonText}>Create Account</Text>
-          </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.guestButton}
-              onPress={handleGuest}
-              disabled={isLoading}
+            <Animated.View
+              style={{
+                opacity: buttonOpacity,
+                transform: [{ translateY: button2TranslateY }]
+              }}
             >
-              <Text style={styles.guestButtonText}>Continue as Guest</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
+                <Ionicons name="mail" size={24} color={Colors.textInverse} />
+                <Text style={styles.emailButtonText}>Sign in with Email</Text>
+              </TouchableOpacity>
+            </Animated.View>
+
+            <Animated.View
+              style={{
+                opacity: buttonOpacity,
+                transform: [{ translateY: button3TranslateY }]
+              }}
+            >
+              <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
+                <Text style={styles.signupButtonText}>Create Account</Text>
+              </TouchableOpacity>
+            </Animated.View>
+
+            <Animated.View
+              style={{
+                opacity: buttonOpacity,
+                transform: [{ translateY: button4TranslateY }]
+              }}
+            >
+              <TouchableOpacity
+                style={styles.guestButton}
+                onPress={handleGuest}
+                disabled={isLoading}
+              >
+                <Text style={styles.guestButtonText}>Continue as Guest</Text>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
         )}
 
-        <Text style={styles.disclaimer}>Guest mode has limited features</Text>
+        <Animated.Text
+          style={[
+            styles.disclaimer,
+            { opacity: buttonOpacity }
+          ]}
+        >
+          Guest mode has limited features
+        </Animated.Text>
       </View>
     </SafeAreaView>
   );

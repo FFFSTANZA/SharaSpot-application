@@ -892,7 +892,7 @@ export const VerificationReportModal: React.FC<VerificationReportModalProps> = (
                   <Text style={[styles.probabilityNumber, { color: availabilityPrediction.color }]}>
                     {availabilityPrediction.currentProbability}%
                   </Text>
-                  <Text style={styles.probabilityLabel}>Likely Available</Text>
+                  <Text style={styles.probabilityLabel} numberOfLines={2}>Likely Available</Text>
                 </View>
                 <View style={styles.availabilityInfo}>
                   <Ionicons
@@ -2052,16 +2052,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 4,
     borderColor: '#E0E0E0',
+    paddingHorizontal: 8,
   },
   probabilityNumber: {
     fontSize: 32,
     fontWeight: '700',
   },
   probabilityLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#666666',
-    marginTop: 4,
+    marginTop: 2,
     fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 11,
   },
   availabilityInfo: {
     flex: 1,
