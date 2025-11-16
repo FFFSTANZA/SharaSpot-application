@@ -20,6 +20,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { SessionManager } from '../utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { Colors } from '../constants/theme';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -254,10 +255,10 @@ export default function AddCharger() {
                 disabled={locationLoading}
               >
                 {locationLoading ? (
-                  <ActivityIndicator size="small" color="#4CAF50" />
+                  <ActivityIndicator size="small" color="Colors.primary" />
                 ) : (
                   <>
-                    <Ionicons name="locate" size={16} color="#4CAF50" />
+                    <Ionicons name="locate" size={16} color="Colors.primary" />
                     <Text style={styles.currentLocationText}>Use Current</Text>
                   </>
                 )}
@@ -395,7 +396,7 @@ export default function AddCharger() {
               <Text style={styles.photoCount}>{photos.length}/5</Text>
             </View>
             <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-              <Ionicons name="camera" size={24} color="#4CAF50" />
+              <Ionicons name="camera" size={24} color="Colors.primary" />
               <Text style={styles.uploadText}>Add Photos</Text>
             </TouchableOpacity>
             {photos.length > 0 && (
@@ -540,7 +541,7 @@ const styles = StyleSheet.create({
   currentLocationText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4CAF50',
+    color: 'Colors.primary',
   },
   coordsDisplay: {
     flexDirection: 'row',
@@ -570,7 +571,7 @@ const styles = StyleSheet.create({
   },
   chipSelected: {
     backgroundColor: '#E8F5E9',
-    borderColor: '#4CAF50',
+    borderColor: 'Colors.primary',
   },
   chipText: {
     fontSize: 14,
@@ -593,7 +594,7 @@ const styles = StyleSheet.create({
   uploadText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4CAF50',
+    color: 'Colors.primary',
   },
   photoCount: {
     fontSize: 12,
@@ -626,7 +627,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'Colors.primary',
     marginHorizontal: 16,
     marginTop: 32,
     paddingVertical: 16,

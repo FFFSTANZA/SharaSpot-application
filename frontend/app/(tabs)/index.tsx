@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, Alert, RefreshControl, Platform, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, Alert, RefreshControl, Platform, Dimensions, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,7 +9,6 @@ import Constants from 'expo-constants';
 import { VerificationBadge } from '../../components/VerificationBadge';
 import { AmenitiesIcons } from '../../components/AmenitiesIcons';
 import { FilterModal, Filters } from '../../components/FilterModal';
-import { VerificationReportModal } from '../../components/VerificationReportModal';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 // Conditional import for MapView (mobile only)
@@ -50,7 +49,7 @@ type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
   1: '#9E9E9E',  // Grey - New Entry
-  2: '#4CAF50',  // Green - Community Verified
+  2: Colors.primary,  // Burnt Orange - Community Verified
   3: '#2196F3',  // Blue - Reliable
   4: '#FFB300',  // Gold - Trusted
   5: '#9C27B0',  // Platinum - Certified Partner
@@ -64,8 +63,6 @@ export default function Discover() {
   const [refreshing, setRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
-  const [reportModalVisible, setReportModalVisible] = useState(false);
-  const [selectedChargerForReport, setSelectedChargerForReport] = useState<Charger | null>(null);
   const [filters, setFilters] = useState<Filters>({
     verificationLevel: null,
     portType: null,
@@ -167,7 +164,7 @@ export default function Discover() {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
-          <Ionicons name="flash" size={22} color="#4CAF50" />
+          <Ionicons name="flash" size={22} color={Colors.primary} />
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.chargerName} numberOfLines={1}>
@@ -179,8 +176,12 @@ export default function Discover() {
         </View>
         <TouchableOpacity
           onPress={() => {
-            setSelectedChargerForReport(item);
-            setReportModalVisible(true);
+            router.push({
+              pathname: '/verification-report',
+              params: {
+                charger: JSON.stringify(item),
+              },
+            });
           }}
           activeOpacity={0.7}
         >
@@ -199,7 +200,7 @@ export default function Discover() {
           <Ionicons
             name={item.available_ports > 0 ? "checkmark-circle" : "close-circle"}
             size={16}
-            color={item.available_ports > 0 ? "#4CAF50" : "#F44336"}
+            color={item.available_ports > 0 ? Colors.accent : Colors.error}
           />
           <Text style={styles.detailText}>
             {item.available_ports}/{item.total_ports} ports available
@@ -303,14 +304,18 @@ export default function Discover() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.backgroundSecondary} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.backgroundSecondary} />
       {renderHeader()}
 
       {/* Filter Bar */}
@@ -319,7 +324,7 @@ export default function Discover() {
           style={styles.filterButton}
           onPress={() => setFilterModalVisible(true)}
         >
-          <Ionicons name="funnel" size={20} color="#4CAF50" />
+          <Ionicons name="funnel" size={20} color={Colors.primary} />
           <Text style={styles.filterButtonText}>Filters</Text>
           {getActiveFilterCount() > 0 && (
             <View style={styles.filterBadge}>
@@ -341,7 +346,7 @@ export default function Discover() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#4CAF50']} />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.primary]} tintColor={Colors.primary} />
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
@@ -377,13 +382,6 @@ export default function Discover() {
         onClose={() => setFilterModalVisible(false)}
         onApply={handleFilterApply}
         currentFilters={filters}
-      />
-
-      {/* Verification Report Modal */}
-      <VerificationReportModal
-        visible={reportModalVisible}
-        onClose={() => setReportModalVisible(false)}
-        charger={selectedChargerForReport}
       />
     </SafeAreaView>
   );

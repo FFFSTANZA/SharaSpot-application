@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -101,14 +102,17 @@ export default function Profile() {
     if (score >= 90) return { level: 'Platinum', color: '#9C27B0', icon: 'star' };
     if (score >= 75) return { level: 'Gold', color: '#FFB300', icon: 'trophy' };
     if (score >= 50) return { level: 'Silver', color: '#2196F3', icon: 'ribbon' };
-    return { level: 'Bronze', color: '#4CAF50', icon: 'leaf' };
+    return { level: 'Bronze', color: 'Colors.primary', icon: 'leaf' };
   };
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2D3FE8" />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -116,6 +120,7 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}

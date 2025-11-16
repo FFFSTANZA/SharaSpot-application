@@ -19,8 +19,8 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { VerificationBadge } from '../components/VerificationBadge';
 import { AmenitiesIcons } from '../components/AmenitiesIcons';
-import { VerificationReportModal } from '../components/VerificationReportModal';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors } from '../constants/theme';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -31,7 +31,6 @@ export default function ChargerDetail() {
   
   const [charger, setCharger] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [reportModalVisible, setReportModalVisible] = useState(false);
 
   useEffect(() => {
     loadChargerDetails();
@@ -126,7 +125,7 @@ export default function ChargerDetail() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -161,7 +160,7 @@ export default function ChargerDetail() {
         <View style={styles.mainInfo}>
           <View style={styles.titleRow}>
             <View style={styles.iconCircle}>
-              <Ionicons name="flash" size={28} color="#4CAF50" />
+              <Ionicons name="flash" size={28} color={Colors.primary} />
             </View>
             <View style={styles.titleContent}>
               <Text style={styles.name}>{charger.name}</Text>
@@ -187,7 +186,7 @@ export default function ChargerDetail() {
           </View>
 
           <View style={styles.distanceRow}>
-            <Ionicons name="navigate" size={20} color="#4CAF50" />
+            <Ionicons name="navigate" size={20} color={Colors.primary} />
             <Text style={styles.distance}>{charger.distance} km away</Text>
           </View>
         </View>
@@ -237,7 +236,7 @@ export default function ChargerDetail() {
             <Text style={styles.statLabel}>Verified By</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="trending-up" size={24} color="#4CAF50" />
+            <Ionicons name="trending-up" size={24} color={Colors.accent} />
             <Text style={styles.statValue}>{charger.uptime_percentage.toFixed(1)}%</Text>
             <Text style={styles.statLabel}>Uptime</Text>
           </View>
@@ -257,7 +256,7 @@ export default function ChargerDetail() {
             <View style={styles.portsContainer}>
               {charger.port_types.map((type: string, index: number) => (
                 <View key={index} style={styles.portCard}>
-                  <Ionicons name="power" size={20} color="#4CAF50" />
+                  <Ionicons name="power" size={20} color={Colors.primary} />
                   <Text style={styles.portType}>{type}</Text>
                 </View>
               ))}
@@ -340,7 +339,12 @@ export default function ChargerDetail() {
         <View style={styles.section}>
           <TouchableOpacity
             style={styles.reportButton}
-            onPress={() => setReportModalVisible(true)}
+            onPress={() => router.push({
+              pathname: '/verification-report',
+              params: {
+                charger: JSON.stringify(charger),
+              },
+            })}
           >
             <Ionicons name="document-text" size={20} color="#2196F3" />
             <Text style={styles.reportButtonText}>View Verification Report</Text>
@@ -349,13 +353,6 @@ export default function ChargerDetail() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
-
-      {/* Verification Report Modal */}
-      <VerificationReportModal
-        visible={reportModalVisible}
-        onClose={() => setReportModalVisible(false)}
-        charger={charger}
-      />
     </SafeAreaView>
   );
 }
@@ -475,7 +472,7 @@ const styles = StyleSheet.create({
   distance: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#4CAF50',
+    color: Colors.primary,
   },
   mapSection: {
     backgroundColor: '#FFFFFF',
@@ -499,7 +496,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.primary,
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -541,7 +538,7 @@ const styles = StyleSheet.create({
     minHeight: 90,
   },
   activeButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.accent,
   },
   notWorkingButton: {
     backgroundColor: '#F44336',
@@ -564,7 +561,7 @@ const styles = StyleSheet.create({
   verifyStationButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.primary,
     padding: 20,
     borderRadius: 16,
     gap: 14,
@@ -725,7 +722,7 @@ const styles = StyleSheet.create({
     color: '#2196F3',
   },
   backButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
