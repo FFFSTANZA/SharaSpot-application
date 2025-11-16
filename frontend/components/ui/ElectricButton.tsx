@@ -1,7 +1,7 @@
 // Premium Electric Button Component
 // Core Principles: Electric Energy, Delight at Every Touchpoint, Accessibility First
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   Pressable,
   Text,
@@ -11,14 +11,8 @@ import {
   StyleProp,
   ActivityIndicator,
   View,
+  Animated,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  interpolate,
-} from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import {
@@ -28,7 +22,6 @@ import {
   Typography,
   Layout,
   Shadows,
-  SpringConfig,
   AnimationDuration,
 } from '../../constants/theme';
 import { createButtonA11y } from '../../utils/accessibility';
@@ -75,19 +68,34 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
   glowEffect = false,
 }) => {
   // Animation values
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-  const glowOpacity = useSharedValue(0);
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
+  const glowOpacity = useRef(new Animated.Value(0)).current;
 
   // Handle press in
   const handlePressIn = useCallback(() => {
     if (disabled || loading) return;
 
-    scale.value = withSpring(0.96, SpringConfig.snappy);
-    opacity.value = withTiming(0.8, { duration: AnimationDuration.fast });
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: 0.96,
+        friction: 3,
+        tension: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 0.8,
+        duration: AnimationDuration.fast || 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
     if (glowEffect) {
-      glowOpacity.value = withTiming(1, { duration: AnimationDuration.fast });
+      Animated.timing(glowOpacity, {
+        toValue: 1,
+        duration: AnimationDuration.fast || 150,
+        useNativeDriver: true,
+      }).start();
     }
 
     if (hapticFeedback) {
@@ -97,11 +105,26 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
 
   // Handle press out
   const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, SpringConfig.smooth);
-    opacity.value = withTiming(1, { duration: AnimationDuration.fast });
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 5,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: AnimationDuration.fast || 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
     if (glowEffect) {
-      glowOpacity.value = withTiming(0, { duration: AnimationDuration.normal });
+      Animated.timing(glowOpacity, {
+        toValue: 0,
+        duration: AnimationDuration.normal || 300,
+        useNativeDriver: true,
+      }).start();
     }
   }, [glowEffect]);
 
@@ -115,16 +138,6 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
 
     onPress();
   }, [disabled, loading, onPress, hapticFeedback]);
-
-  // Animated styles
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
-
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: glowOpacity.value,
-  }));
 
   // Get size-specific styles
   const sizeStyles = getSizeStyles(size);
@@ -181,7 +194,11 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={disabled || loading}
-        style={[animatedStyle, fullWidth && styles.fullWidth, style]}
+        style={[
+          { transform: [{ scale }], opacity },
+          fullWidth && styles.fullWidth,
+          style,
+        ]}
         {...a11yProps}
       >
         {glowEffect && (
@@ -190,7 +207,7 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
               StyleSheet.absoluteFill,
               styles.glow,
               sizeStyles.container,
-              glowStyle,
+              { opacity: glowOpacity },
             ]}
           />
         )}
@@ -219,7 +236,7 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
       onPressOut={handlePressOut}
       disabled={disabled || loading}
       style={[
-        animatedStyle,
+        { transform: [{ scale }], opacity },
         styles.container,
         sizeStyles.container,
         variantStyles.container,
@@ -235,7 +252,7 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
             StyleSheet.absoluteFill,
             styles.glow,
             sizeStyles.container,
-            glowStyle,
+            { opacity: glowOpacity },
           ]}
         />
       )}

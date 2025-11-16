@@ -1,16 +1,8 @@
 // Shimmer Loader Component - Premium Loading Skeleton
 // Core Principles: Premium Minimalism, Electric Energy
 
-import React, { useEffect } from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  interpolate,
-  Easing,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, ViewStyle, StyleProp, Animated, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, BorderRadius, AnimationDuration } from '../../constants/theme';
 
@@ -36,42 +28,43 @@ export const ShimmerLoader: React.FC<ShimmerLoaderProps> = ({
   speed = 'normal',
 }) => {
   // Animation value
-  const translateX = useSharedValue(-1);
+  const translateX = useRef(new Animated.Value(-1)).current;
 
   // Get duration based on speed
   const getDuration = () => {
     switch (speed) {
       case 'slow':
-        return AnimationDuration.slowest * 1.5;
+        return (AnimationDuration.slowest || 1200) * 1.5;
       case 'fast':
-        return AnimationDuration.slower;
+        return AnimationDuration.slower || 800;
       case 'normal':
       default:
-        return AnimationDuration.slowest;
+        return AnimationDuration.slowest || 1200;
     }
   };
 
   useEffect(() => {
-    translateX.value = withRepeat(
-      withTiming(1, {
+    const shimmerAnimation = Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 1,
         duration: getDuration(),
         easing: Easing.ease,
-      }),
-      -1,
-      false
+        useNativeDriver: true,
+      })
     );
+
+    shimmerAnimation.start();
+
+    return () => {
+      shimmerAnimation.stop();
+    };
   }, [speed]);
 
-  // Animated shimmer style
-  const animatedStyle = useAnimatedStyle(() => {
-    const outputRange = typeof width === 'number' ? [-width, width] : [-300, 300];
-    return {
-      transform: [
-        {
-          translateX: interpolate(translateX.value, [-1, 1], outputRange),
-        },
-      ],
-    };
+  // Interpolate translateX value
+  const outputRange = typeof width === 'number' ? [-width, width] : [-300, 300];
+  const animatedTranslateX = translateX.interpolate({
+    inputRange: [-1, 1],
+    outputRange,
   });
 
   const radiusValue = BorderRadius[borderRadius];
@@ -94,7 +87,14 @@ export const ShimmerLoader: React.FC<ShimmerLoaderProps> = ({
         style,
       ]}
     >
-      <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            transform: [{ translateX: animatedTranslateX }],
+          },
+        ]}
+      >
         <LinearGradient
           colors={shimmerColors}
           start={{ x: 0, y: 0 }}

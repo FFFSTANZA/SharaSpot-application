@@ -1,16 +1,8 @@
 // Pulse Indicator Component - Live Status Indicator
 // Core Principles: Electric Energy, Delight at Every Touchpoint
 
-import React, { useEffect } from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, ViewStyle, StyleProp, Animated, Easing } from 'react-native';
 import { Colors, AnimationDuration } from '../../constants/theme';
 
 export interface PulseIndicatorProps {
@@ -35,19 +27,19 @@ export const PulseIndicator: React.FC<PulseIndicatorProps> = ({
   active = true,
 }) => {
   // Animation values
-  const pulseScale = useSharedValue(1);
-  const pulseOpacity = useSharedValue(0.7);
+  const pulseScale = useRef(new Animated.Value(1)).current;
+  const pulseOpacity = useRef(new Animated.Value(0.7)).current;
 
   // Get duration based on speed
   const getDuration = () => {
     switch (speed) {
       case 'slow':
-        return AnimationDuration.slowest;
+        return AnimationDuration.slowest || 1200;
       case 'fast':
-        return AnimationDuration.slow;
+        return AnimationDuration.slow || 400;
       case 'normal':
       default:
-        return AnimationDuration.slower;
+        return AnimationDuration.slower || 800;
     }
   };
 
@@ -55,42 +47,50 @@ export const PulseIndicator: React.FC<PulseIndicatorProps> = ({
     if (active) {
       const duration = getDuration();
 
-      // Pulse scale animation
-      pulseScale.value = withRepeat(
-        withSequence(
-          withTiming(1.5, {
-            duration: duration,
-            easing: Easing.out(Easing.ease),
-          }),
-          withTiming(1, { duration: 0 })
+      // Pulse animation
+      const pulseAnimation = Animated.parallel([
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(pulseScale, {
+              toValue: 1.5,
+              duration: duration,
+              easing: Easing.out(Easing.ease),
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseScale, {
+              toValue: 1,
+              duration: 0,
+              useNativeDriver: true,
+            }),
+          ])
         ),
-        -1,
-        false
-      );
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(pulseOpacity, {
+              toValue: 0,
+              duration: duration,
+              easing: Easing.out(Easing.ease),
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseOpacity, {
+              toValue: 0.7,
+              duration: 0,
+              useNativeDriver: true,
+            }),
+          ])
+        ),
+      ]);
 
-      // Pulse opacity animation
-      pulseOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0, {
-            duration: duration,
-            easing: Easing.out(Easing.ease),
-          }),
-          withTiming(0.7, { duration: 0 })
-        ),
-        -1,
-        false
-      );
+      pulseAnimation.start();
+
+      return () => {
+        pulseAnimation.stop();
+      };
     } else {
-      pulseScale.value = 1;
-      pulseOpacity.value = 0;
+      pulseScale.setValue(1);
+      pulseOpacity.setValue(0);
     }
   }, [active, speed]);
-
-  // Animated pulse ring style
-  const animatedPulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale.value }],
-    opacity: pulseOpacity.value,
-  }));
 
   return (
     <View style={[styles.container, { width: size * 3, height: size * 3 }, style]}>
@@ -103,8 +103,9 @@ export const PulseIndicator: React.FC<PulseIndicatorProps> = ({
             height: size * 3,
             borderRadius: size * 1.5,
             backgroundColor: pulseColor,
+            transform: [{ scale: pulseScale }],
+            opacity: pulseOpacity,
           },
-          animatedPulseStyle,
         ]}
       />
 
