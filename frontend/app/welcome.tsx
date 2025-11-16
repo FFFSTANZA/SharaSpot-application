@@ -518,63 +518,63 @@ const styles = StyleSheet.create({
   },
   backgroundOrb1: {
     position: 'absolute',
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: Colors.primary, // Electric cyan
-    opacity: 0.5,
-    top: -100,
-    right: -80,
+    width: 340,
+    height: 340,
+    borderRadius: 170,
+    backgroundColor: '#06B6D4', // Bright electric cyan - energy
+    opacity: 0.6,
+    top: -120,
+    right: -100,
   },
   backgroundOrb2: {
     position: 'absolute',
-    width: 270,
-    height: 270,
-    borderRadius: 135,
-    backgroundColor: Colors.accent, // Lime green - EV energy
-    opacity: 0.48,
-    bottom: -50,
-    left: -60,
+    width: 290,
+    height: 290,
+    borderRadius: 145,
+    backgroundColor: '#84CC16', // Vibrant lime green - EV charging
+    opacity: 0.55,
+    bottom: -60,
+    left: -80,
   },
   backgroundOrb3: {
+    position: 'absolute',
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: '#3B82F6', // Electric blue - tech
+    opacity: 0.52,
+    top: '38%',
+    right: -60,
+  },
+  backgroundOrb4: {
     position: 'absolute',
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: Colors.accentCyan, // Electric blue
-    opacity: 0.45,
-    top: '40%',
-    right: -40,
-  },
-  backgroundOrb4: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: Colors.primary, // Cyan energy
-    opacity: 0.52,
-    top: '25%',
-    left: -50,
+    backgroundColor: '#FBBF24', // Amber gold - energy flow
+    opacity: 0.58,
+    top: '22%',
+    left: -70,
   },
   backgroundOrb5: {
     position: 'absolute',
-    width: 170,
-    height: 170,
-    borderRadius: 85,
-    backgroundColor: Colors.accent, // Vibrant green
-    opacity: 0.47,
-    bottom: '30%',
-    right: 20,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: '#A3E635', // Bright lime - active charging
+    opacity: 0.54,
+    bottom: '28%',
+    right: 10,
   },
   backgroundOrb6: {
     position: 'absolute',
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: Colors.accentCyan, // Electric blue flow
-    opacity: 0.44,
-    top: '60%',
-    left: -70,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: '#22D3EE', // Electric cyan glow
+    opacity: 0.5,
+    top: '58%',
+    left: -90,
   },
   content: {
     flex: 1,
@@ -586,9 +586,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xxxl,
   },
   title: {
-    ...Typography.displaySmall,
+    fontSize: 48,
+    fontWeight: '800',
+    letterSpacing: -1,
     color: Colors.textPrimary,
-    marginTop: Spacing.md,
+    marginTop: Spacing.sm,
+    textAlign: 'center',
   },
   subtitle: {
     ...Typography.bodyMedium,
