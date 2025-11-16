@@ -29,9 +29,6 @@ export default function Welcome() {
   const rotateAnim2 = useRef(new Animated.Value(0)).current;
   const scaleAnim1 = useRef(new Animated.Value(1)).current;
   const scaleAnim2 = useRef(new Animated.Value(1)).current;
-  const sparkle1 = useRef(new Animated.Value(0)).current;
-  const sparkle2 = useRef(new Animated.Value(0)).current;
-  const sparkle3 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Animated gradient background
@@ -184,54 +181,6 @@ export default function Welcome() {
         Animated.timing(scaleAnim2, {
           toValue: 1,
           duration: 4000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    // Sparkle animations (twinkling effect)
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(sparkle1, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(sparkle1, {
-          toValue: 0,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.delay(500),
-        Animated.timing(sparkle2, {
-          toValue: 1,
-          duration: 1800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(sparkle2, {
-          toValue: 0,
-          duration: 1800,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.delay(1000),
-        Animated.timing(sparkle3, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(sparkle3, {
-          toValue: 0,
-          duration: 2000,
           useNativeDriver: true,
         }),
       ])
@@ -398,26 +347,6 @@ export default function Welcome() {
         ]}
       />
 
-      {/* Sparkle effects */}
-      <Animated.View
-        style={[
-          styles.sparkle1,
-          { opacity: sparkle1 },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.sparkle2,
-          { opacity: sparkle2 },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.sparkle3,
-          { opacity: sparkle3 },
-        ]}
-      />
-
       <View style={styles.content}>
         <View style={styles.header}>
           <Ionicons name="flash" size={80} color={Colors.primary} />
@@ -531,45 +460,6 @@ const styles = StyleSheet.create({
     opacity: 0.11,
     top: '60%',
     left: -70,
-  },
-  sparkle1: {
-    position: 'absolute',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.accentGold,
-    top: '20%',
-    right: '25%',
-    shadowColor: Colors.accentGold,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-  },
-  sparkle2: {
-    position: 'absolute',
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.primaryLight,
-    top: '70%',
-    right: '15%',
-    shadowColor: Colors.primaryLight,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 6,
-  },
-  sparkle3: {
-    position: 'absolute',
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: Colors.accentTeal,
-    top: '45%',
-    left: '10%',
-    shadowColor: Colors.accentTeal,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 7,
   },
   content: {
     flex: 1,
