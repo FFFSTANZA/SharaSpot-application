@@ -11,14 +11,8 @@ import {
   ViewStyle,
   StyleProp,
   Platform,
+  Animated,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-  Extrapolate,
-} from 'react-native-reanimated';
 import {
   Colors,
   BorderRadius,
@@ -72,86 +66,50 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
   const inputRef = useRef<TextInput>(null);
 
   // Animation values
-  const labelAnimation = useSharedValue(value ? 1 : 0);
-  const borderAnimation = useSharedValue(0);
+  const labelAnimation = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   // Update label position when value changes
   useEffect(() => {
-    if (value || isFocused) {
-      labelAnimation.value = withTiming(1, { duration: AnimationDuration.normal });
-    } else {
-      labelAnimation.value = withTiming(0, { duration: AnimationDuration.normal });
-    }
+    Animated.timing(labelAnimation, {
+      toValue: value || isFocused ? 1 : 0,
+      duration: AnimationDuration.normal || 300,
+      useNativeDriver: true,
+    }).start();
   }, [value, isFocused]);
 
   // Handle focus
   const handleFocus = (e: any) => {
     setIsFocused(true);
-    borderAnimation.value = withTiming(1, { duration: AnimationDuration.fast });
     onFocus?.(e);
   };
 
   // Handle blur
   const handleBlur = (e: any) => {
     setIsFocused(false);
-    borderAnimation.value = withTiming(0, { duration: AnimationDuration.fast });
     onBlur?.(e);
   };
 
-  // Animated label style
-  const animatedLabelStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      labelAnimation.value,
-      [0, 1],
-      [0, -28],
-      Extrapolate.CLAMP
-    );
-
-    const scale = interpolate(
-      labelAnimation.value,
-      [0, 1],
-      [1, 0.85],
-      Extrapolate.CLAMP
-    );
-
-    return {
-      transform: [{ translateY }, { scale }],
-    };
+  // Interpolated values
+  const labelTranslateY = labelAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -28],
   });
 
-  // Animated label color style
-  const animatedLabelColorStyle = useAnimatedStyle(() => {
-    const labelColor = isFocused
-      ? error
-        ? Colors.error
-        : Colors.primary
-      : error
+  const labelScale = labelAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0.85],
+  });
+
+  const labelColor = isFocused
+    ? error
       ? Colors.error
-      : Colors.textSecondary;
+      : Colors.primary
+    : error
+    ? Colors.error
+    : Colors.textSecondary;
 
-    return {
-      color: labelColor,
-    };
-  });
-
-  // Animated border style
-  const animatedBorderStyle = useAnimatedStyle(() => {
-    const borderColor = error
-      ? Colors.error
-      : interpolate(
-          borderAnimation.value,
-          [0, 1],
-          [Colors.border, Colors.primary].map((color) => {
-            // Simple color interpolation workaround
-            return borderAnimation.value > 0.5 ? Colors.primary : Colors.border;
-          })
-        );
-
-    return {
-      borderColor: error ? Colors.error : isFocused ? Colors.primary : Colors.border,
-      borderWidth: isFocused ? 2 : 1,
-    };
-  });
+  const borderColor = error ? Colors.error : isFocused ? Colors.primary : Colors.border;
+  const borderWidth = isFocused ? 2 : 1;
 
   // Get size-specific styles
   const sizeStyles = getSizeStyles(size);
@@ -168,12 +126,12 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
 
   return (
     <View style={[styles.wrapper, containerStyle]}>
-      <Animated.View
+      <View
         style={[
           styles.container,
           sizeStyles.container,
           variantStyles.container,
-          animatedBorderStyle,
+          { borderColor, borderWidth },
           disabled && styles.disabled,
         ]}
       >
@@ -187,8 +145,10 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
             style={[
               styles.label,
               sizeStyles.label,
-              animatedLabelStyle,
-              animatedLabelColorStyle,
+              {
+                transform: [{ translateY: labelTranslateY }, { scale: labelScale }],
+                color: labelColor,
+              },
             ]}
             numberOfLines={1}
           >
@@ -219,7 +179,7 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
 
         {/* Right Icon */}
         {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}
-      </Animated.View>
+      </View>
 
       {/* Helper Text or Error */}
       {(helperText || error) && (

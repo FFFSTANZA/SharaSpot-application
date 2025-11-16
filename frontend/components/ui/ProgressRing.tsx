@@ -1,15 +1,9 @@
 // ProgressRing Component - Circular Progress Indicator
 // Core Principles: Data Visualization Excellence, Electric Energy
 
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ViewStyle, StyleProp } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ViewStyle, StyleProp, Animated, Easing } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
-import Animated, {
-  useSharedValue,
-  useAnimatedProps,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
 import {
   Colors,
   Typography,
@@ -56,23 +50,21 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
   const center = size / 2;
 
   // Animation value
-  const animatedProgress = useSharedValue(0);
+  const animatedProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    animatedProgress.value = withTiming(progress, {
+    Animated.timing(animatedProgress, {
+      toValue: progress,
       duration,
       easing: Easing.out(Easing.cubic),
-    });
+      useNativeDriver: true,
+    }).start();
   }, [progress]);
 
-  // Animated props for the progress circle
-  const animatedProps = useAnimatedProps(() => {
-    const strokeDashoffset =
-      circumference - (circumference * animatedProgress.value) / 100;
-
-    return {
-      strokeDashoffset,
-    };
+  // Interpolate strokeDashoffset
+  const strokeDashoffset = animatedProgress.interpolate({
+    inputRange: [0, 100],
+    outputRange: [circumference, 0],
   });
 
   return (
@@ -113,8 +105,8 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          animatedProps={animatedProps}
           rotation="-90"
           origin={`${center}, ${center}`}
         />

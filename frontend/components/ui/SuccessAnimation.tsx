@@ -1,21 +1,11 @@
 // Success Animation Component - Delightful Success Feedback
 // Core Principles: Delight at Every Touchpoint, Electric Energy
 
-import React, { useEffect } from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withSequence,
-  withTiming,
-  withDelay,
-  Easing,
-  runOnJS,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, ViewStyle, StyleProp, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { Colors, SpringConfig, AnimationDuration } from '../../constants/theme';
+import { Colors, AnimationDuration } from '../../constants/theme';
 
 export interface SuccessAnimationProps {
   size?: number;
@@ -39,11 +29,11 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
   hapticFeedback = true,
 }) => {
   // Animation values
-  const circleScale = useSharedValue(0);
-  const checkScale = useSharedValue(0);
-  const checkRotate = useSharedValue(-90);
-  const rippleScale = useSharedValue(0);
-  const rippleOpacity = useSharedValue(0.8);
+  const circleScale = useRef(new Animated.Value(0)).current;
+  const checkScale = useRef(new Animated.Value(0)).current;
+  const checkRotate = useRef(new Animated.Value(-90)).current;
+  const rippleScale = useRef(new Animated.Value(0)).current;
+  const rippleOpacity = useRef(new Animated.Value(0.8)).current;
 
   const playAnimation = () => {
     // Trigger haptic feedback
@@ -52,45 +42,65 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
     }
 
     // Circle scale in
-    circleScale.value = withSpring(1, SpringConfig.bouncy);
+    Animated.spring(circleScale, {
+      toValue: 1,
+      friction: 5,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
 
     // Checkmark appears with delay
-    checkScale.value = withDelay(
-      150,
-      withSequence(
-        withSpring(1.2, SpringConfig.snappy),
-        withSpring(1, SpringConfig.smooth)
-      )
-    );
-
-    checkRotate.value = withDelay(
-      150,
-      withTiming(0, {
-        duration: AnimationDuration.moderate,
-        easing: Easing.out(Easing.back(1.5)),
-      })
-    );
+    Animated.sequence([
+      Animated.delay(150),
+      Animated.parallel([
+        Animated.sequence([
+          Animated.spring(checkScale, {
+            toValue: 1.2,
+            friction: 3,
+            tension: 100,
+            useNativeDriver: true,
+          }),
+          Animated.spring(checkScale, {
+            toValue: 1,
+            friction: 5,
+            tension: 40,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.timing(checkRotate, {
+          toValue: 0,
+          duration: AnimationDuration.moderate || 400,
+          easing: Easing.out(Easing.back(1.5)),
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
 
     // Ripple effect
-    rippleScale.value = withDelay(
-      100,
-      withTiming(1.5, {
-        duration: AnimationDuration.slower,
-        easing: Easing.out(Easing.ease),
-      })
-    );
-
-    rippleOpacity.value = withDelay(
-      100,
-      withTiming(0, {
-        duration: AnimationDuration.slower,
-        easing: Easing.out(Easing.ease),
-      }, (finished) => {
-        if (finished && onAnimationComplete) {
-          runOnJS(onAnimationComplete)();
-        }
-      })
-    );
+    Animated.parallel([
+      Animated.sequence([
+        Animated.delay(100),
+        Animated.timing(rippleScale, {
+          toValue: 1.5,
+          duration: AnimationDuration.slower || 800,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.sequence([
+        Animated.delay(100),
+        Animated.timing(rippleOpacity, {
+          toValue: 0,
+          duration: AnimationDuration.slower || 800,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start(({ finished }) => {
+      if (finished && onAnimationComplete) {
+        onAnimationComplete();
+      }
+    });
   };
 
   useEffect(() => {
@@ -98,23 +108,6 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
       playAnimation();
     }
   }, [autoPlay]);
-
-  // Animated styles
-  const animatedCircleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: circleScale.value }],
-  }));
-
-  const animatedCheckStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: checkScale.value },
-      { rotate: `${checkRotate.value}deg` },
-    ],
-  }));
-
-  const animatedRippleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: rippleScale.value }],
-    opacity: rippleOpacity.value,
-  }));
 
   return (
     <View style={[styles.container, { width: size, height: size }, style]}>
@@ -127,8 +120,9 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
             height: size,
             borderRadius: size / 2,
             backgroundColor: color,
+            transform: [{ scale: rippleScale }],
+            opacity: rippleOpacity,
           },
-          animatedRippleStyle,
         ]}
       />
 
@@ -141,12 +135,22 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
             height: size,
             borderRadius: size / 2,
             backgroundColor: color,
+            transform: [{ scale: circleScale }],
           },
-          animatedCircleStyle,
         ]}
       >
         {/* Checkmark icon */}
-        <Animated.View style={animatedCheckStyle}>
+        <Animated.View
+          style={{
+            transform: [
+              { scale: checkScale },
+              { rotate: checkRotate.interpolate({
+                inputRange: [-90, 0],
+                outputRange: ['-90deg', '0deg'],
+              }) },
+            ],
+          }}
+        >
           <Ionicons
             name="checkmark"
             size={size * 0.6}
