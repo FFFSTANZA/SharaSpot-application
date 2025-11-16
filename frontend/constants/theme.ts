@@ -137,8 +137,10 @@ export const LightColors = {
   accentAmber: amber[500],            // #F59E0B - Warning
   accentGold: amber[400],             // #FBBF24 - Highlights
   accentPurple: '#A78BFA',            // Premium features
+  accentPurpleLight: '#E9D5FF',       // Purple 200 - Light purple
   accentCyan: cyan[500],              // #06B6D4 - Information
   accentRed: red[500],                // #EF4444 - Error
+  accentCopper: '#D97706',            // Amber 600 - Copper tone
 
   // Background - Clean White Foundation
   background: '#FFFFFF',              // Pure white
@@ -197,6 +199,7 @@ export const LightColors = {
   // Glass Effects - Modern Glass
   glass: 'rgba(255, 255, 255, 0.75)',
   glassSubtle: 'rgba(255, 255, 255, 0.6)',
+  glassLight: 'rgba(255, 255, 255, 0.4)',   // Very light glass
   glassStrong: 'rgba(255, 255, 255, 0.95)',
   glassBorder: 'rgba(226, 232, 240, 0.5)',
   glassWarm: 'rgba(236, 254, 255, 0.8)',   // Cyan tinted glass
@@ -240,8 +243,10 @@ export const DarkColors = {
   accentAmber: amber[400],            // #FBBF24 - Warm gold
   accentGold: amber[300],             // #FCD34D - Bright gold
   accentPurple: '#C4B5FD',            // Lighter purple
+  accentPurpleLight: '#F3E8FF',       // Even lighter purple for dark mode
   accentCyan: cyan[400],              // #22D3EE - Brighter cyan
   accentRed: red[400],                // #F87171 - Bright red
+  accentCopper: '#F59E0B',            // Amber 500 - Brighter copper for dark
 
   // Background - Rich Dark
   background: slate[950],             // #020617 - Almost black
@@ -300,6 +305,7 @@ export const DarkColors = {
   // Glass Effects - Dark Glass with Glow
   glass: 'rgba(15, 23, 42, 0.7)',
   glassSubtle: 'rgba(15, 23, 42, 0.5)',
+  glassLight: 'rgba(15, 23, 42, 0.3)',      // Very light glass
   glassStrong: 'rgba(15, 23, 42, 0.85)',
   glassBorder: 'rgba(148, 163, 184, 0.12)',
   glassWarm: 'rgba(8, 51, 68, 0.3)',       // Cyan glass
