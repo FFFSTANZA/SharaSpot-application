@@ -393,7 +393,7 @@ export default function SmartEcoRouting() {
   // Render input view
   if (viewMode === 'input') {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -541,7 +541,7 @@ export default function SmartEcoRouting() {
 
   // Render results view
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
       <View style={styles.resultsContainer}>
         {/* Map Section */}

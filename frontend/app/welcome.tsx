@@ -21,11 +21,17 @@ export default function Welcome() {
   // Background animation refs
   const gradientPosition = useRef(new Animated.Value(0)).current;
   const floatingOrb1Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb1X = useRef(new Animated.Value(0)).current;
   const floatingOrb2Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb2X = useRef(new Animated.Value(0)).current;
   const floatingOrb3Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb3X = useRef(new Animated.Value(0)).current;
   const floatingOrb4Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb4X = useRef(new Animated.Value(0)).current;
   const floatingOrb5Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb5X = useRef(new Animated.Value(0)).current;
   const floatingOrb6Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb6X = useRef(new Animated.Value(0)).current;
   const rotateAnim1 = useRef(new Animated.Value(0)).current;
   const rotateAnim2 = useRef(new Animated.Value(0)).current;
   const scaleAnim1 = useRef(new Animated.Value(1)).current;
@@ -48,26 +54,43 @@ export default function Welcome() {
       ])
     ).start();
 
-    // Floating orb animations (different speeds for each) - faster and more energetic
+    // Floating orb animations with multi-directional flow - flashy and energetic
+    // Orb 1 - diagonal up-right
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatingOrb1Y, {
-          toValue: -40,
-          duration: 2200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatingOrb1Y, {
-          toValue: 0,
-          duration: 2200,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatingOrb2Y, {
           toValue: -50,
+          duration: 2200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb1Y, {
+          toValue: 0,
+          duration: 2200,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb1X, {
+          toValue: 30,
+          duration: 2200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb1X, {
+          toValue: 0,
+          duration: 2200,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Orb 2 - diagonal down-left
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb2Y, {
+          toValue: -60,
           duration: 2800,
           useNativeDriver: true,
         }),
@@ -79,14 +102,45 @@ export default function Welcome() {
       ])
     ).start();
 
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb2X, {
+          toValue: -40,
+          duration: 2800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb2X, {
+          toValue: 0,
+          duration: 2800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Orb 3 - diagonal up-left
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatingOrb3Y, {
+          toValue: -45,
+          duration: 2500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb3Y, {
+          toValue: 0,
+          duration: 2500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb3X, {
           toValue: -35,
           duration: 2500,
           useNativeDriver: true,
         }),
-        Animated.timing(floatingOrb3Y, {
+        Animated.timing(floatingOrb3X, {
           toValue: 0,
           duration: 2500,
           useNativeDriver: true,
@@ -94,10 +148,11 @@ export default function Welcome() {
       ])
     ).start();
 
+    // Orb 4 - diagonal up-right
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatingOrb4Y, {
-          toValue: -45,
+          toValue: -55,
           duration: 3000,
           useNativeDriver: true,
         }),
@@ -111,8 +166,24 @@ export default function Welcome() {
 
     Animated.loop(
       Animated.sequence([
+        Animated.timing(floatingOrb4X, {
+          toValue: 45,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb4X, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Orb 5 - diagonal down-right
+    Animated.loop(
+      Animated.sequence([
         Animated.timing(floatingOrb5Y, {
-          toValue: -30,
+          toValue: -40,
           duration: 2000,
           useNativeDriver: true,
         }),
@@ -124,14 +195,45 @@ export default function Welcome() {
       ])
     ).start();
 
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb5X, {
+          toValue: 50,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb5X, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Orb 6 - horizontal sway
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatingOrb6Y, {
-          toValue: -38,
+          toValue: -48,
           duration: 2400,
           useNativeDriver: true,
         }),
         Animated.timing(floatingOrb6Y, {
+          toValue: 0,
+          duration: 2400,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb6X, {
+          toValue: -38,
+          duration: 2400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb6X, {
           toValue: 0,
           duration: 2400,
           useNativeDriver: true,
@@ -267,7 +369,7 @@ export default function Welcome() {
 
   const gradientOpacity = gradientPosition.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [0.3, 0.6, 0.3],
+    outputRange: [0.6, 0.85, 0.6],
   });
 
   const rotate1 = rotateAnim1.interpolate({
@@ -290,6 +392,7 @@ export default function Welcome() {
             opacity: gradientOpacity,
             transform: [
               { translateY: floatingOrb1Y },
+              { translateX: floatingOrb1X },
               { scale: scaleAnim1 },
               { rotate: rotate1 },
             ],
@@ -301,7 +404,10 @@ export default function Welcome() {
           styles.backgroundOrb2,
           {
             opacity: gradientOpacity,
-            transform: [{ translateY: floatingOrb2Y }],
+            transform: [
+              { translateY: floatingOrb2Y },
+              { translateX: floatingOrb2X },
+            ],
           },
         ]}
       />
@@ -312,6 +418,7 @@ export default function Welcome() {
             opacity: gradientOpacity,
             transform: [
               { translateY: floatingOrb3Y },
+              { translateX: floatingOrb3X },
               { scale: scaleAnim2 },
             ],
           },
@@ -324,6 +431,7 @@ export default function Welcome() {
             opacity: gradientOpacity,
             transform: [
               { translateY: floatingOrb4Y },
+              { translateX: floatingOrb4X },
               { rotate: rotate2 },
             ],
           },
@@ -334,7 +442,10 @@ export default function Welcome() {
           styles.backgroundOrb5,
           {
             opacity: gradientOpacity,
-            transform: [{ translateY: floatingOrb5Y }],
+            transform: [
+              { translateY: floatingOrb5Y },
+              { translateX: floatingOrb5X },
+            ],
           },
         ]}
       />
@@ -343,7 +454,10 @@ export default function Welcome() {
           styles.backgroundOrb6,
           {
             opacity: gradientOpacity,
-            transform: [{ translateY: floatingOrb6Y }],
+            transform: [
+              { translateY: floatingOrb6Y },
+              { translateX: floatingOrb6X },
+            ],
           },
         ]}
       />
@@ -407,8 +521,8 @@ const styles = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 160,
-    backgroundColor: Colors.primary,
-    opacity: 0.25,
+    backgroundColor: Colors.primary, // Electric cyan
+    opacity: 0.5,
     top: -100,
     right: -80,
   },
@@ -417,8 +531,8 @@ const styles = StyleSheet.create({
     width: 270,
     height: 270,
     borderRadius: 135,
-    backgroundColor: Colors.accentAmber,
-    opacity: 0.22,
+    backgroundColor: Colors.accent, // Lime green - EV energy
+    opacity: 0.48,
     bottom: -50,
     left: -60,
   },
@@ -427,8 +541,8 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: Colors.accent,
-    opacity: 0.20,
+    backgroundColor: Colors.accentCyan, // Electric blue
+    opacity: 0.45,
     top: '40%',
     right: -40,
   },
@@ -437,8 +551,8 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: Colors.accentAmber,
-    opacity: 0.23,
+    backgroundColor: Colors.primary, // Cyan energy
+    opacity: 0.52,
     top: '25%',
     left: -50,
   },
@@ -447,8 +561,8 @@ const styles = StyleSheet.create({
     width: 170,
     height: 170,
     borderRadius: 85,
-    backgroundColor: Colors.accentPurple,
-    opacity: 0.21,
+    backgroundColor: Colors.accent, // Vibrant green
+    opacity: 0.47,
     bottom: '30%',
     right: 20,
   },
@@ -457,8 +571,8 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 120,
-    backgroundColor: Colors.accentCyan,
-    opacity: 0.19,
+    backgroundColor: Colors.accentCyan, // Electric blue flow
+    opacity: 0.44,
     top: '60%',
     left: -70,
   },
