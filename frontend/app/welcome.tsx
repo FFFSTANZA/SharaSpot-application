@@ -22,6 +22,16 @@ export default function Welcome() {
   const floatingOrb1Y = useRef(new Animated.Value(0)).current;
   const floatingOrb2Y = useRef(new Animated.Value(0)).current;
   const floatingOrb3Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb4Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb5Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb6Y = useRef(new Animated.Value(0)).current;
+  const rotateAnim1 = useRef(new Animated.Value(0)).current;
+  const rotateAnim2 = useRef(new Animated.Value(0)).current;
+  const scaleAnim1 = useRef(new Animated.Value(1)).current;
+  const scaleAnim2 = useRef(new Animated.Value(1)).current;
+  const sparkle1 = useRef(new Animated.Value(0)).current;
+  const sparkle2 = useRef(new Animated.Value(0)).current;
+  const sparkle3 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Animated gradient background
@@ -81,6 +91,147 @@ export default function Welcome() {
         Animated.timing(floatingOrb3Y, {
           toValue: 0,
           duration: 3500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb4Y, {
+          toValue: -35,
+          duration: 4500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb4Y, {
+          toValue: 0,
+          duration: 4500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb5Y, {
+          toValue: -20,
+          duration: 2800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb5Y, {
+          toValue: 0,
+          duration: 2800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb6Y, {
+          toValue: -28,
+          duration: 3200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb6Y, {
+          toValue: 0,
+          duration: 3200,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Rotation animations
+    Animated.loop(
+      Animated.timing(rotateAnim1, {
+        toValue: 1,
+        duration: 20000,
+        useNativeDriver: true,
+      })
+    ).start();
+
+    Animated.loop(
+      Animated.timing(rotateAnim2, {
+        toValue: 1,
+        duration: 15000,
+        useNativeDriver: true,
+      })
+    ).start();
+
+    // Scale/breathing animations
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim1, {
+          toValue: 1.15,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim1, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim2, {
+          toValue: 1.2,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim2, {
+          toValue: 1,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Sparkle animations (twinkling effect)
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(sparkle1, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sparkle1, {
+          toValue: 0,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(500),
+        Animated.timing(sparkle2, {
+          toValue: 1,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sparkle2, {
+          toValue: 0,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(1000),
+        Animated.timing(sparkle3, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sparkle3, {
+          toValue: 0,
+          duration: 2000,
           useNativeDriver: true,
         }),
       ])
@@ -169,6 +320,16 @@ export default function Welcome() {
     outputRange: [0.3, 0.6, 0.3],
   });
 
+  const rotate1 = rotateAnim1.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const rotate2 = rotateAnim2.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['360deg', '0deg'],
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Animated Background Elements */}
@@ -177,7 +338,11 @@ export default function Welcome() {
           styles.backgroundOrb1,
           {
             opacity: gradientOpacity,
-            transform: [{ translateY: floatingOrb1Y }],
+            transform: [
+              { translateY: floatingOrb1Y },
+              { scale: scaleAnim1 },
+              { rotate: rotate1 },
+            ],
           },
         ]}
       />
@@ -195,8 +360,61 @@ export default function Welcome() {
           styles.backgroundOrb3,
           {
             opacity: gradientOpacity,
-            transform: [{ translateY: floatingOrb3Y }],
+            transform: [
+              { translateY: floatingOrb3Y },
+              { scale: scaleAnim2 },
+            ],
           },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.backgroundOrb4,
+          {
+            opacity: gradientOpacity,
+            transform: [
+              { translateY: floatingOrb4Y },
+              { rotate: rotate2 },
+            ],
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.backgroundOrb5,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb5Y }],
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.backgroundOrb6,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb6Y }],
+          },
+        ]}
+      />
+
+      {/* Sparkle effects */}
+      <Animated.View
+        style={[
+          styles.sparkle1,
+          { opacity: sparkle1 },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.sparkle2,
+          { opacity: sparkle2 },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.sparkle3,
+          { opacity: sparkle3 },
         ]}
       />
 
@@ -251,7 +469,7 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.surface,
+    backgroundColor: '#FFF9F5', // Warm subtle background tint
     overflow: 'hidden',
   },
   backgroundOrb1: {
@@ -260,7 +478,7 @@ const styles = StyleSheet.create({
     height: 300,
     borderRadius: 150,
     backgroundColor: Colors.primary,
-    opacity: 0.15,
+    opacity: 0.18,
     top: -100,
     right: -80,
   },
@@ -270,7 +488,7 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 125,
     backgroundColor: Colors.accentTeal,
-    opacity: 0.12,
+    opacity: 0.15,
     bottom: -50,
     left: -60,
   },
@@ -280,9 +498,78 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 100,
     backgroundColor: Colors.accent,
-    opacity: 0.08,
+    opacity: 0.12,
     top: '40%',
     right: -40,
+  },
+  backgroundOrb4: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: Colors.accentAmber,
+    opacity: 0.14,
+    top: '25%',
+    left: -50,
+  },
+  backgroundOrb5: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: Colors.accentPurple,
+    opacity: 0.13,
+    bottom: '30%',
+    right: 20,
+  },
+  backgroundOrb6: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: Colors.accentCyan,
+    opacity: 0.11,
+    top: '60%',
+    left: -70,
+  },
+  sparkle1: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.accentGold,
+    top: '20%',
+    right: '25%',
+    shadowColor: Colors.accentGold,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+  },
+  sparkle2: {
+    position: 'absolute',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.primaryLight,
+    top: '70%',
+    right: '15%',
+    shadowColor: Colors.primaryLight,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+  },
+  sparkle3: {
+    position: 'absolute',
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: Colors.accentTeal,
+    top: '45%',
+    left: '10%',
+    shadowColor: Colors.accentTeal,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 7,
   },
   content: {
     flex: 1,
