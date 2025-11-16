@@ -9,6 +9,7 @@ import Constants from 'expo-constants';
 import { VerificationBadge } from '../../components/VerificationBadge';
 import { AmenitiesIcons } from '../../components/AmenitiesIcons';
 import { FilterModal, Filters } from '../../components/FilterModal';
+import { AnimatedCard, AnimatedListItem } from '../../components/ui';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 // Conditional import for MapView (mobile only)
@@ -156,12 +157,12 @@ export default function Discover() {
     return count;
   };
 
-  const renderChargerCard = ({ item }: { item: Charger }) => (
-    <TouchableOpacity
-      style={styles.chargerCard}
-      onPress={() => handleChargerPress(item)}
-      activeOpacity={0.7}
-    >
+  const renderChargerCard = ({ item, index }: { item: Charger; index: number }) => (
+    <AnimatedListItem index={index}>
+      <AnimatedCard
+        style={styles.chargerCard}
+        onPress={() => handleChargerPress(item)}
+      >
       <View style={styles.cardHeader}>
         <View style={styles.cardIconCircle}>
           <Ionicons name="flash" size={22} color={Colors.accentTeal} />
@@ -237,7 +238,8 @@ export default function Discover() {
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+      </AnimatedCard>
+    </AnimatedListItem>
   );
 
   const renderHeader = () => (
@@ -471,14 +473,9 @@ const styles = StyleSheet.create({
     paddingBottom: 200,
   },
   chargerCard: {
-    backgroundColor: Colors.surface,
     marginHorizontal: Spacing.md,
     marginTop: Spacing.md,
     padding: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    ...Shadows.md,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
   },
   cardHeader: {
     flexDirection: 'row',
