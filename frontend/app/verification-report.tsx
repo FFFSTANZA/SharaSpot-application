@@ -980,7 +980,7 @@ export default function VerificationReport() {
               <Text style={[styles.probabilityNumber, { color: availabilityPrediction.color }]}>
                 {availabilityPrediction.currentProbability}%
               </Text>
-              <Text style={styles.probabilityLabel}>Likely Available</Text>
+              <Text style={styles.probabilityLabel} numberOfLines={2}>Likely Available</Text>
             </View>
             <View style={styles.availabilityInfo}>
               <Ionicons
@@ -2176,16 +2176,19 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: Colors.border,
     flexShrink: 0,
+    paddingHorizontal: 6,
   },
   probabilityNumber: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
   },
   probabilityLabel: {
-    fontSize: 10,
+    fontSize: 8,
     color: Colors.textSecondary,
-    marginTop: 4,
+    marginTop: 2,
     fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 10,
   },
   availabilityInfo: {
     flex: 1,

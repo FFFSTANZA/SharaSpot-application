@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Alert, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
@@ -16,6 +16,76 @@ export default function Welcome() {
   const router = useRouter();
   const { continueAsGuest, handleGoogleCallback } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Background animation refs
+  const gradientPosition = useRef(new Animated.Value(0)).current;
+  const floatingOrb1Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb2Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb3Y = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Animated gradient background
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(gradientPosition, {
+          toValue: 1,
+          duration: 8000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(gradientPosition, {
+          toValue: 0,
+          duration: 8000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Floating orb animations (different speeds for each)
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb1Y, {
+          toValue: -30,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb1Y, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb2Y, {
+          toValue: -40,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb2Y, {
+          toValue: 0,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb3Y, {
+          toValue: -25,
+          duration: 3500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb3Y, {
+          toValue: 0,
+          duration: 3500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   useEffect(() => {
     // Listen for deep link callbacks
@@ -94,8 +164,42 @@ export default function Welcome() {
     }
   };
 
+  const gradientOpacity = gradientPosition.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.3, 0.6, 0.3],
+  });
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* Animated Background Elements */}
+      <Animated.View
+        style={[
+          styles.backgroundOrb1,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb1Y }],
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.backgroundOrb2,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb2Y }],
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.backgroundOrb3,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb3Y }],
+          },
+        ]}
+      />
+
       <View style={styles.content}>
         <View style={styles.header}>
           <Ionicons name="flash" size={80} color={Colors.primary} />
@@ -119,14 +223,14 @@ export default function Welcome() {
               <Text style={styles.googleButtonText}>Continue with Google</Text>
             </TouchableOpacity>
 
-          <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
-            <Ionicons name="mail" size={24} color={Colors.textInverse} />
-            <Text style={styles.emailButtonText}>Sign in with Email</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
+              <Ionicons name="mail" size={24} color={Colors.textInverse} />
+              <Text style={styles.emailButtonText}>Sign in with Email</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
-            <Text style={styles.signupButtonText}>Create Account</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
+              <Text style={styles.signupButtonText}>Create Account</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.guestButton}
@@ -148,6 +252,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.surface,
+    overflow: 'hidden',
+  },
+  backgroundOrb1: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: Colors.primary,
+    opacity: 0.15,
+    top: -100,
+    right: -80,
+  },
+  backgroundOrb2: {
+    position: 'absolute',
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: Colors.accentTeal,
+    opacity: 0.12,
+    bottom: -50,
+    left: -60,
+  },
+  backgroundOrb3: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: Colors.accent,
+    opacity: 0.08,
+    top: '40%',
+    right: -40,
   },
   content: {
     flex: 1,

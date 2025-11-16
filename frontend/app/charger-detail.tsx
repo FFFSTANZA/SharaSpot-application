@@ -346,7 +346,7 @@ export default function ChargerDetail() {
               },
             })}
           >
-            <Ionicons name="document-text" size={20} color="#2196F3" />
+            <Ionicons name="document-text" size={20} color="#FFFFFF" />
             <Text style={styles.reportButtonText}>View Verification Report</Text>
           </TouchableOpacity>
         </View>
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.accentTeal,
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
@@ -719,7 +719,7 @@ const styles = StyleSheet.create({
   reportButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2196F3',
+    color: '#FFFFFF',
   },
   backButton: {
     backgroundColor: Colors.primary,
