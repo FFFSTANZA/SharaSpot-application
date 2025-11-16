@@ -13,6 +13,7 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Keyboard,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -393,6 +394,7 @@ export default function SmartEcoRouting() {
   if (viewMode === 'input') {
     return (
       <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.container}
@@ -540,6 +542,7 @@ export default function SmartEcoRouting() {
   // Render results view
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View style={styles.resultsContainer}>
         {/* Map Section */}
         <View style={styles.mapSection}>
