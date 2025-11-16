@@ -895,7 +895,7 @@ const styles = StyleSheet.create({
   },
   weatherBadge: {
     position: 'absolute',
-    bottom: 8,
+    bottom: 40,
     left: 16,
     flexDirection: 'row',
     alignItems: 'center',
