@@ -815,10 +815,12 @@ const styles = StyleSheet.create({
   },
   resultsContainer: {
     flex: 1,
+    backgroundColor: Colors.backgroundSecondary,
   },
   mapSection: {
     height: height * 0.35,
     position: 'relative',
+    backgroundColor: Colors.backgroundSecondary,
   },
   map: {
     width: '100%',
