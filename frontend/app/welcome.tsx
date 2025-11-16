@@ -17,95 +17,70 @@ export default function Welcome() {
   const { continueAsGuest, handleGoogleCallback } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Animation refs
-  const logoScale = useRef(new Animated.Value(0)).current;
-  const logoPulse = useRef(new Animated.Value(1)).current;
-  const titleOpacity = useRef(new Animated.Value(0)).current;
-  const titleTranslateY = useRef(new Animated.Value(20)).current;
-  const subtitleOpacity = useRef(new Animated.Value(0)).current;
-  const button1TranslateY = useRef(new Animated.Value(50)).current;
-  const button2TranslateY = useRef(new Animated.Value(50)).current;
-  const button3TranslateY = useRef(new Animated.Value(50)).current;
-  const button4TranslateY = useRef(new Animated.Value(50)).current;
-  const buttonOpacity = useRef(new Animated.Value(0)).current;
+  // Background animation refs
+  const gradientPosition = useRef(new Animated.Value(0)).current;
+  const floatingOrb1Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb2Y = useRef(new Animated.Value(0)).current;
+  const floatingOrb3Y = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Start entrance animations
-    Animated.sequence([
-      // Logo entrance with scale
-      Animated.spring(logoScale, {
-        toValue: 1,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-      // Title fade in with slide up
-      Animated.parallel([
-        Animated.timing(titleOpacity, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(titleTranslateY, {
-          toValue: 0,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-      ]),
-      // Subtitle fade in
-      Animated.timing(subtitleOpacity, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      // Start button animations with stagger effect
-      Animated.parallel([
-        Animated.timing(buttonOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.stagger(100, [
-          Animated.spring(button1TranslateY, {
-            toValue: 0,
-            tension: 50,
-            friction: 8,
-            useNativeDriver: true,
-          }),
-          Animated.spring(button2TranslateY, {
-            toValue: 0,
-            tension: 50,
-            friction: 8,
-            useNativeDriver: true,
-          }),
-          Animated.spring(button3TranslateY, {
-            toValue: 0,
-            tension: 50,
-            friction: 8,
-            useNativeDriver: true,
-          }),
-          Animated.spring(button4TranslateY, {
-            toValue: 0,
-            tension: 50,
-            friction: 8,
-            useNativeDriver: true,
-          }),
-        ]),
-      ]).start();
-    });
-
-    // Continuous pulse animation for logo
+    // Animated gradient background
     Animated.loop(
       Animated.sequence([
-        Animated.timing(logoPulse, {
-          toValue: 1.1,
-          duration: 1500,
+        Animated.timing(gradientPosition, {
+          toValue: 1,
+          duration: 8000,
           useNativeDriver: true,
         }),
-        Animated.timing(logoPulse, {
-          toValue: 1,
-          duration: 1500,
+        Animated.timing(gradientPosition, {
+          toValue: 0,
+          duration: 8000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Floating orb animations (different speeds for each)
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb1Y, {
+          toValue: -30,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb1Y, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb2Y, {
+          toValue: -40,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb2Y, {
+          toValue: 0,
+          duration: 4000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatingOrb3Y, {
+          toValue: -25,
+          duration: 3500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatingOrb3Y, {
+          toValue: 0,
+          duration: 3500,
           useNativeDriver: true,
         }),
       ])
@@ -189,38 +164,47 @@ export default function Welcome() {
     }
   };
 
+  const gradientOpacity = gradientPosition.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.3, 0.6, 0.3],
+  });
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* Animated Background Elements */}
+      <Animated.View
+        style={[
+          styles.backgroundOrb1,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb1Y }],
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.backgroundOrb2,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb2Y }],
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.backgroundOrb3,
+          {
+            opacity: gradientOpacity,
+            transform: [{ translateY: floatingOrb3Y }],
+          },
+        ]}
+      />
+
       <View style={styles.content}>
         <View style={styles.header}>
-          <Animated.View
-            style={{
-              transform: [
-                { scale: Animated.multiply(logoScale, logoPulse) }
-              ]
-            }}
-          >
-            <Ionicons name="flash" size={80} color={Colors.primary} />
-          </Animated.View>
-          <Animated.Text
-            style={[
-              styles.title,
-              {
-                opacity: titleOpacity,
-                transform: [{ translateY: titleTranslateY }]
-              }
-            ]}
-          >
-            SharaSpot
-          </Animated.Text>
-          <Animated.Text
-            style={[
-              styles.subtitle,
-              { opacity: subtitleOpacity }
-            ]}
-          >
-            Whether you drive, Charge Nearby
-          </Animated.Text>
+          <Ionicons name="flash" size={80} color={Colors.primary} />
+          <Text style={styles.title}>SharaSpot</Text>
+          <Text style={styles.subtitle}>Whether you drive, Charge Nearby</Text>
         </View>
 
         {isLoading ? (
@@ -230,70 +214,35 @@ export default function Welcome() {
           </View>
         ) : (
           <View style={styles.buttonsContainer}>
-            <Animated.View
-              style={{
-                opacity: buttonOpacity,
-                transform: [{ translateY: button1TranslateY }]
-              }}
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={handleGoogleSignIn}
+              disabled={isLoading}
             >
-              <TouchableOpacity
-                style={styles.googleButton}
-                onPress={handleGoogleSignIn}
-                disabled={isLoading}
-              >
-                <Ionicons name="logo-google" size={24} color="#DB4437" />
-                <Text style={styles.googleButtonText}>Continue with Google</Text>
-              </TouchableOpacity>
-            </Animated.View>
+              <Ionicons name="logo-google" size={24} color="#DB4437" />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
 
-            <Animated.View
-              style={{
-                opacity: buttonOpacity,
-                transform: [{ translateY: button2TranslateY }]
-              }}
-            >
-              <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
-                <Ionicons name="mail" size={24} color={Colors.textInverse} />
-                <Text style={styles.emailButtonText}>Sign in with Email</Text>
-              </TouchableOpacity>
-            </Animated.View>
+            <TouchableOpacity style={styles.emailButton} onPress={() => router.push('/login')}>
+              <Ionicons name="mail" size={24} color={Colors.textInverse} />
+              <Text style={styles.emailButtonText}>Sign in with Email</Text>
+            </TouchableOpacity>
 
-            <Animated.View
-              style={{
-                opacity: buttonOpacity,
-                transform: [{ translateY: button3TranslateY }]
-              }}
-            >
-              <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
-                <Text style={styles.signupButtonText}>Create Account</Text>
-              </TouchableOpacity>
-            </Animated.View>
+            <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/signup')}>
+              <Text style={styles.signupButtonText}>Create Account</Text>
+            </TouchableOpacity>
 
-            <Animated.View
-              style={{
-                opacity: buttonOpacity,
-                transform: [{ translateY: button4TranslateY }]
-              }}
+            <TouchableOpacity
+              style={styles.guestButton}
+              onPress={handleGuest}
+              disabled={isLoading}
             >
-              <TouchableOpacity
-                style={styles.guestButton}
-                onPress={handleGuest}
-                disabled={isLoading}
-              >
-                <Text style={styles.guestButtonText}>Continue as Guest</Text>
-              </TouchableOpacity>
-            </Animated.View>
+              <Text style={styles.guestButtonText}>Continue as Guest</Text>
+            </TouchableOpacity>
           </View>
         )}
 
-        <Animated.Text
-          style={[
-            styles.disclaimer,
-            { opacity: buttonOpacity }
-          ]}
-        >
-          Guest mode has limited features
-        </Animated.Text>
+        <Text style={styles.disclaimer}>Guest mode has limited features</Text>
       </View>
     </SafeAreaView>
   );
@@ -303,6 +252,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.surface,
+    overflow: 'hidden',
+  },
+  backgroundOrb1: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: Colors.primary,
+    opacity: 0.15,
+    top: -100,
+    right: -80,
+  },
+  backgroundOrb2: {
+    position: 'absolute',
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: Colors.accentTeal,
+    opacity: 0.12,
+    bottom: -50,
+    left: -60,
+  },
+  backgroundOrb3: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: Colors.accent,
+    opacity: 0.08,
+    top: '40%',
+    right: -40,
   },
   content: {
     flex: 1,
