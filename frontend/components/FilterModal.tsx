@@ -89,7 +89,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
           <View style={styles.header}>
             <Text style={styles.title}>Filters</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={28} color="#1A1A1A" />
+              <Ionicons name="close" size={28} color={Colors.textPrimary} />
             </TouchableOpacity>
           </View>
 
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -231,12 +231,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   content: {
     padding: 24,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   optionsGrid: {
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   optionButton: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   optionTextActive: {
     color: Colors.primaryDark,
@@ -281,11 +281,11 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: Colors.border,
   },
   resetButton: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   resetButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   applyButton: {
     flex: 2,
@@ -305,6 +305,6 @@ const styles = StyleSheet.create({
   applyButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.textInverse,
   },
 });

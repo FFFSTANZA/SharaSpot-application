@@ -48,11 +48,11 @@ interface Charger {
 type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
-  1: '#9E9E9E',  // Grey - New Entry
-  2: Colors.primary,  // Deep Teal - Community Verified
-  3: '#2196F3',  // Blue - Reliable
-  4: '#FFB300',  // Gold - Trusted
-  5: '#9C27B0',  // Platinum - Certified Partner
+  1: Colors.textTertiary,    // Grey - New Entry
+  2: Colors.primary,         // Cyan - Community Verified
+  3: Colors.info,            // Blue - Reliable
+  4: Colors.warning,         // Amber/Gold - Trusted
+  5: Colors.accentPurple,    // Purple - Certified Partner
 };
 
 export default function Discover() {

@@ -5,39 +5,39 @@
 import { Platform } from 'react-native';
 
 // ============================================================================
-// COLOR SYSTEM - Unique & Energetic
+// COLOR SYSTEM - Clean & Modern Cyan/Slate
 // ============================================================================
 
-// Primary Palette - Deep Teal (Distinctive & Warm Energy)
-// Inspired by ocean depths - sophisticated calm with electric energy
-const burntOrange = {
-  50: '#F0FDFA',
-  100: '#CCFBF1',
-  200: '#99F6E4',
-  300: '#5EEAD4',
-  400: '#2DD4BF',
-  500: '#14B8A6',  // Base - Vibrant deep teal
-  600: '#0D9488',  // Primary - Deep teal
-  700: '#0F766E',  // Primary Dark - Rich teal tone
-  800: '#115E59',
-  900: '#134E4A',
-  950: '#042F2E',
+// Primary Palette - Cyan (Clean & Professional Energy)
+// Fresh cyan palette for modern, clean UI
+const cyan = {
+  50: '#ECFEFF',
+  100: '#CFFAFE',
+  200: '#A5F3FC',
+  300: '#67E8F9',
+  400: '#22D3EE',
+  500: '#06B6D4',
+  600: '#0891B2',  // Primary - Cyan 600
+  700: '#0E7490',  // Primary Dark
+  800: '#155E75',
+  900: '#164E63',
+  950: '#083344',
 };
 
-// Secondary Palette - Charcoal (Premium & Grounding)
-// Sophisticated dark gray with subtle warmth to complement teal
-const charcoal = {
-  50: '#FAFAFA',
-  100: '#F4F4F5',
-  200: '#E4E4E7',
-  300: '#D4D4D8',
-  400: '#A1A1AA',
-  500: '#71717A',
-  600: '#52525B',  // Secondary
-  700: '#3F3F46',
-  800: '#27272A',
-  900: '#18181B',
-  950: '#09090B',
+// Secondary Palette - Slate (Clean & Neutral)
+// Modern slate grays for text and UI elements
+const slate = {
+  50: '#F8FAFC',
+  100: '#F1F5F9',
+  200: '#E2E8F0',
+  300: '#CBD5E1',
+  400: '#94A3B8',
+  500: '#64748B',
+  600: '#475569',
+  700: '#334155',  // Secondary
+  800: '#1E293B',
+  900: '#0F172A',  // Text primary
+  950: '#020617',
 };
 
 // Accent Palette - Electric Lime (Energy & Innovation)
@@ -56,31 +56,31 @@ const electricLime = {
   950: '#1A2E05',
 };
 
-// Complementary Palette - Deep Navy (Trust & Technology)
-// Cool counterbalance to teal - represents reliability
-const deepTeal = {
-  50: '#EBF2FF',
-  100: '#D6E4FF',
-  200: '#ADC9FF',
-  300: '#7DA3FF',
-  400: '#4D7DFF',
-  500: '#2452D6',
-  600: '#1B3DB8',  // Complement
-  700: '#132D99',
-  800: '#0C1F7A',
-  900: '#091176',
-  950: '#050955',
+// Complementary Palette - Blue (Info & Trust)
+// Blue palette for informational elements
+const blue = {
+  50: '#EFF6FF',
+  100: '#DBEAFE',
+  200: '#BFDBFE',
+  300: '#93C5FD',
+  400: '#60A5FA',
+  500: '#3B82F6',  // Info
+  600: '#2563EB',
+  700: '#1D4ED8',
+  800: '#1E40AF',
+  900: '#1E3A8A',
+  950: '#172554',
 };
 
-// Supporting Palette - Warm Amber
-// Rich amber for premium features and highlights
-const warmAmber = {
+// Supporting Palette - Amber (Warnings & Highlights)
+// Amber for warnings and premium features
+const amber = {
   50: '#FFFBEB',
   100: '#FEF3C7',
   200: '#FDE68A',
   300: '#FCD34D',
   400: '#FBBF24',
-  500: '#F59E0B',
+  500: '#F59E0B',  // Warning
   600: '#D97706',
   700: '#B45309',
   800: '#92400E',
@@ -88,175 +88,146 @@ const warmAmber = {
   950: '#451A03',
 };
 
-// Neutral Palette - Warm Grays
-// Slight warm tint to harmonize with teal primary
-const neutral = {
-  0: '#FFFFFF',
-  50: '#FAFAF9',
-  100: '#F5F5F4',
-  200: '#E7E5E4',
-  300: '#D6D3D1',
-  400: '#A8A29E',
-  500: '#78716C',
-  600: '#57534E',
-  700: '#44403C',
-  800: '#292524',
-  900: '#1C1917',
-  950: '#0C0A09',
+// Additional Palette - Red (Errors)
+// Red for error states
+const red = {
+  50: '#FEF2F2',
+  100: '#FEE2E2',
+  200: '#FECACA',
+  300: '#FCA5A5',
+  400: '#F87171',
+  500: '#EF4444',  // Error
+  600: '#DC2626',
+  700: '#B91C1C',
+  800: '#991B1B',
+  900: '#7F1D1D',
+  950: '#450A0A',
 };
 
 // Semantic Colors - Clear & Professional
 const semantic = {
-  success: {
-    50: '#F0FDF4',
-    100: '#DCFCE7',
-    500: '#22C55E',
-    600: '#16A34A',
-    700: '#15803D',
-    950: '#052E16',
-  },
-  warning: {
-    50: '#FFFBEB',
-    100: '#FEF3C7',
-    500: '#F59E0B',
-    600: '#D97706',
-    700: '#B45309',
-    950: '#451A03',
-  },
-  error: {
-    50: '#FEF2F2',
-    100: '#FEE2E2',
-    500: '#EF4444',
-    600: '#DC2626',
-    700: '#B91C1C',
-    950: '#450A0A',
-  },
-  info: {
-    50: '#EFF6FF',
-    100: '#DBEAFE',
-    500: '#3B82F6',
-    600: '#2563EB',
-    700: '#1D4ED8',
-    950: '#172554',
-  },
+  success: electricLime,
+  warning: amber,
+  error: red,
+  info: blue,
 };
 
-// Light Theme Colors - Warm & Dynamic
+// Light Theme Colors - Clean & Modern
 export const LightColors = {
-  // Primary - Deep Teal (Energy & Warmth)
-  primary: burntOrange[600],          // #0D9488 - Rich teal
-  primaryLight: burntOrange[500],     // #14B8A6 - Bright teal
-  primaryDark: burntOrange[700],      // #0F766E - Deep teal
-  primarySubtle: burntOrange[50],     // #F0FDFA - Cool tint
+  // Primary - Cyan (Clean Energy)
+  primary: cyan[600],                 // #0891B2 - Cyan 600
+  primaryLight: cyan[500],            // #06B6D4 - Bright cyan
+  primaryDark: cyan[700],             // #0E7490 - Deep cyan
+  primarySubtle: cyan[50],            // #ECFEFF - Subtle tint
 
-  // Secondary - Premium Charcoal
-  secondary: charcoal[700],           // #3F3F46 - Strong contrast
-  secondaryLight: charcoal[600],      // #52525B - Lighter variant
-  secondaryDark: charcoal[800],       // #27272A - Deeper variant
-  secondarySubtle: charcoal[50],      // #FAFAFA - Subtle backgrounds
+  // Secondary - Slate
+  secondary: slate[700],              // #334155 - Slate 700
+  secondaryLight: slate[600],         // #475569 - Lighter slate
+  secondaryDark: slate[800],          // #1E293B - Deeper slate
+  secondarySubtle: slate[50],         // #F8FAFC - Subtle backgrounds
 
   // Accent - Electric Lime
-  accent: electricLime[500],          // #84CC16 - Charging/Active
+  accent: electricLime[500],          // #84CC16 - Success/Charging
   accentLight: electricLime[400],     // #A3E635 - Hover
   accentDark: electricLime[600],      // #65A30D - Active
   accentSubtle: electricLime[50],     // #F7FEE7 - Subtle tint
 
   // Additional Accents - Supporting Colors
-  accentTeal: deepTeal[600],          // #1B3DB8 - Deep Navy - Tech/Trust
-  accentAmber: warmAmber[500],        // #F59E0B - Premium/Rewards
-  accentGold: warmAmber[400],         // #FBBF24 - Highlights
+  accentBlue: blue[500],              // #3B82F6 - Info
+  accentAmber: amber[500],            // #F59E0B - Warning
+  accentGold: amber[400],             // #FBBF24 - Highlights
   accentPurple: '#A78BFA',            // Premium features
-  accentCyan: '#06B6D4',              // Information
-  accentCopper: '#CD7F32',            // Metallic accent
+  accentCyan: cyan[500],              // #06B6D4 - Information
+  accentRed: red[500],                // #EF4444 - Error
 
-  // Background - Clean Warm Foundation (Eye-friendly soft tones)
-  background: '#FDFCFB',              // Soft warm white (reduced glare)
-  backgroundSecondary: '#FAF9F8',     // Warm off-white for sections
-  backgroundTertiary: '#F5F4F2',      // Gentle gray-beige
+  // Background - Clean White Foundation
+  background: '#FFFFFF',              // Pure white
+  backgroundSecondary: slate[50],     // #F8FAFC - Slate 50
+  backgroundTertiary: slate[100],     // #F1F5F9 - Slate 100
 
-  // Surface - Card Layers (Softer whites for comfort)
-  surface: '#FEFEFE',                 // Very soft white (not pure white)
-  surfaceElevated: '#FEFEFE',         // Elevated elements
-  surfaceOverlay: 'rgba(253, 252, 251, 0.96)',
-  surfaceTinted: 'rgba(240, 253, 250, 0.6)',  // Cool teal tint
+  // Surface - Card Layers
+  surface: '#FFFFFF',                 // White
+  surfaceElevated: '#FFFFFF',         // Elevated white
+  surfaceOverlay: 'rgba(255, 255, 255, 0.96)',
+  surfaceTinted: 'rgba(236, 254, 255, 0.6)',  // Cyan tint
 
-  // Text - Comfortable contrast (Eye-friendly, reduced harshness)
-  textPrimary: '#2A2827',             // Softer dark (not pure black)
-  textSecondary: '#6B6662',           // Comfortable mid-tone
-  textTertiary: '#8B8682',            // Gentle hints
-  textDisabled: '#B0ABA7',            // Soft disabled state
-  textInverse: '#FEFEFE',             // Soft white on dark
-  textAccent: burntOrange[600],       // Teal highlights
+  // Text - Clean Contrast
+  textPrimary: slate[900],            // #0F172A - Slate 900
+  textSecondary: slate[500],          // #64748B - Slate 500
+  textTertiary: slate[400],           // #94A3B8 - Slate 400
+  textDisabled: slate[300],           // #CBD5E1 - Slate 300
+  textInverse: '#FFFFFF',             // White on dark
+  textAccent: cyan[600],              // #0891B2 - Cyan highlights
 
-  // Border - Warm Subtle Definition (Softer for eye comfort)
-  border: '#EDECEA',                  // Gentle border (softer than default)
-  borderLight: '#F7F6F5',             // Very subtle
-  borderStrong: '#DDD9D6',            // Emphasized but not harsh
-  borderAccent: burntOrange[200],     // #99F6E4 - Accent borders
+  // Border - Clean Definition
+  border: slate[200],                 // #E2E8F0 - Slate 200
+  borderLight: slate[100],            // #F1F5F9 - Very subtle
+  borderStrong: slate[300],           // #CBD5E1 - Emphasized
+  borderAccent: cyan[300],            // #67E8F9 - Accent borders
 
   // States - Clear Feedback
-  success: electricLime[600],         // #65A30D - Using accent for consistency
-  successLight: electricLime[50],
-  successDark: electricLime[700],
+  success: electricLime[500],         // #84CC16 - Lime 500
+  successLight: electricLime[50],     // #F7FEE7
+  successDark: electricLime[700],     // #4D7C0F
 
-  warning: warmAmber[500],            // #F59E0B - Warm warning
-  warningLight: warmAmber[50],
-  warningDark: warmAmber[700],
+  warning: amber[500],                // #F59E0B - Amber 500
+  warningLight: amber[100],           // #FEF3C7
+  warningDark: amber[800],            // #92400E
 
-  error: semantic.error[600],         // #DC2626 - Clear error
-  errorLight: semantic.error[50],
-  errorDark: semantic.error[700],
+  error: red[500],                    // #EF4444 - Red 500
+  errorLight: red[100],               // #FEE2E2
+  errorDark: red[700],                // #B91C1C
 
-  info: deepTeal[600],                // #1B3DB8 - Calm info
-  infoLight: deepTeal[50],
-  infoDark: deepTeal[700],
+  info: blue[500],                    // #3B82F6 - Blue 500
+  infoLight: blue[100],               // #DBEAFE
+  infoDark: blue[700],                // #1D4ED8
 
   // Special States
   charging: electricLime[500],        // #84CC16 - Active charging
-  chargingGlow: electricLime[400],    // #A3E635 - Glow effect
-  available: deepTeal[500],           // #2452D6 - Available
-  occupied: burntOrange[500],         // #14B8A6 - In use
+  chargingGlow: electricLime[300],    // #BEF264 - Glow effect
+  available: cyan[600],               // #0891B2 - Available
+  occupied: amber[500],               // #F59E0B - In use
 
   // Overlays - Professional Depth
-  overlay: 'rgba(0, 0, 0, 0.5)',
-  overlayLight: 'rgba(0, 0, 0, 0.25)',
-  overlayHeavy: 'rgba(0, 0, 0, 0.7)',
-  overlayWarm: 'rgba(13, 148, 136, 0.08)',  // Cool teal overlay
+  overlay: 'rgba(15, 23, 42, 0.7)',   // Slate 900 with transparency
+  overlayLight: 'rgba(15, 23, 42, 0.5)',
+  overlayHeavy: 'rgba(15, 23, 42, 0.85)',
+  overlayWarm: 'rgba(8, 145, 178, 0.08)',  // Cyan overlay
 
-  // Glass Effects - Modern Warm Glass
+  // Glass Effects - Modern Glass
   glass: 'rgba(255, 255, 255, 0.75)',
   glassSubtle: 'rgba(255, 255, 255, 0.6)',
-  glassStrong: 'rgba(255, 255, 255, 0.9)',
-  glassBorder: 'rgba(255, 255, 255, 0.18)',
-  glassWarm: 'rgba(240, 253, 250, 0.8)',   // Cool tinted glass
+  glassStrong: 'rgba(255, 255, 255, 0.95)',
+  glassBorder: 'rgba(226, 232, 240, 0.5)',
+  glassWarm: 'rgba(236, 254, 255, 0.8)',   // Cyan tinted glass
 
-  // Gradients - Dynamic & Memorable
-  gradientPrimary: [burntOrange[500], burntOrange[700]],      // Teal glow
-  gradientCharge: [electricLime[400], electricLime[600]],     // Charging gradient
-  gradientPremium: [burntOrange[600], charcoal[700]],         // Premium dark
-  gradientEnergy: ['#0D9488', '#84CC16'],                     // Teal to green
-  gradientEmber: ['#14B8A6', '#0D9488', '#0F766E'],           // Deep teal
-  gradientSunrise: ['#99F6E4', '#5EEAD4', '#2DD4BF'],         // Cool morning
-  gradientSpeed: ['#0D9488', '#2DD4BF', '#FBBF24'],           // Fast charging
-  gradientNight: [charcoal[800], charcoal[950]],              // Dark mode base
-  gradientWarmth: ['#F0FDFA', '#CCFBF1', '#99F6E4'],          // Cool background
-  gradientFire: ['#FBBF24', '#14B8A6', '#0D9488'],            // Teal energy
-  gradientTech: [deepTeal[500], burntOrange[500]],            // Navy meets teal energy
+  // Gradients - Dynamic & Clean
+  gradientPrimary: [cyan[600], cyan[700]],           // Cyan gradient
+  gradientCharge: [electricLime[400], electricLime[600]], // Charging gradient
+  gradientPremium: [cyan[600], slate[700]],          // Premium
+  gradientEnergy: ['#0891B2', '#84CC16'],            // Cyan to lime
+  gradientEmber: ['#0891B2', '#06B6D4', '#22D3EE'],  // Cyan variants
+  gradientSunrise: ['#A5F3FC', '#67E8F9', '#22D3EE'], // Light cyan
+  gradientSpeed: ['#0891B2', '#22D3EE', '#FBBF24'],  // Fast charging
+  gradientNight: [slate[800], slate[950]],           // Dark mode base
+  gradientWarmth: ['#ECFEFF', '#CFFAFE', '#A5F3FC'], // Cyan background
+  gradientFire: ['#FBBF24', '#0891B2', '#06B6D4'],   // Cyan energy
+  gradientTech: [blue[500], cyan[600]],              // Blue meets cyan
 };
 
 // Dark Theme Colors - Sophisticated Night Mode with Cool Glow
 export const DarkColors = {
-  // Primary - Glowing Teal
-  primary: burntOrange[500],          // #14B8A6 - Bright teal
-  primaryLight: burntOrange[400],     // #2DD4BF - Lighter glow
-  primaryDark: burntOrange[600],      // #0D9488 - Deeper teal
-  primarySubtle: burntOrange[950],    // #042F2E - Subtle tint
+  // Primary - Glowing Cyan
+  primary: cyan[500],                 // #06B6D4 - Bright cyan
+  primaryLight: cyan[400],            // #22D3EE - Lighter glow
+  primaryDark: cyan[600],             // #0891B2 - Deeper cyan
+  primarySubtle: cyan[950],           // #083344 - Subtle tint
 
-  // Secondary - Lighter Charcoal
-  secondary: charcoal[500],           // #71717A - Softer in dark
-  secondaryLight: charcoal[400],      // #A1A1AA - Lighter
-  secondaryDark: charcoal[600],       // #52525B - Deeper
-  secondarySubtle: charcoal[950],     // #09090B - Subtle backgrounds
+  // Secondary - Lighter Slate
+  secondary: slate[500],              // #64748B - Softer in dark
+  secondaryLight: slate[400],         // #94A3B8 - Lighter
+  secondaryDark: slate[600],          // #475569 - Deeper
+  secondarySubtle: slate[950],        // #020617 - Subtle backgrounds
 
   // Accent - Bright Lime Glow
   accent: electricLime[400],          // #A3E635 - Bright in dark
@@ -265,85 +236,85 @@ export const DarkColors = {
   accentSubtle: electricLime[950],    // #1A2E05 - Subtle tint
 
   // Additional Accents - Night Mode
-  accentTeal: deepTeal[400],          // #4D7DFF - Bright navy
-  accentAmber: warmAmber[400],        // #FBBF24 - Warm gold
-  accentGold: warmAmber[300],         // #FCD34D - Bright gold
+  accentBlue: blue[400],              // #60A5FA - Bright blue
+  accentAmber: amber[400],            // #FBBF24 - Warm gold
+  accentGold: amber[300],             // #FCD34D - Bright gold
   accentPurple: '#C4B5FD',            // Lighter purple
-  accentCyan: '#22D3EE',              // Brighter cyan
-  accentCopper: '#E89E6B',            // Bright copper
+  accentCyan: cyan[400],              // #22D3EE - Brighter cyan
+  accentRed: red[400],                // #F87171 - Bright red
 
-  // Background - Rich Dark with Warmth
-  background: '#0A0908',              // Almost black with warm tint
-  backgroundSecondary: neutral[900],  // #1C1917 - Elevated
-  backgroundTertiary: neutral[800],   // #292524 - Cards
+  // Background - Rich Dark
+  background: slate[950],             // #020617 - Almost black
+  backgroundSecondary: slate[900],    // #0F172A - Elevated
+  backgroundTertiary: slate[800],     // #1E293B - Cards
 
   // Surface - Dark Layers
-  surface: '#121110',                 // Slightly lighter than background
-  surfaceElevated: neutral[800],      // #292524 - Raised
-  surfaceOverlay: 'rgba(28, 25, 23, 0.96)',
-  surfaceTinted: 'rgba(4, 47, 46, 0.12)',  // Cool teal tint
+  surface: slate[900],                // #0F172A - Slightly lighter
+  surfaceElevated: slate[800],        // #1E293B - Raised
+  surfaceOverlay: 'rgba(15, 23, 42, 0.96)',
+  surfaceTinted: 'rgba(8, 51, 68, 0.12)',  // Cyan tint
 
   // Text - Optimized Contrast
-  textPrimary: '#F5F5F4',             // Soft white
-  textSecondary: neutral[400],        // #A8A29E - Secondary
-  textTertiary: neutral[500],         // #78716C - Hints
-  textDisabled: neutral[600],         // #57534E - Disabled
-  textInverse: neutral[950],          // Dark on light
-  textAccent: burntOrange[400],       // Teal highlights
+  textPrimary: '#FFFFFF',             // White
+  textSecondary: slate[400],          // #94A3B8 - Secondary
+  textTertiary: slate[500],           // #64748B - Hints
+  textDisabled: slate[600],           // #475569 - Disabled
+  textInverse: slate[950],            // Dark on light
+  textAccent: cyan[400],              // #22D3EE - Cyan highlights
 
-  // Border - Subtle Dark with Warmth
-  border: 'rgba(168, 162, 158, 0.15)',     // Subtle border
-  borderLight: 'rgba(168, 162, 158, 0.08)', // Very subtle
-  borderStrong: 'rgba(168, 162, 158, 0.25)', // Emphasized
-  borderAccent: 'rgba(20, 184, 166, 0.3)',  // Teal glow
+  // Border - Subtle Dark
+  border: 'rgba(148, 163, 184, 0.15)',     // Subtle border
+  borderLight: 'rgba(148, 163, 184, 0.08)', // Very subtle
+  borderStrong: 'rgba(148, 163, 184, 0.25)', // Emphasized
+  borderAccent: 'rgba(6, 182, 212, 0.3)',   // Cyan glow
 
   // States - Dark Adjusted
-  success: electricLime[500],
-  successLight: electricLime[950],
-  successDark: electricLime[600],
+  success: electricLime[500],         // #84CC16
+  successLight: electricLime[950],    // #1A2E05
+  successDark: electricLime[600],     // #65A30D
 
-  warning: warmAmber[400],
-  warningLight: warmAmber[950],
-  warningDark: warmAmber[600],
+  warning: amber[400],                // #FBBF24
+  warningLight: amber[950],           // #451A03
+  warningDark: amber[600],            // #D97706
 
-  error: semantic.error[500],
-  errorLight: semantic.error[950],
-  errorDark: semantic.error[600],
+  error: red[500],                    // #EF4444
+  errorLight: red[950],               // #450A0A
+  errorDark: red[600],                // #DC2626
 
-  info: deepTeal[400],
-  infoLight: deepTeal[950],
-  infoDark: deepTeal[600],
+  info: blue[400],                    // #60A5FA
+  infoLight: blue[950],               // #172554
+  infoDark: blue[600],                // #2563EB
 
   // Special States
   charging: electricLime[400],        // #A3E635 - Bright charging
   chargingGlow: electricLime[300],    // #BEF264 - Intense glow
-  available: deepTeal[400],           // #4D7DFF - Available
-  occupied: burntOrange[400],         // #2DD4BF - In use
+  available: cyan[400],               // #22D3EE - Available
+  occupied: amber[400],               // #FBBF24 - In use
 
   // Overlays - Dark Mode
   overlay: 'rgba(0, 0, 0, 0.75)',
   overlayLight: 'rgba(0, 0, 0, 0.5)',
   overlayHeavy: 'rgba(0, 0, 0, 0.85)',
-  overlayWarm: 'rgba(20, 184, 166, 0.12)',  // Cool glow overlay
+  overlayWarm: 'rgba(6, 182, 212, 0.12)',  // Cyan glow overlay
 
   // Glass Effects - Dark Glass with Glow
-  glass: 'rgba(28, 25, 23, 0.7)',
-  glassSubtle: 'rgba(28, 25, 23, 0.5)',
-  glassStrong: 'rgba(28, 25, 23, 0.85)',
-  glassBorder: 'rgba(168, 162, 158, 0.12)',
-  glassWarm: 'rgba(4, 47, 46, 0.3)',       // Cool teal glass
+  glass: 'rgba(15, 23, 42, 0.7)',
+  glassSubtle: 'rgba(15, 23, 42, 0.5)',
+  glassStrong: 'rgba(15, 23, 42, 0.85)',
+  glassBorder: 'rgba(148, 163, 184, 0.12)',
+  glassWarm: 'rgba(8, 51, 68, 0.3)',       // Cyan glass
 
   // Gradients - Night Versions with Glow
-  gradientPrimary: [burntOrange[400], burntOrange[600]],      // Teal glow
-  gradientCharge: [electricLime[300], electricLime[500]],     // Charging
-  gradientPremium: [burntOrange[500], charcoal[800]],         // Premium dark
-  gradientEnergy: ['#2DD4BF', '#A3E635'],                     // Teal to green
-  gradientEmber: ['#2DD4BF', '#14B8A6', '#0D9488'],           // Night teal
-  gradientNight: [neutral[900], neutral[950]],                // Deep dark
-  gradientNeon: ['#2DD4BF', '#5EEAD4', '#FCD34D'],            // Neon glow
-  gradientMidnight: [charcoal[900], deepTeal[900]],           // Blue-black
-  gradientFire: ['#FCD34D', '#2DD4BF', '#14B8A6'],            // Teal glow
-  gradientCoal: ['#292524', '#0A0908'],                       // Hot coal
+  gradientPrimary: [cyan[400], cyan[600]],           // Cyan glow
+  gradientCharge: [electricLime[300], electricLime[500]], // Charging
+  gradientPremium: [cyan[500], slate[800]],          // Premium dark
+  gradientEnergy: ['#22D3EE', '#A3E635'],            // Cyan to green
+  gradientEmber: ['#22D3EE', '#06B6D4', '#0891B2'],  // Night cyan
+  gradientNight: [slate[900], slate[950]],           // Deep dark
+  gradientNeon: ['#22D3EE', '#67E8F9', '#FCD34D'],   // Neon glow
+  gradientMidnight: [slate[900], blue[900]],         // Blue-black
+  gradientFire: ['#FCD34D', '#22D3EE', '#06B6D4'],   // Cyan glow
+  gradientCoal: [slate[800], slate[950]],            // Hot coal
 };
 
 // Default to light theme
@@ -643,30 +614,30 @@ export const Shadows = {
     elevation: 20,
   },
 
-  // Colored Glows - Teal & Energy
+  // Colored Glows - Cyan & Energy
   primaryGlow: {
-    shadowColor: '#0D9488',
+    shadowColor: '#0891B2',      // Cyan 600
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 4,
   },
   accentGlow: {
-    shadowColor: '#84CC16',
+    shadowColor: '#84CC16',      // Lime 500
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 4,
   },
-  emberGlow: {
-    shadowColor: '#14B8A6',
+  cyanGlow: {
+    shadowColor: '#06B6D4',      // Cyan 500
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 16,
     elevation: 6,
   },
-  warmGlow: {
-    shadowColor: '#5EEAD4',
+  lightGlow: {
+    shadowColor: '#67E8F9',      // Cyan 300
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 10,

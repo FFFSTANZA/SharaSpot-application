@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '../constants/theme';
 
 interface AmenitiesIconsProps {
   amenities: string[];
@@ -16,10 +17,10 @@ const AMENITY_ICONS: { [key: string]: keyof typeof Ionicons.glyphMap } = {
   shopping: 'cart',
 };
 
-export const AmenitiesIcons: React.FC<AmenitiesIconsProps> = ({ 
-  amenities, 
-  size = 16, 
-  color = '#666666' 
+export const AmenitiesIcons: React.FC<AmenitiesIconsProps> = ({
+  amenities,
+  size = 16,
+  color = Colors.textSecondary
 }) => {
   return (
     <View style={styles.container}>
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconWrapper: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     padding: 6,
     borderRadius: 6,
     justifyContent: 'center',

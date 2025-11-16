@@ -360,13 +360,13 @@ export default function ChargerDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
   },
   errorContainer: {
     flex: 1,
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#999999',
+    color: Colors.textTertiary,
     marginTop: 16,
   },
   header: {
@@ -385,9 +385,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   headerBackButton: {
     padding: 12,
@@ -399,13 +399,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   placeholder: {
     width: 40,
   },
   mainInfo: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 24,
     marginBottom: 16,
   },
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   badgeRow: {
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
   sourceText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   addressRow: {
     flexDirection: 'row',
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   address: {
     flex: 1,
     fontSize: 14,
-    color: '#666666',
+    color: Colors.textSecondary,
     lineHeight: 20,
   },
   distanceRow: {
@@ -475,13 +475,13 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
   mapSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 16,
     marginBottom: 16,
   },
   mapPlaceholder: {
     height: 150,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   },
   mapPlaceholderText: {
     fontSize: 14,
-    color: '#999999',
+    color: Colors.textTertiary,
     marginTop: 8,
   },
   navigateButton: {
@@ -507,19 +507,19 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   section: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 24,
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   sectionDescription: {
     fontSize: 14,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginBottom: 16,
   },
   actionsRow: {
@@ -541,10 +541,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent,
   },
   notWorkingButton: {
-    backgroundColor: '#F44336',
+    backgroundColor: Colors.error,
   },
   partialButton: {
-    backgroundColor: '#FF9800',
+    backgroundColor: Colors.warning,
   },
   actionButtonText: {
     fontSize: 13,
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -609,12 +609,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginTop: 8,
   },
   statLabel: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   portRow: {
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successLight,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
@@ -640,11 +640,11 @@ const styles = StyleSheet.create({
   portType: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#2E7D32',
+    color: Colors.successDark,
   },
   portCount: {
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.backgroundSecondary,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
@@ -652,11 +652,11 @@ const styles = StyleSheet.create({
   portCountNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   portCountLabel: {
     fontSize: 11,
-    color: '#666666',
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   amenitiesContainer: {
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
@@ -676,7 +676,7 @@ const styles = StyleSheet.create({
   amenityText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   nearbyContainer: {
     flexDirection: 'row',
@@ -684,14 +684,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   nearbyChip: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 16,
   },
   nearbyText: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   photosContainer: {
     flexDirection: 'row',
@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
   },
   notesText: {
     fontSize: 14,
-    color: '#666666',
+    color: Colors.textSecondary,
     lineHeight: 20,
   },
   reportButton: {

@@ -458,7 +458,7 @@ export default function AddCharger() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
   },
   keyboardView: {
     flex: 1,
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   backButton: {
     padding: 8,
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   placeholder: {
     width: 40,
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   rewardCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8E1',
+    backgroundColor: Colors.warningLight,
     marginHorizontal: 16,
     marginTop: 16,
     padding: 16,
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: '600',
-    color: '#F57C00',
+    color: Colors.warning,
   },
   section: {
     paddingHorizontal: 16,
@@ -509,11 +509,11 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   required: {
-    color: '#F44336',
+    color: Colors.error,
   },
   labelRow: {
     flexDirection: 'row',
@@ -522,12 +522,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderRadius: 12,
     fontSize: 16,
-    color: '#1A1A1A',
+    color: Colors.textPrimary,
   },
   textArea: {
     minHeight: 80,
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   },
   coordsText: {
     fontSize: 12,
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   chipsContainer: {
     flexDirection: 'row',
@@ -561,7 +561,7 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.backgroundSecondary,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666666',
+    color: Colors.textSecondary,
   },
   chipTextSelected: {
     color: Colors.primaryDark,
@@ -598,7 +598,7 @@ const styles = StyleSheet.create({
   },
   photoCount: {
     fontSize: 12,
-    color: '#999999',
+    color: Colors.textTertiary,
   },
   photosGrid: {
     flexDirection: 'row',
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
   },
   submitButton: {
@@ -640,11 +640,11 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.surface,
   },
   disclaimer: {
     fontSize: 12,
-    color: '#999999',
+    color: Colors.textTertiary,
     textAlign: 'center',
     marginTop: 16,
     marginHorizontal: 32,
