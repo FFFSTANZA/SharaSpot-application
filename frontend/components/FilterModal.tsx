@@ -89,7 +89,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
           <View style={styles.header}>
             <Text style={styles.title}>Filters</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={28} color="#1A1A1A" />
+              <Ionicons name="close" size={28} color={Colors.textPrimary} />
             </TouchableOpacity>
           </View>
 
@@ -216,11 +216,11 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: Colors.overlay,
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -231,12 +231,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.primary, // Section heading in Deep Teal (BRAND COLOR)
   },
   content: {
     padding: 24,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: Colors.primary, // Section heading in Deep Teal (BRAND COLOR)
     marginBottom: 16,
   },
   optionsGrid: {
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   optionButton: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.primarySubtle, // Light Teal Background (BRAND COLOR)
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
@@ -270,10 +270,10 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666666',
+    color: Colors.textSecondary, // Secondary text (BRAND COLOR)
   },
   optionTextActive: {
-    color: Colors.primaryDark,
+    color: Colors.primary, // Deep Teal for active chip (BRAND COLOR)
     fontWeight: '600',
   },
   footer: {
@@ -281,11 +281,11 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: Colors.border,
   },
   resetButton: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.primarySubtle, // Light Teal Background (BRAND COLOR)
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   resetButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666666',
+    color: Colors.textSecondary, // Secondary text (BRAND COLOR)
   },
   applyButton: {
     flex: 2,

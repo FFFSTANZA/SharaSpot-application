@@ -1,6 +1,7 @@
 // Premium Theme System for SharaSpot
-// Unique Brand Identity: "Ocean Charge" - Calm Meets Energy
-// Core Principles: Dynamic Energy, Premium Technology, Trusted Navigation
+// Brand Identity: Professional & Consistent
+// Core Colors: Deep Teal (#008C7E), Navy (#0A2342), Success Green (#2ECC71)
+// Core Principles: Premium Feel, Branded Consistency, Clear Status Indicators
 
 import { Platform } from 'react-native';
 
@@ -8,52 +9,52 @@ import { Platform } from 'react-native';
 // COLOR SYSTEM - Unique & Energetic
 // ============================================================================
 
-// Primary Palette - Deep Teal (Distinctive & Warm Energy)
+// Primary Palette - Deep Teal (Brand Primary Color)
 // Inspired by ocean depths - sophisticated calm with electric energy
 const burntOrange = {
-  50: '#F0FDFA',
-  100: '#CCFBF1',
-  200: '#99F6E4',
-  300: '#5EEAD4',
-  400: '#2DD4BF',
-  500: '#14B8A6',  // Base - Vibrant deep teal
-  600: '#0D9488',  // Primary - Deep teal
-  700: '#0F766E',  // Primary Dark - Rich teal tone
-  800: '#115E59',
-  900: '#134E4A',
-  950: '#042F2E',
+  50: '#E6F8F6',   // Light teal background shade
+  100: '#CCEFEB',
+  200: '#99DFD7',
+  300: '#66CFC3',
+  400: '#33BFAF',
+  500: '#00AF9B',  // Lighter variant
+  600: '#008C7E',  // Primary - Deep teal (BRAND COLOR)
+  700: '#006D61',  // Primary Dark - Rich teal tone
+  800: '#004E45',
+  900: '#002F29',
+  950: '#001A16',
 };
 
-// Secondary Palette - Charcoal (Premium & Grounding)
-// Sophisticated dark gray with subtle warmth to complement teal
+// Secondary Palette - Navy (Premium & Trust)
+// Deep navy representing trust and technology
 const charcoal = {
-  50: '#FAFAFA',
-  100: '#F4F4F5',
-  200: '#E4E4E7',
-  300: '#D4D4D8',
-  400: '#A1A1AA',
-  500: '#71717A',
-  600: '#52525B',  // Secondary
-  700: '#3F3F46',
-  800: '#27272A',
-  900: '#18181B',
-  950: '#09090B',
+  50: '#F0F4F8',
+  100: '#D9E2EC',
+  200: '#BCCCDC',
+  300: '#9FB3C8',
+  400: '#829AB1',
+  500: '#627D98',
+  600: '#486581',
+  700: '#334E68',
+  800: '#243B53',
+  900: '#102A43',
+  950: '#0A2342',  // Secondary - Deep Navy (BRAND COLOR)
 };
 
-// Accent Palette - Electric Lime (Energy & Innovation)
-// Vibrant green representing charging/energy - perfect contrast to teal
+// Accent Palette - Success Green (Status & Energy)
+// Success green for uptime and available status - clear and consistent
 const electricLime = {
-  50: '#F7FEE7',
-  100: '#ECFCCB',
-  200: '#D9F99D',
-  300: '#BEF264',
-  400: '#A3E635',
-  500: '#84CC16',  // Accent Base
-  600: '#65A30D',
-  700: '#4D7C0F',
-  800: '#3F6212',
-  900: '#365314',
-  950: '#1A2E05',
+  50: '#E8F8F0',
+  100: '#D1F2E1',
+  200: '#A3E4C3',
+  300: '#75D7A5',
+  400: '#47C987',
+  500: '#2ECC71',  // Accent Base - Success Green (BRAND COLOR)
+  600: '#27AD5F',
+  700: '#1F8E4D',
+  800: '#186E3B',
+  900: '#104F29',
+  950: '#083017',
 };
 
 // Complementary Palette - Deep Navy (Trust & Technology)
@@ -88,32 +89,32 @@ const warmAmber = {
   950: '#451A03',
 };
 
-// Neutral Palette - Warm Grays
-// Slight warm tint to harmonize with teal primary
+// Neutral Palette - Cool Grays
+// Professional grey tones for text and icons
 const neutral = {
   0: '#FFFFFF',
-  50: '#FAFAF9',
-  100: '#F5F5F4',
-  200: '#E7E5E4',
-  300: '#D6D3D1',
-  400: '#A8A29E',
-  500: '#78716C',
-  600: '#57534E',
-  700: '#44403C',
-  800: '#292524',
-  900: '#1C1917',
-  950: '#0C0A09',
+  50: '#F9FAFB',   // Lightest grey
+  100: '#F3F4F6',  // Very light grey
+  200: '#E5E7EB',  // Light grey
+  300: '#D1D5DB',  // Medium-light grey
+  400: '#9CA3AF',  // Icon grey (BRAND COLOR)
+  500: '#6B7280',  // Secondary text (BRAND COLOR)
+  600: '#4B5563',  // Medium-dark grey
+  700: '#374151',  // Dark grey
+  800: '#1F2937',  // Primary text (BRAND COLOR)
+  900: '#111827',  // Near black
+  950: '#030712',  // Almost black
 };
 
 // Semantic Colors - Clear & Professional
 const semantic = {
   success: {
-    50: '#F0FDF4',
-    100: '#DCFCE7',
-    500: '#22C55E',
-    600: '#16A34A',
-    700: '#15803D',
-    950: '#052E16',
+    50: '#E8F8F0',
+    100: '#D1F2E1',
+    500: '#2ECC71',  // Success Green (BRAND COLOR)
+    600: '#27AD5F',
+    700: '#1F8E4D',
+    950: '#083017',
   },
   warning: {
     50: '#FFFBEB',
@@ -144,60 +145,60 @@ const semantic = {
 // Light Theme Colors - Warm & Dynamic
 export const LightColors = {
   // Primary - Deep Teal (Energy & Warmth)
-  primary: burntOrange[600],          // #0D9488 - Rich teal
-  primaryLight: burntOrange[500],     // #14B8A6 - Bright teal
-  primaryDark: burntOrange[700],      // #0F766E - Deep teal
-  primarySubtle: burntOrange[50],     // #F0FDFA - Cool tint
+  primary: burntOrange[600],          // #008C7E - Deep Teal (BRAND COLOR)
+  primaryLight: burntOrange[500],     // #00AF9B - Bright teal
+  primaryDark: burntOrange[700],      // #006D61 - Darker teal
+  primarySubtle: burntOrange[50],     // #E6F8F6 - Light Teal Background (BRAND COLOR)
 
-  // Secondary - Premium Charcoal
-  secondary: charcoal[700],           // #3F3F46 - Strong contrast
-  secondaryLight: charcoal[600],      // #52525B - Lighter variant
-  secondaryDark: charcoal[800],       // #27272A - Deeper variant
-  secondarySubtle: charcoal[50],      // #FAFAFA - Subtle backgrounds
+  // Secondary - Navy
+  secondary: charcoal[950],           // #0A2342 - Deep Navy (BRAND COLOR)
+  secondaryLight: charcoal[900],      // #102A43 - Lighter navy
+  secondaryDark: charcoal[950],       // #0A2342 - Deep navy
+  secondarySubtle: charcoal[50],      // #F0F4F8 - Subtle backgrounds
 
-  // Accent - Electric Lime
-  accent: electricLime[500],          // #84CC16 - Charging/Active
-  accentLight: electricLime[400],     // #A3E635 - Hover
-  accentDark: electricLime[600],      // #65A30D - Active
-  accentSubtle: electricLime[50],     // #F7FEE7 - Subtle tint
+  // Accent - Success Green
+  accent: electricLime[500],          // #2ECC71 - Success Green (BRAND COLOR)
+  accentLight: electricLime[400],     // #47C987 - Hover
+  accentDark: electricLime[600],      // #27AD5F - Active
+  accentSubtle: electricLime[50],     // #E8F8F0 - Subtle tint
 
   // Additional Accents - Supporting Colors
-  accentTeal: deepTeal[600],          // #1B3DB8 - Deep Navy - Tech/Trust
+  accentTeal: burntOrange[600],       // #008C7E - Deep Teal
   accentAmber: warmAmber[500],        // #F59E0B - Premium/Rewards
   accentGold: warmAmber[400],         // #FBBF24 - Highlights
   accentPurple: '#A78BFA',            // Premium features
   accentCyan: '#06B6D4',              // Information
   accentCopper: '#CD7F32',            // Metallic accent
 
-  // Background - Clean Warm Foundation (Eye-friendly soft tones)
-  background: '#FDFCFB',              // Soft warm white (reduced glare)
-  backgroundSecondary: '#FAF9F8',     // Warm off-white for sections
-  backgroundTertiary: '#F5F4F2',      // Gentle gray-beige
+  // Background - Clean Foundation
+  background: '#FFFFFF',              // Pure white background
+  backgroundSecondary: burntOrange[50], // #E6F8F6 - Light Teal Background (BRAND COLOR)
+  backgroundTertiary: neutral[50],    // #F9FAFB - Light grey background
 
-  // Surface - Card Layers (Softer whites for comfort)
-  surface: '#FEFEFE',                 // Very soft white (not pure white)
-  surfaceElevated: '#FEFEFE',         // Elevated elements
-  surfaceOverlay: 'rgba(253, 252, 251, 0.96)',
-  surfaceTinted: 'rgba(240, 253, 250, 0.6)',  // Cool teal tint
+  // Surface - Card Layers
+  surface: '#F9FAF9',                 // Card Background (BRAND COLOR)
+  surfaceElevated: '#F9FAF9',         // Elevated card elements
+  surfaceOverlay: 'rgba(249, 250, 249, 0.96)',
+  surfaceTinted: burntOrange[50],     // #E6F8F6 - Light teal tint
 
-  // Text - Comfortable contrast (Eye-friendly, reduced harshness)
-  textPrimary: '#2A2827',             // Softer dark (not pure black)
-  textSecondary: '#6B6662',           // Comfortable mid-tone
-  textTertiary: '#8B8682',            // Gentle hints
-  textDisabled: '#B0ABA7',            // Soft disabled state
-  textInverse: '#FEFEFE',             // Soft white on dark
-  textAccent: burntOrange[600],       // Teal highlights
+  // Text - Clear & Professional
+  textPrimary: neutral[800],          // #1F2937 - Primary text (BRAND COLOR)
+  textSecondary: neutral[500],        // #6B7280 - Secondary text (BRAND COLOR)
+  textTertiary: neutral[400],         // #9CA3AF - Tertiary text
+  textDisabled: neutral[400],         // #9CA3AF - Disabled text (BRAND COLOR)
+  textInverse: '#FFFFFF',             // White on dark
+  textAccent: burntOrange[600],       // #008C7E - Teal highlights
 
-  // Border - Warm Subtle Definition (Softer for eye comfort)
-  border: '#EDECEA',                  // Gentle border (softer than default)
-  borderLight: '#F7F6F5',             // Very subtle
-  borderStrong: '#DDD9D6',            // Emphasized but not harsh
-  borderAccent: burntOrange[200],     // #99F6E4 - Accent borders
+  // Border - Subtle Teal Tinted
+  border: '#DFF3F0',                  // Card Border - Ultra Light Teal (BRAND COLOR)
+  borderLight: neutral[100],          // #F3F4F6 - Very subtle
+  borderStrong: neutral[300],         // #D1D5DB - Emphasized
+  borderAccent: burntOrange[200],     // #99DFD7 - Accent borders
 
   // States - Clear Feedback
-  success: electricLime[600],         // #65A30D - Using accent for consistency
-  successLight: electricLime[50],
-  successDark: electricLime[700],
+  success: electricLime[500],         // #2ECC71 - Success Green (BRAND COLOR)
+  successLight: electricLime[50],     // #E8F8F0 - Light success
+  successDark: electricLime[700],     // #1F8E4D - Dark success
 
   warning: warmAmber[500],            // #F59E0B - Warm warning
   warningLight: warmAmber[50],
@@ -207,98 +208,98 @@ export const LightColors = {
   errorLight: semantic.error[50],
   errorDark: semantic.error[700],
 
-  info: deepTeal[600],                // #1B3DB8 - Calm info
-  infoLight: deepTeal[50],
-  infoDark: deepTeal[700],
+  info: charcoal[950],                // #0A2342 - Navy for info
+  infoLight: charcoal[50],            // #F0F4F8 - Light navy
+  infoDark: charcoal[800],            // #243B53 - Dark navy
 
   // Special States
-  charging: electricLime[500],        // #84CC16 - Active charging
-  chargingGlow: electricLime[400],    // #A3E635 - Glow effect
-  available: deepTeal[500],           // #2452D6 - Available
-  occupied: burntOrange[500],         // #14B8A6 - In use
+  charging: electricLime[500],        // #2ECC71 - Active charging
+  chargingGlow: electricLime[400],    // #47C987 - Glow effect
+  available: electricLime[500],       // #2ECC71 - Available (Success Green)
+  occupied: burntOrange[600],         // #008C7E - In use (Deep Teal)
 
   // Overlays - Professional Depth
   overlay: 'rgba(0, 0, 0, 0.5)',
   overlayLight: 'rgba(0, 0, 0, 0.25)',
   overlayHeavy: 'rgba(0, 0, 0, 0.7)',
-  overlayWarm: 'rgba(13, 148, 136, 0.08)',  // Cool teal overlay
+  overlayWarm: 'rgba(0, 140, 126, 0.08)',  // Deep teal overlay
 
-  // Glass Effects - Modern Warm Glass
+  // Glass Effects - Modern Glass
   glass: 'rgba(255, 255, 255, 0.75)',
   glassSubtle: 'rgba(255, 255, 255, 0.6)',
   glassStrong: 'rgba(255, 255, 255, 0.9)',
   glassBorder: 'rgba(255, 255, 255, 0.18)',
-  glassWarm: 'rgba(240, 253, 250, 0.8)',   // Cool tinted glass
+  glassWarm: 'rgba(230, 248, 246, 0.8)',   // Light teal tinted glass
 
   // Gradients - Dynamic & Memorable
   gradientPrimary: [burntOrange[500], burntOrange[700]],      // Teal glow
   gradientCharge: [electricLime[400], electricLime[600]],     // Charging gradient
-  gradientPremium: [burntOrange[600], charcoal[700]],         // Premium dark
-  gradientEnergy: ['#0D9488', '#84CC16'],                     // Teal to green
-  gradientEmber: ['#14B8A6', '#0D9488', '#0F766E'],           // Deep teal
-  gradientSunrise: ['#99F6E4', '#5EEAD4', '#2DD4BF'],         // Cool morning
-  gradientSpeed: ['#0D9488', '#2DD4BF', '#FBBF24'],           // Fast charging
-  gradientNight: [charcoal[800], charcoal[950]],              // Dark mode base
-  gradientWarmth: ['#F0FDFA', '#CCFBF1', '#99F6E4'],          // Cool background
-  gradientFire: ['#FBBF24', '#14B8A6', '#0D9488'],            // Teal energy
-  gradientTech: [deepTeal[500], burntOrange[500]],            // Navy meets teal energy
+  gradientPremium: [burntOrange[600], charcoal[950]],         // Premium dark (Teal to Navy)
+  gradientEnergy: ['#008C7E', '#2ECC71'],                     // Teal to green
+  gradientEmber: ['#00AF9B', '#008C7E', '#006D61'],           // Deep teal range
+  gradientSunrise: ['#E6F8F6', '#CCEFEB', '#99DFD7'],         // Light teal morning
+  gradientSpeed: ['#008C7E', '#33BFAF', '#FBBF24'],           // Fast charging
+  gradientNight: [charcoal[900], charcoal[950]],              // Dark mode base
+  gradientWarmth: ['#E6F8F6', '#CCEFEB', '#99DFD7'],          // Light teal background
+  gradientFire: ['#FBBF24', '#00AF9B', '#008C7E'],            // Teal energy
+  gradientTech: [charcoal[950], burntOrange[600]],            // Navy meets teal
 };
 
 // Dark Theme Colors - Sophisticated Night Mode with Cool Glow
 export const DarkColors = {
   // Primary - Glowing Teal
-  primary: burntOrange[500],          // #14B8A6 - Bright teal
-  primaryLight: burntOrange[400],     // #2DD4BF - Lighter glow
-  primaryDark: burntOrange[600],      // #0D9488 - Deeper teal
-  primarySubtle: burntOrange[950],    // #042F2E - Subtle tint
+  primary: burntOrange[500],          // #00AF9B - Bright teal
+  primaryLight: burntOrange[400],     // #33BFAF - Lighter glow
+  primaryDark: burntOrange[600],      // #008C7E - Deep teal
+  primarySubtle: burntOrange[950],    // #001A16 - Subtle tint
 
-  // Secondary - Lighter Charcoal
-  secondary: charcoal[500],           // #71717A - Softer in dark
-  secondaryLight: charcoal[400],      // #A1A1AA - Lighter
-  secondaryDark: charcoal[600],       // #52525B - Deeper
-  secondarySubtle: charcoal[950],     // #09090B - Subtle backgrounds
+  // Secondary - Lighter Navy
+  secondary: charcoal[700],           // #334E68 - Softer navy in dark
+  secondaryLight: charcoal[600],      // #486581 - Lighter navy
+  secondaryDark: charcoal[800],       // #243B53 - Deeper navy
+  secondarySubtle: charcoal[950],     // #0A2342 - Subtle backgrounds
 
-  // Accent - Bright Lime Glow
-  accent: electricLime[400],          // #A3E635 - Bright in dark
-  accentLight: electricLime[300],     // #BEF264 - Hover
-  accentDark: electricLime[500],      // #84CC16 - Active
-  accentSubtle: electricLime[950],    // #1A2E05 - Subtle tint
+  // Accent - Bright Success Green
+  accent: electricLime[400],          // #47C987 - Bright in dark
+  accentLight: electricLime[300],     // #75D7A5 - Hover
+  accentDark: electricLime[500],      // #2ECC71 - Active
+  accentSubtle: electricLime[950],    // #083017 - Subtle tint
 
   // Additional Accents - Night Mode
-  accentTeal: deepTeal[400],          // #4D7DFF - Bright navy
+  accentTeal: burntOrange[500],       // #00AF9B - Bright teal
   accentAmber: warmAmber[400],        // #FBBF24 - Warm gold
   accentGold: warmAmber[300],         // #FCD34D - Bright gold
   accentPurple: '#C4B5FD',            // Lighter purple
   accentCyan: '#22D3EE',              // Brighter cyan
   accentCopper: '#E89E6B',            // Bright copper
 
-  // Background - Rich Dark with Warmth
-  background: '#0A0908',              // Almost black with warm tint
-  backgroundSecondary: neutral[900],  // #1C1917 - Elevated
-  backgroundTertiary: neutral[800],   // #292524 - Cards
+  // Background - Rich Dark
+  background: neutral[950],           // #030712 - Almost black
+  backgroundSecondary: neutral[900],  // #111827 - Elevated
+  backgroundTertiary: neutral[800],   // #1F2937 - Cards
 
   // Surface - Dark Layers
-  surface: '#121110',                 // Slightly lighter than background
-  surfaceElevated: neutral[800],      // #292524 - Raised
-  surfaceOverlay: 'rgba(28, 25, 23, 0.96)',
-  surfaceTinted: 'rgba(4, 47, 46, 0.12)',  // Cool teal tint
+  surface: neutral[900],              // #111827 - Slightly lighter
+  surfaceElevated: neutral[800],      // #1F2937 - Raised
+  surfaceOverlay: 'rgba(17, 24, 39, 0.96)',
+  surfaceTinted: 'rgba(0, 26, 22, 0.12)',  // Deep teal tint
 
   // Text - Optimized Contrast
-  textPrimary: '#F5F5F4',             // Soft white
-  textSecondary: neutral[400],        // #A8A29E - Secondary
-  textTertiary: neutral[500],         // #78716C - Hints
-  textDisabled: neutral[600],         // #57534E - Disabled
+  textPrimary: neutral[50],           // #F9FAFB - Soft white
+  textSecondary: neutral[400],        // #9CA3AF - Secondary
+  textTertiary: neutral[500],         // #6B7280 - Hints
+  textDisabled: neutral[600],         // #4B5563 - Disabled
   textInverse: neutral[950],          // Dark on light
-  textAccent: burntOrange[400],       // Teal highlights
+  textAccent: burntOrange[400],       // #33BFAF - Teal highlights
 
-  // Border - Subtle Dark with Warmth
-  border: 'rgba(168, 162, 158, 0.15)',     // Subtle border
-  borderLight: 'rgba(168, 162, 158, 0.08)', // Very subtle
-  borderStrong: 'rgba(168, 162, 158, 0.25)', // Emphasized
-  borderAccent: 'rgba(20, 184, 166, 0.3)',  // Teal glow
+  // Border - Subtle Dark
+  border: 'rgba(156, 163, 175, 0.15)',     // Subtle border
+  borderLight: 'rgba(156, 163, 175, 0.08)', // Very subtle
+  borderStrong: 'rgba(156, 163, 175, 0.25)', // Emphasized
+  borderAccent: 'rgba(0, 175, 155, 0.3)',  // Teal glow
 
   // States - Dark Adjusted
-  success: electricLime[500],
+  success: electricLime[400],         // #47C987 - Bright success
   successLight: electricLime[950],
   successDark: electricLime[600],
 
@@ -310,40 +311,40 @@ export const DarkColors = {
   errorLight: semantic.error[950],
   errorDark: semantic.error[600],
 
-  info: deepTeal[400],
-  infoLight: deepTeal[950],
-  infoDark: deepTeal[600],
+  info: charcoal[700],                // #334E68 - Navy for info
+  infoLight: charcoal[950],
+  infoDark: charcoal[600],
 
   // Special States
-  charging: electricLime[400],        // #A3E635 - Bright charging
-  chargingGlow: electricLime[300],    // #BEF264 - Intense glow
-  available: deepTeal[400],           // #4D7DFF - Available
-  occupied: burntOrange[400],         // #2DD4BF - In use
+  charging: electricLime[400],        // #47C987 - Bright charging
+  chargingGlow: electricLime[300],    // #75D7A5 - Intense glow
+  available: electricLime[400],       // #47C987 - Available
+  occupied: burntOrange[500],         // #00AF9B - In use
 
   // Overlays - Dark Mode
   overlay: 'rgba(0, 0, 0, 0.75)',
   overlayLight: 'rgba(0, 0, 0, 0.5)',
   overlayHeavy: 'rgba(0, 0, 0, 0.85)',
-  overlayWarm: 'rgba(20, 184, 166, 0.12)',  // Cool glow overlay
+  overlayWarm: 'rgba(0, 175, 155, 0.12)',  // Teal glow overlay
 
   // Glass Effects - Dark Glass with Glow
-  glass: 'rgba(28, 25, 23, 0.7)',
-  glassSubtle: 'rgba(28, 25, 23, 0.5)',
-  glassStrong: 'rgba(28, 25, 23, 0.85)',
-  glassBorder: 'rgba(168, 162, 158, 0.12)',
-  glassWarm: 'rgba(4, 47, 46, 0.3)',       // Cool teal glass
+  glass: 'rgba(17, 24, 39, 0.7)',
+  glassSubtle: 'rgba(17, 24, 39, 0.5)',
+  glassStrong: 'rgba(17, 24, 39, 0.85)',
+  glassBorder: 'rgba(156, 163, 175, 0.12)',
+  glassWarm: 'rgba(0, 26, 22, 0.3)',       // Deep teal glass
 
   // Gradients - Night Versions with Glow
   gradientPrimary: [burntOrange[400], burntOrange[600]],      // Teal glow
   gradientCharge: [electricLime[300], electricLime[500]],     // Charging
-  gradientPremium: [burntOrange[500], charcoal[800]],         // Premium dark
-  gradientEnergy: ['#2DD4BF', '#A3E635'],                     // Teal to green
-  gradientEmber: ['#2DD4BF', '#14B8A6', '#0D9488'],           // Night teal
+  gradientPremium: [burntOrange[500], charcoal[900]],         // Premium dark
+  gradientEnergy: ['#33BFAF', '#47C987'],                     // Teal to green
+  gradientEmber: ['#33BFAF', '#00AF9B', '#008C7E'],           // Night teal
   gradientNight: [neutral[900], neutral[950]],                // Deep dark
-  gradientNeon: ['#2DD4BF', '#5EEAD4', '#FCD34D'],            // Neon glow
-  gradientMidnight: [charcoal[900], deepTeal[900]],           // Blue-black
-  gradientFire: ['#FCD34D', '#2DD4BF', '#14B8A6'],            // Teal glow
-  gradientCoal: ['#292524', '#0A0908'],                       // Hot coal
+  gradientNeon: ['#33BFAF', '#66CFC3', '#FCD34D'],            // Neon glow
+  gradientMidnight: [charcoal[900], charcoal[950]],           // Navy dark
+  gradientFire: ['#FCD34D', '#33BFAF', '#00AF9B'],            // Teal glow
+  gradientCoal: [neutral[800], neutral[950]],                 // Dark coal
 };
 
 // Default to light theme
@@ -645,28 +646,28 @@ export const Shadows = {
 
   // Colored Glows - Teal & Energy
   primaryGlow: {
-    shadowColor: '#0D9488',
+    shadowColor: '#008C7E',  // Deep Teal
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 4,
   },
   accentGlow: {
-    shadowColor: '#84CC16',
+    shadowColor: '#2ECC71',  // Success Green
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 4,
   },
   emberGlow: {
-    shadowColor: '#14B8A6',
+    shadowColor: '#00AF9B',  // Bright Teal
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 16,
     elevation: 6,
   },
   warmGlow: {
-    shadowColor: '#5EEAD4',
+    shadowColor: '#66CFC3',  // Light Teal
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 10,

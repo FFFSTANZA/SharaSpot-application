@@ -48,8 +48,8 @@ interface Charger {
 type ViewMode = 'map' | 'list';
 
 const VERIFICATION_COLORS = {
-  1: '#9E9E9E',  // Grey - New Entry
-  2: Colors.primary,  // Deep Teal - Community Verified
+  1: '#9CA3AF',  // Grey - New Entry (BRAND COLOR)
+  2: Colors.primary,  // Deep Teal - Community Verified (BRAND COLOR)
   3: '#2196F3',  // Blue - Reliable
   4: '#FFB300',  // Gold - Trusted
   5: '#9C27B0',  // Platinum - Certified Partner
