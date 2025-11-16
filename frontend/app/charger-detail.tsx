@@ -22,6 +22,18 @@ import { AmenitiesIcons } from '../components/AmenitiesIcons';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors } from '../constants/theme';
 
+// Conditional import for MapView (mobile only)
+let MapView: any = null;
+let Marker: any = null;
+let PROVIDER_GOOGLE: any = null;
+
+if (Platform.OS !== 'web') {
+  const Maps = require('react-native-maps');
+  MapView = Maps.default;
+  Marker = Maps.Marker;
+  PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
+}
+
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function ChargerDetail() {
@@ -193,10 +205,41 @@ export default function ChargerDetail() {
 
         {/* Mini Map / Navigate Button */}
         <View style={styles.mapSection}>
-          <View style={styles.mapPlaceholder}>
-            <Ionicons name="map" size={48} color="#CCCCCC" />
-            <Text style={styles.mapPlaceholderText}>Map Preview</Text>
-          </View>
+          {Platform.OS !== 'web' && MapView ? (
+            <View style={styles.mapContainer}>
+              <MapView
+                provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+                style={styles.map}
+                initialRegion={{
+                  latitude: charger.latitude,
+                  longitude: charger.longitude,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+                scrollEnabled={false}
+                zoomEnabled={false}
+                pitchEnabled={false}
+                rotateEnabled={false}
+              >
+                <Marker
+                  coordinate={{
+                    latitude: charger.latitude,
+                    longitude: charger.longitude,
+                  }}
+                  title={charger.name}
+                >
+                  <View style={styles.markerCircle}>
+                    <Ionicons name="flash" size={20} color={Colors.textInverse} />
+                  </View>
+                </Marker>
+              </MapView>
+            </View>
+          ) : (
+            <View style={styles.mapPlaceholder}>
+              <Ionicons name="map" size={48} color="#CCCCCC" />
+              <Text style={styles.mapPlaceholderText}>Map view available on mobile</Text>
+            </View>
+          )}
           <TouchableOpacity style={styles.navigateButton} onPress={handleNavigate}>
             <Ionicons name="navigate" size={20} color="#FFFFFF" />
             <Text style={styles.navigateText}>Navigate via Google Maps</Text>
@@ -478,6 +521,31 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     padding: 16,
     marginBottom: 16,
+  },
+  mapContainer: {
+    height: 200,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  map: {
+    width: '100%',
+    height: '100%',
+  },
+  markerCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: Colors.surface,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   mapPlaceholder: {
     height: 150,
