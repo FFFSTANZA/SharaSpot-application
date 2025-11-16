@@ -887,10 +887,9 @@ export default function VerificationReport() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
+        onScroll={(e) => {
+          scrollY.setValue(e.nativeEvent.contentOffset.y);
+        }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -1607,15 +1606,15 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
   },
   statCard: {
     flex: 1,
-    minWidth: 100,
+    minWidth: 0,
     backgroundColor: Colors.surface,
-    padding: 20,
-    borderRadius: 16,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -1901,14 +1900,14 @@ const styles = StyleSheet.create({
     color: Colors.successDark,
   },
   insightsContainer: {
-    gap: 10,
+    gap: Spacing.sm,
   },
   insightCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    padding: 18,
-    borderRadius: 14,
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     borderLeftWidth: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -1943,13 +1942,15 @@ const styles = StyleSheet.create({
   },
   trendsContainer: {
     flexDirection: 'row',
-    gap: 12,
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
   },
   trendCard: {
     flex: 1,
+    minWidth: 0,
     backgroundColor: Colors.surface,
-    padding: 18,
-    borderRadius: 16,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -2060,12 +2061,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   expectationsContainer: {
-    gap: 10,
+    gap: Spacing.sm,
   },
   expectationItem: {
     backgroundColor: Colors.backgroundSecondary,
-    padding: 14,
-    borderRadius: 12,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.sm,
     borderLeftWidth: 3,
     borderLeftColor: Colors.primary,
   },
@@ -2096,15 +2097,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   contributorsContainer: {
-    gap: 10,
+    gap: Spacing.sm,
   },
   contributorCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.surface,
-    padding: 14,
-    borderRadius: 12,
-    gap: 12,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    gap: Spacing.sm,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -2153,11 +2154,10 @@ const styles = StyleSheet.create({
   availabilityCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 16,
+    gap: Spacing.md,
     backgroundColor: Colors.surface,
-    padding: 18,
-    borderRadius: 14,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
     shadowColor: Colors.info,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
@@ -2197,15 +2197,15 @@ const styles = StyleSheet.create({
     lineHeight: 21,
   },
   peakTimesContainer: {
-    gap: 12,
+    gap: Spacing.sm,
   },
   peakTimeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: Spacing.sm,
     backgroundColor: Colors.backgroundSecondary,
-    padding: 16,
-    borderRadius: 12,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.sm,
   },
   peakTimeInfo: {
     flex: 1,
@@ -2246,16 +2246,16 @@ const styles = StyleSheet.create({
   },
   ratingsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 16,
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   ratingCard: {
     flex: 1,
-    minWidth: 100,
+    minWidth: 0,
     backgroundColor: Colors.surface,
-    padding: 18,
-    borderRadius: 14,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
     shadowColor: Colors.accentGold,
     shadowOffset: { width: 0, height: 3 },
@@ -2334,10 +2334,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.backgroundTertiary,
-    padding: 18,
-    borderRadius: 14,
-    gap: 16,
-    marginBottom: 16,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
