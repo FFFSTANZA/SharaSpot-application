@@ -398,7 +398,7 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0FDFB', // Cool subtle background tint
+    backgroundColor: Colors.backgroundSecondary, // Light Teal Background (BRAND COLOR)
     overflow: 'hidden',
   },
   backgroundOrb1: {
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.displaySmall,
-    color: Colors.textPrimary,
+    color: Colors.secondary, // Navy (BRAND COLOR)
     marginTop: Spacing.md,
   },
   subtitle: {

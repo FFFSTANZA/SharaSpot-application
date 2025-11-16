@@ -191,7 +191,7 @@ export default function Discover() {
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <Ionicons name="locate" size={16} color={Colors.textSecondary} />
+          <Ionicons name="locate" size={16} color={Colors.primary} />
           <Text style={styles.detailText}>
             {item.distance} {user?.distance_unit || 'km'} away
           </Text>
