@@ -1,15 +1,9 @@
 // ProgressRing Component - Circular Progress Indicator
 // Core Principles: Data Visualization Excellence, Electric Energy
 
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ViewStyle, StyleProp } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ViewStyle, StyleProp, Animated } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
-import Animated, {
-  useSharedValue,
-  useAnimatedProps,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
 import {
   Colors,
   Typography,
@@ -55,24 +49,21 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
   const circumference = radius * 2 * Math.PI;
   const center = size / 2;
 
-  // Animation value
-  const animatedProgress = useSharedValue(0);
+  // Animation value using React Native's built-in Animated
+  const animatedProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    animatedProgress.value = withTiming(progress, {
+    Animated.timing(animatedProgress, {
+      toValue: progress,
       duration,
-      easing: Easing.out(Easing.cubic),
-    });
-  }, [progress]);
+      useNativeDriver: false, // SVG props don't support native driver
+    }).start();
+  }, [progress, animatedProgress, duration]);
 
-  // Animated props for the progress circle
-  const animatedProps = useAnimatedProps(() => {
-    const strokeDashoffset =
-      circumference - (circumference * animatedProgress.value) / 100;
-
-    return {
-      strokeDashoffset,
-    };
+  // Interpolate stroke dash offset
+  const strokeDashoffset = animatedProgress.interpolate({
+    inputRange: [0, 100],
+    outputRange: [circumference, 0],
   });
 
   return (
@@ -114,7 +105,7 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
           fill="none"
           strokeDasharray={`${circumference} ${circumference}`}
           strokeLinecap="round"
-          animatedProps={animatedProps}
+          strokeDashoffset={strokeDashoffset}
           rotation="-90"
           origin={`${center}, ${center}`}
         />

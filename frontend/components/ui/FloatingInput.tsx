@@ -11,14 +11,8 @@ import {
   ViewStyle,
   StyleProp,
   Platform,
+  Animated,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-  Extrapolate,
-} from 'react-native-reanimated';
 import {
   Colors,
   BorderRadius,
@@ -71,87 +65,75 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
-  // Animation values
-  const labelAnimation = useSharedValue(value ? 1 : 0);
-  const borderAnimation = useSharedValue(0);
+  // Animation values using React Native's built-in Animated
+  const labelAnimation = useRef(new Animated.Value(value ? 1 : 0)).current;
+  const borderAnimation = useRef(new Animated.Value(0)).current;
 
   // Update label position when value changes
   useEffect(() => {
-    if (value || isFocused) {
-      labelAnimation.value = withTiming(1, { duration: AnimationDuration.normal });
-    } else {
-      labelAnimation.value = withTiming(0, { duration: AnimationDuration.normal });
-    }
-  }, [value, isFocused]);
+    Animated.timing(labelAnimation, {
+      toValue: value || isFocused ? 1 : 0,
+      duration: AnimationDuration.normal,
+      useNativeDriver: false, // Color and layout properties require false
+    }).start();
+  }, [value, isFocused, labelAnimation]);
 
   // Handle focus
   const handleFocus = (e: any) => {
     setIsFocused(true);
-    borderAnimation.value = withTiming(1, { duration: AnimationDuration.fast });
+    Animated.timing(borderAnimation, {
+      toValue: 1,
+      duration: AnimationDuration.fast,
+      useNativeDriver: false,
+    }).start();
     onFocus?.(e);
   };
 
   // Handle blur
   const handleBlur = (e: any) => {
     setIsFocused(false);
-    borderAnimation.value = withTiming(0, { duration: AnimationDuration.fast });
+    Animated.timing(borderAnimation, {
+      toValue: 0,
+      duration: AnimationDuration.fast,
+      useNativeDriver: false,
+    }).start();
     onBlur?.(e);
   };
 
   // Animated label style
-  const animatedLabelStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      labelAnimation.value,
-      [0, 1],
-      [0, -28],
-      Extrapolate.CLAMP
-    );
-
-    const scale = interpolate(
-      labelAnimation.value,
-      [0, 1],
-      [1, 0.85],
-      Extrapolate.CLAMP
-    );
-
-    return {
-      transform: [{ translateY }, { scale }],
-    };
-  });
+  const animatedLabelStyle = {
+    transform: [
+      {
+        translateY: labelAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, -28],
+        }),
+      },
+      {
+        scale: labelAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0.85],
+        }),
+      },
+    ],
+  };
 
   // Animated label color style
-  const animatedLabelColorStyle = useAnimatedStyle(() => {
-    const labelColor = isFocused
+  const animatedLabelColorStyle = {
+    color: isFocused
       ? error
         ? Colors.error
         : Colors.primary
       : error
       ? Colors.error
-      : Colors.textSecondary;
-
-    return {
-      color: labelColor,
-    };
-  });
+      : Colors.textSecondary,
+  };
 
   // Animated border style
-  const animatedBorderStyle = useAnimatedStyle(() => {
-    const borderColor = error
-      ? Colors.error
-      : interpolate(
-          borderAnimation.value,
-          [0, 1],
-          [Colors.border, Colors.primary].map((color) => {
-            // Simple color interpolation workaround
-            return borderAnimation.value > 0.5 ? Colors.primary : Colors.border;
-          })
-        );
-
-    return {
-      borderColor: error ? Colors.error : isFocused ? Colors.primary : Colors.border,
-      borderWidth: isFocused ? 2 : 1,
-    };
-  });
+  const animatedBorderStyle = {
+    borderColor: error ? Colors.error : isFocused ? Colors.primary : Colors.border,
+    borderWidth: isFocused ? 2 : 1,
+  };
 
   // Get size-specific styles
   const sizeStyles = getSizeStyles(size);

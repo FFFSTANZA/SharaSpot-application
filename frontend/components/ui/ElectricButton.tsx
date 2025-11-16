@@ -1,7 +1,7 @@
 // Premium Electric Button Component
 // Core Principles: Electric Energy, Delight at Every Touchpoint, Accessibility First
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   Pressable,
   Text,
@@ -11,14 +11,8 @@ import {
   StyleProp,
   ActivityIndicator,
   View,
+  Animated,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  interpolate,
-} from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import {
@@ -74,36 +68,64 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
   hapticFeedback = true,
   glowEffect = false,
 }) => {
-  // Animation values
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-  const glowOpacity = useSharedValue(0);
+  // Animation values using React Native's built-in Animated
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
+  const glowOpacity = useRef(new Animated.Value(0)).current;
 
   // Handle press in
   const handlePressIn = useCallback(() => {
     if (disabled || loading) return;
 
-    scale.value = withSpring(0.96, SpringConfig.snappy);
-    opacity.value = withTiming(0.8, { duration: AnimationDuration.fast });
+    Animated.spring(scale, {
+      toValue: 0.96,
+      friction: SpringConfig.snappy.damping,
+      tension: SpringConfig.snappy.stiffness,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(opacity, {
+      toValue: 0.8,
+      duration: AnimationDuration.fast,
+      useNativeDriver: true,
+    }).start();
 
     if (glowEffect) {
-      glowOpacity.value = withTiming(1, { duration: AnimationDuration.fast });
+      Animated.timing(glowOpacity, {
+        toValue: 1,
+        duration: AnimationDuration.fast,
+        useNativeDriver: true,
+      }).start();
     }
 
     if (hapticFeedback) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-  }, [disabled, loading, hapticFeedback, glowEffect]);
+  }, [disabled, loading, hapticFeedback, glowEffect, scale, opacity, glowOpacity]);
 
   // Handle press out
   const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, SpringConfig.smooth);
-    opacity.value = withTiming(1, { duration: AnimationDuration.fast });
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: SpringConfig.smooth.damping,
+      tension: SpringConfig.smooth.stiffness,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: AnimationDuration.fast,
+      useNativeDriver: true,
+    }).start();
 
     if (glowEffect) {
-      glowOpacity.value = withTiming(0, { duration: AnimationDuration.normal });
+      Animated.timing(glowOpacity, {
+        toValue: 0,
+        duration: AnimationDuration.normal,
+        useNativeDriver: true,
+      }).start();
     }
-  }, [glowEffect]);
+  }, [glowEffect, scale, opacity, glowOpacity]);
 
   // Handle press
   const handlePress = useCallback(() => {
@@ -117,14 +139,14 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
   }, [disabled, loading, onPress, hapticFeedback]);
 
   // Animated styles
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
+  const animatedStyle = {
+    transform: [{ scale }],
+    opacity,
+  };
 
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: glowOpacity.value,
-  }));
+  const glowStyle = {
+    opacity: glowOpacity,
+  };
 
   // Get size-specific styles
   const sizeStyles = getSizeStyles(size);

@@ -1,16 +1,8 @@
 // Shimmer Loader Component - Premium Loading Skeleton
 // Core Principles: Premium Minimalism, Electric Energy
 
-import React, { useEffect } from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  interpolate,
-  Easing,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, ViewStyle, StyleProp, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, BorderRadius, AnimationDuration } from '../../constants/theme';
 
@@ -35,8 +27,8 @@ export const ShimmerLoader: React.FC<ShimmerLoaderProps> = ({
   variant = 'light',
   speed = 'normal',
 }) => {
-  // Animation value
-  const translateX = useSharedValue(-1);
+  // Animation value using React Native's built-in Animated
+  const translateX = useRef(new Animated.Value(-1)).current;
 
   // Get duration based on speed
   const getDuration = () => {
@@ -52,27 +44,27 @@ export const ShimmerLoader: React.FC<ShimmerLoaderProps> = ({
   };
 
   useEffect(() => {
-    translateX.value = withRepeat(
-      withTiming(1, {
+    Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 1,
         duration: getDuration(),
-        easing: Easing.ease,
-      }),
-      -1,
-      false
-    );
-  }, [speed]);
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [speed, translateX]);
 
   // Animated shimmer style
-  const animatedStyle = useAnimatedStyle(() => {
-    const outputRange = typeof width === 'number' ? [-width, width] : [-300, 300];
-    return {
-      transform: [
-        {
-          translateX: interpolate(translateX.value, [-1, 1], outputRange),
-        },
-      ],
-    };
-  });
+  const outputRange = typeof width === 'number' ? [-width, width] : [-300, 300];
+  const animatedStyle = {
+    transform: [
+      {
+        translateX: translateX.interpolate({
+          inputRange: [-1, 1],
+          outputRange,
+        }),
+      },
+    ],
+  };
 
   const radiusValue = BorderRadius[borderRadius];
   const baseColor = variant === 'dark' ? Colors.surfaceDark : Colors.backgroundSecondary;
