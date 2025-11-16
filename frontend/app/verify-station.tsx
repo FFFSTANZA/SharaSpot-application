@@ -302,7 +302,7 @@ export default function VerifyStation() {
   ) => (
     <View style={styles.ratingContainer}>
       <View style={styles.ratingHeader}>
-        <Ionicons name={icon as any} size={24} color="Colors.accent" />
+        <Ionicons name={icon as any} size={24} color={Colors.primary} />
         <Text style={styles.ratingLabel}>{label}</Text>
       </View>
       <View style={styles.starsContainer}>
@@ -334,7 +334,7 @@ export default function VerifyStation() {
         onPress={() => handleActionSelect('active')}
       >
         <View style={styles.actionIconCircle}>
-          <Ionicons name="checkmark-circle" size={40} color="Colors.accent" />
+          <Ionicons name="checkmark-circle" size={40} color={Colors.primary} />
         </View>
         <View style={styles.actionContent}>
           <Text style={styles.actionTitle}>Active & Working</Text>
@@ -385,7 +385,7 @@ export default function VerifyStation() {
   const renderWaitTimeStep = () => (
     <View>
       <View style={styles.bonusBanner}>
-        <Ionicons name="gift" size={24} color="Colors.accent" />
+        <Ionicons name="gift" size={24} color={Colors.primary} />
         <View style={styles.bonusContent}>
           <Text style={styles.bonusTitle}>Earn Up To 9 Coins!</Text>
           <Text style={styles.bonusDescription}>
@@ -504,7 +504,7 @@ export default function VerifyStation() {
             <Ionicons
               name="checkmark-circle"
               size={28}
-              color={chargingSuccess === true ? '#FFFFFF' : 'Colors.accent'}
+              color={chargingSuccess === true ? '#FFFFFF' : Colors.primary}
             />
             <Text
               style={[
@@ -681,7 +681,7 @@ export default function VerifyStation() {
               <Ionicons
                 name="thumbs-up"
                 size={28}
-                color={wouldRecommend === true ? '#FFFFFF' : 'Colors.accent'}
+                color={wouldRecommend === true ? '#FFFFFF' : Colors.primary}
               />
               <Text
                 style={[
@@ -758,7 +758,7 @@ export default function VerifyStation() {
   const renderPhotoStep = () => (
     <View>
       <View style={styles.photoBanner}>
-        <Ionicons name="camera" size={32} color="Colors.accent" />
+        <Ionicons name="camera" size={32} color={Colors.primary} />
         <Text style={styles.photoBannerTitle}>Help Others With Photo Evidence</Text>
         <Text style={styles.photoBannerSubtitle}>
           Earn +2 extra coins by uploading a photo of the issue
@@ -772,7 +772,7 @@ export default function VerifyStation() {
             setPhotoUrl(`https://example.com/photos/station_${Date.now()}.jpg`);
           }}
         >
-          <Ionicons name="cloud-upload" size={40} color="Colors.accent" />
+          <Ionicons name="cloud-upload" size={40} color={Colors.primary} />
           <Text style={styles.uploadButtonText}>
             {photoUrl ? 'Photo Added ✓' : 'Upload Photo'}
           </Text>
@@ -928,7 +928,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: 'Colors.accent',
+    backgroundColor: Colors.primary,
     borderRadius: 3,
   },
   progressText: {
@@ -976,8 +976,8 @@ const styles = StyleSheet.create({
   },
   activeCard: {
     borderLeftWidth: 5,
-    borderLeftColor: 'Colors.accent',
-    shadowColor: 'Colors.accent',
+    borderLeftColor: Colors.primary,
+    shadowColor: Colors.primary,
     shadowOpacity: 0.15,
   },
   notWorkingCard: {
@@ -1013,7 +1013,7 @@ const styles = StyleSheet.create({
   actionReward: {
     fontSize: 13,
     fontWeight: '600',
-    color: 'Colors.accent',
+    color: Colors.primary,
   },
   bonusBanner: {
     alignItems: 'center',
@@ -1023,7 +1023,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     borderWidth: 1,
     borderColor: '#A5D6A7',
-    shadowColor: 'Colors.accent',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -1074,8 +1074,8 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   waitTimeButtonSelected: {
-    backgroundColor: 'Colors.accent',
-    borderColor: 'Colors.accent',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   waitTimeButtonText: {
     fontSize: 13,
@@ -1099,8 +1099,8 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
   },
   optionButtonSelected: {
-    backgroundColor: 'Colors.accent',
-    borderColor: 'Colors.accent',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   optionButtonText: {
     fontSize: 13,
@@ -1132,9 +1132,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   yesNoButtonYes: {
-    backgroundColor: 'Colors.accent',
-    borderColor: 'Colors.accent',
-    shadowColor: 'Colors.accent',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+    shadowColor: Colors.primary,
     shadowOpacity: 0.3,
   },
   yesNoButtonNo: {
@@ -1154,7 +1154,7 @@ const styles = StyleSheet.create({
   bonusIndicator: {
     fontSize: 13,
     fontWeight: '700',
-    color: 'Colors.accent',
+    color: Colors.primary,
     marginTop: 8,
     marginBottom: 20,
     backgroundColor: '#E8F5E9',
@@ -1218,7 +1218,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     borderWidth: 1,
     borderColor: '#A5D6A7',
-    shadowColor: 'Colors.accent',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -1245,12 +1245,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#F8FFF9',
     borderWidth: 2,
-    borderColor: 'Colors.accent',
+    borderColor: Colors.primary,
     borderStyle: 'dashed',
     borderRadius: 16,
     padding: 32,
     marginBottom: 12,
-    shadowColor: 'Colors.accent',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
@@ -1259,7 +1259,7 @@ const styles = StyleSheet.create({
   uploadButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: 'Colors.accent',
+    color: Colors.primary,
     marginTop: 12,
   },
   uploadSuccess: {
@@ -1326,8 +1326,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: 'Colors.accent',
-    shadowColor: 'Colors.accent',
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -1349,8 +1349,8 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 16,
     borderRadius: 14,
-    backgroundColor: 'Colors.accent',
-    shadowColor: 'Colors.accent',
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,

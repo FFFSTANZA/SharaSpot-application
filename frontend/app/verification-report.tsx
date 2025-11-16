@@ -220,13 +220,13 @@ export default function VerificationReport() {
         Animated.timing(pulseAnim, {
           toValue: 1.06,
           duration: 1200,
-          easing: Easing.inOut(Easing.sine),
+          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
           duration: 1200,
-          easing: Easing.inOut(Easing.sine),
+          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
       ])
