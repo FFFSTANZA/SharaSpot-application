@@ -29,8 +29,21 @@ class Settings:
     WEATHER_API_TIMEOUT: int = 5  # seconds
 
     # ===========================
-    # Session Configuration
+    # HTTP Client Configuration
     # ===========================
+    HTTP_CLIENT_TIMEOUT: int = 10  # seconds
+    HTTP_CLIENT_MAX_RETRIES: int = 3  # Maximum retry attempts
+    HTTP_CLIENT_RETRY_DELAY: float = 1.0  # Initial retry delay in seconds
+
+    # ===========================
+    # JWT Token Configuration
+    # ===========================
+    JWT_SECRET_KEY: str = os.environ.get('JWT_SECRET_KEY', 'development-secret-key-change-in-production')
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30  # Access token expires in 30 minutes
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7  # Refresh token expires in 7 days
+
+    # Legacy session configuration (for backward compatibility during migration)
     SESSION_EXPIRE_DAYS: int = 7
     SESSION_TOKEN_BYTES: int = 32
 
