@@ -134,5 +134,31 @@ Community-driven platform for discovering and verifying EV charging stations.
     MAX_LOGIN_ATTEMPTS: int = 5  # Max failed login attempts before lockout
     ACCOUNT_LOCKOUT_DURATION_MINUTES: int = 15  # How long to lock account
 
+    # ===========================
+    # AWS S3 Configuration
+    # ===========================
+    AWS_ACCESS_KEY_ID: str = os.environ.get('AWS_ACCESS_KEY_ID', '')
+    AWS_SECRET_ACCESS_KEY: str = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
+    AWS_REGION: str = os.environ.get('AWS_REGION', 'us-east-1')
+    S3_BUCKET_NAME: str = os.environ.get('S3_BUCKET_NAME', 'sharaspot-photos')
+    S3_PHOTO_PREFIX: str = 'chargers/'  # Prefix for charger photos
+    S3_VERIFICATION_PREFIX: str = 'verifications/'  # Prefix for verification photos
+    S3_PROFILE_PREFIX: str = 'profiles/'  # Prefix for profile pictures
+    S3_MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB max file size
+    S3_ALLOWED_EXTENSIONS: list = ['.jpg', '.jpeg', '.png', '.webp']
+    S3_PRESIGNED_URL_EXPIRATION: int = 3600  # 1 hour
+
+    # ===========================
+    # Database Connection Pool Configuration
+    # ===========================
+    DB_POOL_SIZE: int = int(os.environ.get('DB_POOL_SIZE', '20'))
+    DB_MAX_OVERFLOW: int = int(os.environ.get('DB_MAX_OVERFLOW', '40'))
+    DB_POOL_TIMEOUT: int = int(os.environ.get('DB_POOL_TIMEOUT', '30'))
+    DB_POOL_RECYCLE: int = int(os.environ.get('DB_POOL_RECYCLE', '3600'))
+
+    # Read replica configuration
+    DATABASE_READ_REPLICA_URL: str = os.environ.get('DATABASE_READ_REPLICA_URL', '')
+    USE_READ_REPLICA: bool = os.environ.get('USE_READ_REPLICA', 'False').lower() in ('true', '1', 't')
+
 
 settings = Settings()

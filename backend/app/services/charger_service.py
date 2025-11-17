@@ -6,12 +6,16 @@ from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 import math
+import logging
 
 from ..models.charger import Charger as ChargerModel, VerificationAction as VerificationModel
 from ..models.user import User as UserModel
 from ..core.db_models import Charger, VerificationAction, User
 from ..schemas.charger import ChargerCreateRequest, VerificationActionRequest
 from .gamification_service import award_charger_coins, award_verification_coins, calculate_trust_score
+from .s3_service import s3_service
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -188,11 +192,35 @@ async def get_chargers(
     max_distance: Optional[float] = None,
     user_lat: Optional[float] = None,
     user_lng: Optional[float] = None,
+    page: int = 1,
+    page_size: int = 100,
     db: Optional[AsyncSession] = None
 ) -> List[ChargerModel]:
-    """Get chargers from database with optional filters"""
+    """
+    Get chargers from database with optional filters and pagination
+
+    Args:
+        user: Current user
+        verification_level: Minimum verification level filter
+        port_type: Port type filter
+        amenity: Amenity filter
+        max_distance: Maximum distance in km (requires user_lat and user_lng)
+        user_lat: User latitude for distance calculation
+        user_lng: User longitude for distance calculation
+        page: Page number (1-indexed)
+        page_size: Items per page (max 500)
+        db: Database session
+
+    Returns:
+        List of charger models (paginated)
+    """
     if db is None:
         raise HTTPException(500, "Database session required")
+
+    # Validate pagination params
+    page = max(1, page)
+    page_size = min(500, max(1, page_size))
+    offset = (page - 1) * page_size
 
     # Build query with filters
     query = select(Charger).options(selectinload(Charger.verification_actions))
@@ -208,6 +236,9 @@ async def get_chargers(
     # Apply amenity filter (check if amenity is in the array)
     if amenity:
         query = query.where(Charger.amenities.contains([amenity]))
+
+    # Apply pagination and ordering
+    query = query.order_by(Charger.created_at.desc()).limit(page_size).offset(offset)
 
     # Execute query
     result = await db.execute(query)
@@ -284,6 +315,23 @@ async def add_charger(user: UserModel, request: ChargerCreateRequest, db: AsyncS
     if user.is_guest:
         raise HTTPException(403, "Please sign in to add chargers")
 
+    # Upload photos to S3 if provided
+    photo_urls = []
+    photo_errors = []
+
+    if request.photos:
+        logger.info(f"Uploading {len(request.photos)} photos to S3 for new charger")
+        photo_urls, photo_errors = s3_service.upload_multiple_photos(
+            request.photos,
+            prefix=f"chargers/"
+        )
+
+        # Log any upload errors but don't fail the entire request
+        if photo_errors:
+            logger.warning(f"Photo upload errors: {photo_errors}")
+
+        logger.info(f"Successfully uploaded {len(photo_urls)} photos to S3")
+
     # Create charger with community source
     charger = Charger(
         name=request.name,
@@ -295,7 +343,7 @@ async def add_charger(user: UserModel, request: ChargerCreateRequest, db: AsyncS
         available_ports=request.total_ports,  # Initially all available
         amenities=request.amenities,
         nearby_amenities=request.nearby_amenities,
-        photos=request.photos,
+        photos=photo_urls,  # Store S3 URLs instead of base64
         notes=request.notes,
         source_type="community_manual",
         verification_level=1,
@@ -317,8 +365,8 @@ async def add_charger(user: UserModel, request: ChargerCreateRequest, db: AsyncS
     db.add(verification)
     await db.flush()
 
-    # Reward user with SharaCoins
-    await award_charger_coins(user.id, charger.name, len(request.photos), db)
+    # Reward user with SharaCoins (use actual uploaded photo count)
+    await award_charger_coins(user.id, charger.name, len(photo_urls), db)
 
     # Convert to Pydantic model
     charger_model = ChargerModel(
@@ -446,6 +494,20 @@ async def verify_charger(user: UserModel, charger_id: str, request: Verification
     if not charger:
         raise HTTPException(404, "Charger not found")
 
+    # Upload verification photo to S3 if provided
+    photo_url = None
+    if request.photo_url:
+        logger.info(f"Uploading verification photo to S3 for charger {charger_id}")
+        photo_url, error = s3_service.upload_photo(
+            request.photo_url,
+            prefix=f"verifications/"
+        )
+        if error:
+            logger.warning(f"Verification photo upload failed: {error}")
+            # Continue without photo if upload fails
+        else:
+            logger.info(f"Successfully uploaded verification photo to S3: {photo_url}")
+
     # Create verification action with enhanced feedback
     action = VerificationAction(
         charger_id=charger_id,
@@ -462,7 +524,7 @@ async def verify_charger(user: UserModel, charger_id: str, request: Verification
         charging_speed_rating=request.charging_speed_rating,
         amenities_rating=request.amenities_rating,
         would_recommend=request.would_recommend,
-        photo_url=request.photo_url
+        photo_url=photo_url  # Use S3 URL instead of base64
     )
     db.add(action)
     await db.flush()
