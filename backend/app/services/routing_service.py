@@ -1,10 +1,8 @@
 """Routing service with HERE API integration"""
-from typing import List, Optional
-from math import radians, sin, cos, sqrt, atan2
+from typing import List
 import os
 import requests
 import logging
-import random
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,20 +11,26 @@ from ..schemas.routing import HERERouteRequest, HERERouteResponse
 from ..models.routing import RouteAlternative
 from ..core import calculate_distance
 from ..core.db_models import Charger
+from .weather_service import get_weather_along_route
 
 
 async def call_here_routing_api(request: HERERouteRequest) -> dict:
     """
     Call HERE Routing API v8 for EV routing
-    Returns mock data until API key is provided
+    Raises HTTPException if API key is not configured or API call fails
     """
-    here_api_key = os.environ.get('HERE_API_KEY', None)
+    from fastapi import HTTPException
+
+    here_api_key = os.environ.get('HERE_API_KEY', '').strip()
 
     if not here_api_key:
-        # Return mock HERE-style response
-        return generate_mock_here_response(request)
+        logging.error("HERE_API_KEY not configured")
+        raise HTTPException(
+            status_code=503,
+            detail="Routing service unavailable. HERE API key not configured. Please contact administrator."
+        )
 
-    # Real HERE API call (when key is available)
+    # Real HERE API call
     try:
         here_url = "https://router.hereapi.com/v8/routes"
 
@@ -47,144 +51,117 @@ async def call_here_routing_api(request: HERERouteRequest) -> dict:
         }
 
         response = requests.get(here_url, params=params, timeout=10)
+
+        # Handle different error cases
+        if response.status_code == 401:
+            logging.error("HERE API authentication failed - invalid API key")
+            raise HTTPException(
+                status_code=503,
+                detail="Routing service authentication failed. Please contact administrator."
+            )
+        elif response.status_code == 403:
+            logging.error("HERE API access forbidden - check API key permissions")
+            raise HTTPException(
+                status_code=503,
+                detail="Routing service access denied. Please contact administrator."
+            )
+        elif response.status_code == 429:
+            logging.error("HERE API rate limit exceeded")
+            raise HTTPException(
+                status_code=503,
+                detail="Routing service temporarily unavailable due to high demand. Please try again later."
+            )
+
         response.raise_for_status()
         return response.json()
 
+    except HTTPException:
+        # Re-raise HTTPExceptions as-is
+        raise
+    except requests.exceptions.Timeout:
+        logging.error("HERE API request timeout")
+        raise HTTPException(
+            status_code=504,
+            detail="Routing service timeout. Please try again."
+        )
+    except requests.exceptions.ConnectionError as e:
+        logging.error(f"HERE API connection error: {str(e)}")
+        raise HTTPException(
+            status_code=503,
+            detail="Unable to connect to routing service. Please check your internet connection."
+        )
     except Exception as e:
-        logging.error(f"HERE API error: {str(e)}")
-        # Fallback to mock data
-        return generate_mock_here_response(request)
+        logging.error(f"HERE API unexpected error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Routing service error: {str(e)}"
+        )
 
 
-def generate_mock_here_response(request: HERERouteRequest) -> dict:
-    """Generate mock HERE API response for testing"""
-    # Calculate straight-line distance
-    R = 6371000  # Earth radius in meters
-    lat1, lon1 = radians(request.origin_lat), radians(request.origin_lng)
-    lat2, lon2 = radians(request.destination_lat), radians(request.destination_lng)
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * atan2(sqrt(a), sqrt(1-a))
-    distance_m = int(R * c)
+def decode_here_flexible_polyline(polyline: str) -> List[dict]:
+    """
+    Decode HERE Flexible Polyline Format
+    Format: https://github.com/heremaps/flexible-polyline
 
-    # Generate 3 route alternatives with different characteristics
-    routes = []
-
-    # Route 1: Eco-Optimized (lowest energy)
-    eco_distance = distance_m * 1.08  # Slightly longer for energy efficiency
-    eco_duration = int(eco_distance / 13.9)  # ~50 km/h average
-    eco_energy = (eco_distance / 1000) * 0.145  # 145 Wh/km (efficient)
-    routes.append({
-        "id": "route_eco",
-        "sections": [{
-            "type": "vehicle",
-            "transport": {"mode": "car"},
-            "summary": {
-                "duration": eco_duration,
-                "length": int(eco_distance),
-                "baseDuration": int(eco_duration * 0.85),
-                "consumption": int(eco_energy * 1000)  # Wh
-            },
-            "polyline": generate_mock_polyline(request.origin_lat, request.origin_lng,
-                                               request.destination_lat, request.destination_lng, 8),
-            "spans": [
-                {
-                    "offset": 0,
-                    "elevation": {"rise": 85, "fall": 45},
-                    "consumption": int(eco_energy * 1000)
-                }
-            ]
-        }]
-    })
-
-    # Route 2: Balanced (good mix)
-    balanced_distance = distance_m * 1.03
-    balanced_duration = int(balanced_distance / 15.3)  # ~55 km/h average
-    balanced_energy = (balanced_distance / 1000) * 0.165  # 165 Wh/km
-    routes.append({
-        "id": "route_balanced",
-        "sections": [{
-            "type": "vehicle",
-            "transport": {"mode": "car"},
-            "summary": {
-                "duration": balanced_duration,
-                "length": int(balanced_distance),
-                "baseDuration": int(balanced_duration * 0.88),
-                "consumption": int(balanced_energy * 1000)
-            },
-            "polyline": generate_mock_polyline(request.origin_lat, request.origin_lng,
-                                               request.destination_lat, request.destination_lng, 6),
-            "spans": [
-                {
-                    "offset": 0,
-                    "elevation": {"rise": 120, "fall": 65},
-                    "consumption": int(balanced_energy * 1000)
-                }
-            ]
-        }]
-    })
-
-    # Route 3: Fastest (shortest time)
-    fastest_distance = distance_m * 0.98
-    fastest_duration = int(fastest_distance / 18.1)  # ~65 km/h average
-    fastest_energy = (fastest_distance / 1000) * 0.195  # 195 Wh/km (high speed)
-    routes.append({
-        "id": "route_fastest",
-        "sections": [{
-            "type": "vehicle",
-            "transport": {"mode": "car"},
-            "summary": {
-                "duration": fastest_duration,
-                "length": int(fastest_distance),
-                "baseDuration": int(fastest_duration * 0.92),
-                "consumption": int(fastest_energy * 1000)
-            },
-            "polyline": generate_mock_polyline(request.origin_lat, request.origin_lng,
-                                               request.destination_lat, request.destination_lng, 4),
-            "spans": [
-                {
-                    "offset": 0,
-                    "elevation": {"rise": 180, "fall": 95},
-                    "consumption": int(fastest_energy * 1000)
-                }
-            ]
-        }]
-    })
-
-    return {"routes": routes}
+    This is a simplified implementation. For production use, consider using
+    the official flexpolyline library: pip install flexpolyline
+    """
+    try:
+        # Try using flexpolyline library if available
+        import flexpolyline
+        decoded = flexpolyline.decode(polyline)
+        return [{"latitude": lat, "longitude": lng} for lat, lng, *_ in decoded]
+    except ImportError:
+        logging.warning("flexpolyline library not installed. Using basic decoding.")
+        # Fallback to basic polyline decoding
+        # Note: This is a very basic implementation and may not work for all polylines
+        # For production, install: pip install flexpolyline
+        return decode_polyline_basic(polyline)
 
 
-def generate_mock_polyline(start_lat: float, start_lng: float,
-                           end_lat: float, end_lng: float, points: int = 5) -> str:
-    """Generate a mock polyline between two points"""
-    # Simple linear interpolation
-    coords = []
-    for i in range(points + 1):
-        t = i / points
-        lat = start_lat + (end_lat - start_lat) * t
-        lng = start_lng + (end_lng - start_lng) * t
-        coords.append({"lat": lat, "lng": lng})
+def decode_polyline_basic(polyline: str) -> List[dict]:
+    """
+    Basic polyline decoding (Google Polyline Algorithm Format)
+    This is a fallback when flexpolyline is not available
+    """
+    coordinates = []
+    index = 0
+    lat = 0
+    lng = 0
 
-    # Return as simplified encoded string (for mock)
-    return f"mock_polyline_{points}_points"
+    while index < len(polyline):
+        # Decode latitude
+        result = 0
+        shift = 0
+        while True:
+            b = ord(polyline[index]) - 63
+            index += 1
+            result |= (b & 0x1f) << shift
+            shift += 5
+            if b < 0x20:
+                break
+        dlat = ~(result >> 1) if (result & 1) else (result >> 1)
+        lat += dlat
 
+        # Decode longitude
+        result = 0
+        shift = 0
+        while True:
+            b = ord(polyline[index]) - 63
+            index += 1
+            result |= (b & 0x1f) << shift
+            shift += 5
+            if b < 0x20:
+                break
+        dlng = ~(result >> 1) if (result & 1) else (result >> 1)
+        lng += dlng
 
-def decode_polyline_coordinates(polyline: str, start_lat: float, start_lng: float,
-                                end_lat: float, end_lng: float) -> List[dict]:
-    """Decode polyline to coordinates (simplified for mock)"""
-    if polyline.startswith("mock_polyline"):
-        points = int(polyline.split("_")[2])
-        coords = []
-        for i in range(points + 1):
-            t = i / points
-            lat = start_lat + (end_lat - start_lat) * t
-            lng = start_lng + (end_lng - start_lng) * t
-            coords.append({"latitude": lat, "longitude": lng})
-        return coords
+        coordinates.append({
+            "latitude": lat / 1e5,
+            "longitude": lng / 1e5
+        })
 
-    # Real HERE polyline decoding would go here
-    return []
+    return coordinates
 
 
 def calculate_route_scores(route_data: dict, chargers_count: int,
@@ -264,11 +241,16 @@ async def find_chargers_along_route(coordinates: List[dict], db: AsyncSession, m
 
 async def calculate_here_routes(request: HERERouteRequest, db: AsyncSession) -> HERERouteResponse:
     """Calculate EV routes using HERE API with SharaSpot charger integration"""
+    from fastapi import HTTPException
+
     # Call HERE API
     here_response = await call_here_routing_api(request)
 
-    if "routes" not in here_response:
-        raise Exception("Invalid response from routing service")
+    if "routes" not in here_response or not here_response["routes"]:
+        raise HTTPException(
+            status_code=500,
+            detail="No routes found for the requested origin and destination"
+        )
 
     # Process routes
     processed_routes = []
@@ -279,11 +261,20 @@ async def calculate_here_routes(request: HERERouteRequest, db: AsyncSession) -> 
         summary = section["summary"]
 
         # Decode polyline to coordinates
-        coordinates = decode_polyline_coordinates(
-            section.get("polyline", ""),
-            request.origin_lat, request.origin_lng,
-            request.destination_lat, request.destination_lng
-        )
+        polyline = section.get("polyline", "")
+        if not polyline:
+            logging.warning(f"Route {idx} missing polyline data")
+            continue
+
+        try:
+            coordinates = decode_here_flexible_polyline(polyline)
+        except Exception as e:
+            logging.error(f"Failed to decode polyline for route {idx}: {str(e)}")
+            # Use start and end coordinates as fallback
+            coordinates = [
+                {"latitude": request.origin_lat, "longitude": request.origin_lng},
+                {"latitude": request.destination_lat, "longitude": request.destination_lng}
+            ]
 
         # Find chargers along this route
         chargers = await find_chargers_along_route(coordinates, db, max_detour_km=5.0)
@@ -312,7 +303,7 @@ async def calculate_here_routes(request: HERERouteRequest, db: AsyncSession) -> 
             distance_m=summary["length"],
             duration_s=summary["duration"],
             base_time_s=summary.get("baseDuration", summary["duration"]),
-            polyline=section.get("polyline", ""),
+            polyline=polyline,
             coordinates=coordinates,
             energy_consumption_kwh=summary["consumption"] / 1000,  # Convert Wh to kWh
             elevation_gain_m=elevation_rise,
@@ -333,13 +324,17 @@ async def calculate_here_routes(request: HERERouteRequest, db: AsyncSession) -> 
             "chargers": chargers[:5]  # Top 5 chargers for each route
         })
 
-    # Mock weather data (until HERE weather integration)
-    weather_data = {
-        "temperature_c": 22,
-        "condition": "Clear",
-        "wind_speed_kmh": 12,
-        "humidity_percent": 65
-    }
+    if not processed_routes:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to process routes from routing service"
+        )
+
+    # Get real-time weather data for the route
+    # Use coordinates from the first (recommended) route
+    weather_data = None
+    if processed_routes and processed_routes[0]["route"].coordinates:
+        weather_data = await get_weather_along_route(processed_routes[0]["route"].coordinates)
 
     return HERERouteResponse(
         routes=[item["route"] for item in processed_routes],

@@ -1,6 +1,5 @@
 """Authentication service business logic"""
 from typing import Optional
-import requests
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -102,61 +101,6 @@ async def login_user(data: LoginRequest, db: AsyncSession) -> tuple[UserModel, s
     )
 
     return user_model, session_token
-
-
-async def process_emergent_auth_session(session_id: str, db: AsyncSession) -> tuple[UserModel, str, str]:
-    """Process Emergent Auth session ID"""
-    # Call Emergent Auth API
-    try:
-        response = requests.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-            headers={"X-Session-ID": session_id}
-        )
-        response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        raise HTTPException(500, f"Failed to verify session: {str(e)}")
-
-    # Check if user exists
-    result = await db.execute(select(User).where(User.email == data['email']))
-    user = result.scalar_one_or_none()
-
-    if not user:
-        # Create new user
-        user = User(
-            email=data['email'],
-            name=data['name'],
-            picture=data.get('picture')
-        )
-        db.add(user)
-        await db.flush()
-
-    # Create our session
-    session_token = await create_session(user.id, db)
-
-    # Convert to Pydantic model
-    user_model = UserModel(
-        id=user.id,
-        email=user.email,
-        name=user.name,
-        picture=user.picture,
-        port_type=user.port_type,
-        vehicle_type=user.vehicle_type,
-        distance_unit=user.distance_unit,
-        is_guest=user.is_guest,
-        shara_coins=user.shara_coins,
-        verifications_count=user.verifications_count,
-        chargers_added=user.chargers_added,
-        photos_uploaded=user.photos_uploaded,
-        reports_submitted=user.reports_submitted,
-        coins_redeemed=user.coins_redeemed,
-        trust_score=user.trust_score,
-        theme=user.theme,
-        notifications_enabled=user.notifications_enabled,
-        created_at=user.created_at
-    )
-
-    return user_model, session_token, data.get('session_token')
 
 
 async def create_guest_user(db: AsyncSession) -> tuple[UserModel, str]:

@@ -23,10 +23,24 @@ class Settings:
     HERE_API_KEY: str = os.environ.get('HERE_API_KEY', '')
 
     # ===========================
+    # Weather API Configuration
+    # ===========================
+    OPENWEATHER_API_KEY: str = os.environ.get('OPENWEATHER_API_KEY', '')
+    WEATHER_API_TIMEOUT: int = 5  # seconds
+
+    # ===========================
     # Session Configuration
     # ===========================
     SESSION_EXPIRE_DAYS: int = 7
     SESSION_TOKEN_BYTES: int = 32
+
+    # ===========================
+    # Google OAuth Configuration
+    # ===========================
+    GOOGLE_CLIENT_ID: str = os.environ.get('GOOGLE_CLIENT_ID', '')
+    GOOGLE_CLIENT_SECRET: str = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+    GOOGLE_REDIRECT_URI: str = os.environ.get('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/auth/google/callback')
+    OAUTH_STATE_EXPIRE_SECONDS: int = 600  # 10 minutes
 
     # ===========================
     # CORS Configuration

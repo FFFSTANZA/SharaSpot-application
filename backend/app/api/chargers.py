@@ -15,11 +15,14 @@ router = APIRouter(prefix="/chargers", tags=["chargers"])
 
 @router.get("", response_model=List[Charger])
 async def get_chargers(
+    db: AsyncSession = Depends(get_session),
     user: User = Depends(get_user_from_session),
     verification_level: Optional[int] = None,
     port_type: Optional[str] = None,
     amenity: Optional[str] = None,
-    max_distance: Optional[float] = None
+    max_distance: Optional[float] = None,
+    user_lat: Optional[float] = None,
+    user_lng: Optional[float] = None
 ):
     """Get nearby chargers with optional filters"""
     if not user:
@@ -30,7 +33,10 @@ async def get_chargers(
         verification_level=verification_level,
         port_type=port_type,
         amenity=amenity,
-        max_distance=max_distance
+        max_distance=max_distance,
+        user_lat=user_lat,
+        user_lng=user_lng,
+        db=db
     )
 
 

@@ -308,13 +308,15 @@ export default function Welcome() {
 
   const handleDeepLink = async ({ url }: { url: string }) => {
     try {
-      // Parse the URL to extract session ID
+      // Parse the URL to extract session token and preferences flag
       const parsedUrl = Linking.parse(url);
-      const sessionId = parsedUrl.queryParams?.session_id as string;
+      const sessionToken = parsedUrl.queryParams?.session_token as string;
+      const needsPreferencesParam = parsedUrl.queryParams?.needs_preferences as string;
+      const needsPrefs = needsPreferencesParam === 'true';
 
-      if (sessionId) {
+      if (sessionToken) {
         setIsLoading(true);
-        const result = await handleGoogleCallback(sessionId);
+        const result = await handleGoogleCallback(sessionToken, needsPrefs);
 
         if (result.success) {
           if (result.needsPreferences) {
@@ -337,10 +339,9 @@ export default function Welcome() {
 
       // Create the redirect URL that points back to our app
       const redirectUrl = Linking.createURL('/auth/callback');
-      const encodedRedirectUrl = encodeURIComponent(redirectUrl);
 
-      // Construct Emergent Auth URL
-      const authUrl = `https://auth.emergentagent.com/?redirect=${encodedRedirectUrl}`;
+      // Construct Google OAuth URL through our backend
+      const authUrl = `${API_URL}/api/auth/google/login?redirect_uri=${encodeURIComponent(redirectUrl)}`;
 
       // Open browser for authentication
       const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl);

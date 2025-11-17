@@ -22,7 +22,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
   loginWithGoogle: () => Promise<{ success: boolean; needsPreferences?: boolean }>;
-  handleGoogleCallback: (sessionId: string) => Promise<{ success: boolean; needsPreferences: boolean }>;
+  handleGoogleCallback: (sessionToken: string, needsPrefs: boolean) => Promise<{ success: boolean; needsPreferences: boolean }>;
   continueAsGuest: () => Promise<void>;
   logout: () => Promise<void>;
   updatePreferences: (preferences: { port_type: string; vehicle_type: string; distance_unit: string }) => Promise<void>;
@@ -93,19 +93,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const handleGoogleCallback = async (sessionId: string): Promise<{ success: boolean; needsPreferences: boolean }> => {
+  const handleGoogleCallback = async (sessionToken: string, needsPrefs: boolean): Promise<{ success: boolean; needsPreferences: boolean }> => {
     try {
-      const response = await axios.get(`${API_URL}/api/auth/session-data`, {
-        headers: { 'X-Session-ID': sessionId }
+      // Store the session token received from OAuth callback
+      await SessionManager.setToken(sessionToken);
+
+      // Fetch user data to populate the context
+      const response = await axios.get(`${API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${sessionToken}` }
       });
 
-      await SessionManager.setToken(response.data.session_token);
-      setUser(response.data.user);
-      setNeedsPreferences(response.data.needs_preferences);
+      setUser(response.data);
+      setNeedsPreferences(needsPrefs);
 
       return {
         success: true,
-        needsPreferences: response.data.needs_preferences
+        needsPreferences: needsPrefs
       };
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Failed to complete Google sign-in');
