@@ -3,8 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
-from modules.user.domain.user import User
-from ..services import charger_service, gamification_service, profile_service
+from modules.auth.domain.user import User
+from modules.profile.application import profile_service
+from modules.chargers.application import charger_service
+from modules.gamification.application import gamification_service
 from app.core.security import get_user_from_session
 from app.core.database import get_session
 
