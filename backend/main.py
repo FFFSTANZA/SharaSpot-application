@@ -1,94 +1,61 @@
 """
 SharaSpot Backend - Modular Monolith Architecture
-Main application entry point
+
+This is the main entry point that aggregates all module routers.
 """
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
-import logging
-
+from app.core.middleware import setup_middleware
 from app.core.config import settings
-from app.core.database import connect_to_database, close_database_connection
-from app.core.middleware import (
-    limiter,
-    RequestLoggingMiddleware,
-    ErrorSanitizationMiddleware,
-    SecurityHeadersMiddleware,
-    rate_limit_exceeded_handler,
-)
-from app.api import api_router
+from container import configure_container
 
-# Configure logging
-logging.basicConfig(
-    level=getattr(logging, settings.LOG_LEVEL),
-    format=settings.LOG_FORMAT
-)
-logger = logging.getLogger(__name__)
+# Import module routers
+from modules.auth.presentation.router import router as auth_router
+from modules.chargers.presentation.router import router as chargers_router
+from modules.routing.presentation.router import router as routing_router
+from modules.profile.presentation.router import router as profile_router
+from modules.analytics.presentation.router import router as analytics_router
+from modules.gamification.presentation.routes import router as gamification_router
 
-# Create FastAPI application
+# Initialize FastAPI
 app = FastAPI(
-    title=settings.API_TITLE,
-    description=settings.API_DESCRIPTION,
-    version=settings.API_VERSION_STRING
+    title="SharaSpot API",
+    description="Modular Monolith Architecture",
+    version="2.0.0",
 )
 
-# Add rate limiter state
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+# Configure dependency injection
+configure_container()
 
-# Configure CORS (must be first middleware)
+# Setup middleware
+setup_middleware(app)
+
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_methods=settings.CORS_ALLOW_METHODS,
-    allow_headers=settings.CORS_ALLOW_HEADERS,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Add custom middleware (order matters - these run in reverse order)
-app.add_middleware(SecurityHeadersMiddleware)
-app.add_middleware(ErrorSanitizationMiddleware)
-app.add_middleware(RequestLoggingMiddleware)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize application on startup"""
-    logger.info("Starting SharaSpot Backend...")
-    await connect_to_database()
-    logger.info("PostgreSQL database connected successfully")
-    logger.info("Note: Run 'alembic upgrade head' to apply database migrations")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on application shutdown"""
-    logger.info("Shutting down SharaSpot Backend...")
-    await close_database_connection()
-    logger.info("Database connection closed")
-
-
-# Include API router
-app.include_router(api_router)
-
+# Include module routers
+app.include_router(auth_router)
+app.include_router(chargers_router)
+app.include_router(routing_router)
+app.include_router(profile_router)
+app.include_router(analytics_router)
+app.include_router(gamification_router)
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
     return {
-        "message": "SharaSpot API",
+        "message": "SharaSpot API - Modular Monolith",
         "version": "2.0.0",
-        "architecture": "Modular Monolith"
+        "architecture": "Modular Monolith with Domain-Driven Design"
     }
-
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
     return {"status": "healthy"}
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

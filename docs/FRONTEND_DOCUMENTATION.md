@@ -1,5 +1,20 @@
 # SharaSpot Frontend Documentation
 
+> **Note**: This documentation describes the pages and components. For the latest feature-based architecture and code organization, see:
+> - **[Modular Monolith Architecture](./MODULAR_MONOLITH_ARCHITECTURE.md)** - Complete architecture guide
+> - **[Migration Guide](./MIGRATION_GUIDE.md)** - New feature structure and patterns
+> - **[Getting Started](./GETTING_STARTED.md)** - Setup and development guide
+>
+> The frontend now uses a **feature-based architecture** organized by business domain:
+> - `features/auth/` - Authentication feature
+> - `features/chargers/` - Charger management feature
+> - `features/map/` - Map and location features
+> - `features/profile/` - User profile features
+> - `features/routing/` - Route planning features
+> - `shared/` - Shared infrastructure (API client, UI components, hooks)
+>
+> Each feature includes: `api/`, `store/` (Zustand), `hooks/`, `types/`, and `components/`
+
 ## Table of Contents
 - [Architecture Overview](#architecture-overview)
 - [Project Structure](#project-structure)

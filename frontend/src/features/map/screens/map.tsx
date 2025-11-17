@@ -1,0 +1,1229 @@
+import React, { useState, useRef, useMemo, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+  Platform,
+  Dimensions,
+  KeyboardAvoidingView,
+  Keyboard,
+  StatusBar,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../../shared/../features/auth';
+import { SessionManager } from '../../../shared/utils/secureStorage';
+import { useRouter } from 'expo-router';
+import axios from 'axios';
+import Constants from 'expo-constants';
+import { Colors } from '../../../shared/constants/theme';
+
+// Conditional import for MapView (mobile only)
+let MapView: any = null;
+let Marker: any = null;
+let Polyline: any = null;
+let PROVIDER_GOOGLE: any = null;
+
+if (Platform.OS !== 'web') {
+  const Maps = require('react-native-maps');
+  MapView = Maps.default;
+  Marker = Maps.Marker;
+  Polyline = Maps.Polyline;
+  PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
+}
+
+const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
+const { width, height } = Dimensions.get('window');
+
+interface RouteAlternative {
+  id: string;
+  type: 'eco' | 'balanced' | 'fastest';
+  distance_m: number;
+  duration_s: number;
+  base_time_s: number;
+  polyline: string;
+  coordinates: Array<{latitude: number, longitude: number}>;
+  energy_consumption_kwh: number;
+  elevation_gain_m: number;
+  elevation_loss_m: number;
+  eco_score: number;
+  reliability_score: number;
+  summary: {
+    distance_km: number;
+    duration_min: number;
+    avg_speed_kmh: number;
+    chargers_available: number;
+    traffic_delay_min: number;
+    turn_instructions?: any[];  // Turn-by-turn navigation instructions
+  };
+}
+
+interface Charger {
+  id: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  port_types: string[];
+  available_ports: number;
+  total_ports: number;
+  verification_level: number;
+  uptime_percentage: number;
+  distance_from_route_km: number;
+  amenities: string[];
+}
+
+export default function SmartEcoRouting() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const mapRef = useRef<any>(null);
+
+  // State
+  const [origin, setOrigin] = useState('');
+  const [destination, setDestination] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [routes, setRoutes] = useState<RouteAlternative[]>([]);
+  const [selectedRoute, setSelectedRoute] = useState<RouteAlternative | null>(null);
+  const [chargersAlongRoute, setChargersAlongRoute] = useState<Charger[]>([]);
+  const [batteryPercent, setBatteryPercent] = useState(80);
+  const [weatherData, setWeatherData] = useState<any>(null);
+  const [viewMode, setViewMode] = useState<'input' | 'results'>('input');
+
+  // Mock battery capacity based on vehicle type
+  const getBatteryCapacity = () => {
+    const vehicleType = user?.vehicle_type?.toLowerCase() || 'sedan';
+    const capacities: Record<string, number> = {
+      'sedan': 60,
+      'suv': 75,
+      'hatchback': 50,
+      'truck': 100,
+    };
+    return capacities[vehicleType] || 60;
+  };
+
+  // Calculate routes using HERE API
+  const calculateRoutes = async () => {
+    if (!origin.trim() || !destination.trim()) {
+      Alert.alert('Missing Information', 'Please enter both origin and destination');
+      return;
+    }
+
+    Keyboard.dismiss();
+    setLoading(true);
+
+    try {
+      const token = await SessionManager.getToken();
+      const batteryCapacity = getBatteryCapacity();
+
+      // Mock coordinates (Chennai, Tamil Nadu) - in production, use geocoding
+      const mockOrigin = { lat: 13.0827, lng: 80.2707 };
+      const mockDestination = { lat: 13.0418, lng: 80.2341 };
+
+      const response = await axios.post(
+        `${API_URL}/api/routing/here/calculate`,
+        {
+          origin_lat: mockOrigin.lat,
+          origin_lng: mockOrigin.lng,
+          destination_lat: mockDestination.lat,
+          destination_lng: mockDestination.lng,
+          battery_capacity_kwh: batteryCapacity,
+          current_battery_percent: batteryPercent,
+          vehicle_type: user?.vehicle_type || 'sedan',
+          port_type: user?.port_type || 'Type 2',
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data && response.data.routes) {
+        setRoutes(response.data.routes);
+        setChargersAlongRoute(response.data.chargers_along_route || []);
+        setWeatherData(response.data.weather_data);
+        setSelectedRoute(response.data.routes[0]); // Default to eco route
+        setViewMode('results');
+
+        // Zoom to route on map
+        if (mapRef.current && Platform.OS !== 'web' && response.data.routes[0].coordinates) {
+          setTimeout(() => {
+            mapRef.current?.fitToCoordinates(response.data.routes[0].coordinates, {
+              edgePadding: { top: 100, right: 50, bottom: 300, left: 50 },
+              animated: true,
+            });
+          }, 500);
+        }
+      }
+    } catch (error: any) {
+      console.error('Route calculation error:', error);
+      Alert.alert('Error', 'Failed to calculate routes. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get route type info
+  const getRouteTypeInfo = (type: string) => {
+    const typeInfo = {
+      eco: {
+        name: 'Eco-Optimized',
+        icon: 'leaf',
+        color: Colors.primary,
+        description: 'Lowest energy consumption'
+      },
+      balanced: {
+        name: 'Balanced',
+        icon: 'speedometer',
+        color: Colors.primary,
+        description: 'Good mix of time and energy'
+      },
+      fastest: {
+        name: 'Fastest',
+        icon: 'flash',
+        color: Colors.warning,
+        description: 'Shortest travel time'
+      }
+    };
+    return typeInfo[type as keyof typeof typeInfo] || typeInfo.balanced;
+  };
+
+  // Calculate battery at arrival
+  const calculateBatteryAtArrival = (energyKwh: number) => {
+    const batteryCapacity = getBatteryCapacity();
+    const currentBatteryKwh = (batteryCapacity * batteryPercent) / 100;
+    const remainingBatteryKwh = currentBatteryKwh - energyKwh;
+    const remainingPercent = (remainingBatteryKwh / batteryCapacity) * 100;
+    return Math.max(0, Math.min(100, remainingPercent));
+  };
+
+  // Start navigation with selected route
+  const startNavigation = () => {
+    if (!selectedRoute) {
+      Alert.alert('No Route Selected', 'Please select a route to start navigation');
+      return;
+    }
+
+    if (Platform.OS === 'web') {
+      Alert.alert('Navigation Unavailable', 'Turn-by-turn navigation is only available on mobile devices');
+      return;
+    }
+
+    // Prepare navigation data
+    const navigationData = {
+      route: selectedRoute,
+      chargers: chargersAlongRoute,
+      starting_battery_percent: batteryPercent,
+      battery_capacity_kwh: getBatteryCapacity(),
+    };
+
+    // Navigate to navigation screen
+    router.push({
+      pathname: '/navigation',
+      params: {
+        routeData: JSON.stringify(navigationData),
+      },
+    });
+  };
+
+  // Render route option card
+  const renderRouteOption = (route: RouteAlternative) => {
+    const isSelected = selectedRoute?.id === route.id;
+    const typeInfo = getRouteTypeInfo(route.type);
+    const batteryAtArrival = calculateBatteryAtArrival(route.energy_consumption_kwh);
+
+    return (
+      <TouchableOpacity
+        key={route.id}
+        style={[styles.routeCard, isSelected && styles.routeCardSelected]}
+        onPress={() => setSelectedRoute(route)}
+        activeOpacity={0.7}
+      >
+        {/* Header */}
+        <View style={styles.routeHeader}>
+          <View style={[styles.routeIconCircle, { backgroundColor: typeInfo.color + '20' }]}>
+            <Ionicons name={typeInfo.icon as any} size={22} color={typeInfo.color} />
+          </View>
+          <View style={styles.routeInfo}>
+            <Text style={styles.routeName}>{typeInfo.name}</Text>
+            <Text style={styles.routeDescription}>{typeInfo.description}</Text>
+          </View>
+          {isSelected && (
+            <Ionicons name="checkmark-circle" size={24} color={Colors.primary} />
+          )}
+        </View>
+
+        {/* Quick Stats */}
+        <View style={styles.quickStats}>
+          <View style={styles.statItem}>
+            <Ionicons name="navigate" size={16} color={Colors.primary} />
+            <Text style={styles.statValue}>{route.summary.distance_km} km</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="time" size={16} color={Colors.primary} />
+            <Text style={styles.statValue}>{Math.round(route.summary.duration_min)} min</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name="battery-charging" size={16} color={Colors.primary} />
+            <Text style={styles.statValue}>{route.energy_consumption_kwh.toFixed(1)} kWh</Text>
+          </View>
+        </View>
+
+        {/* Scores */}
+        <View style={styles.scoresSection}>
+          <View style={styles.scoreItem}>
+            <View style={styles.scoreHeader}>
+              <Ionicons name="leaf" size={14} color={Colors.primary} />
+              <Text style={styles.scoreLabel}>Eco Score</Text>
+            </View>
+            <View style={styles.scoreBar}>
+              <View style={[styles.scoreBarFill, { width: `${route.eco_score}%`, backgroundColor: Colors.primary }]} />
+            </View>
+            <Text style={styles.scoreValue}>{Math.round(route.eco_score)}/100</Text>
+          </View>
+
+          <View style={styles.scoreItem}>
+            <View style={styles.scoreHeader}>
+              <Ionicons name="shield-checkmark" size={14} color={Colors.primary} />
+              <Text style={styles.scoreLabel}>Reliability</Text>
+            </View>
+            <View style={styles.scoreBar}>
+              <View style={[styles.scoreBarFill, { width: `${route.reliability_score}%`, backgroundColor: Colors.primary }]} />
+            </View>
+            <Text style={styles.scoreValue}>{Math.round(route.reliability_score)}/100</Text>
+          </View>
+        </View>
+
+        {/* Battery Prediction */}
+        <View style={styles.batteryPrediction}>
+          <Text style={styles.predictionLabel}>Battery at Arrival</Text>
+          <View style={styles.batteryBar}>
+            <View
+              style={[
+                styles.batteryFill,
+                {
+                  width: `${batteryAtArrival}%`,
+                  backgroundColor: batteryAtArrival > 30 ? Colors.primary : batteryAtArrival > 15 ? Colors.warning : Colors.error
+                }
+              ]}
+            />
+            <Text style={styles.batteryText}>{Math.round(batteryAtArrival)}%</Text>
+          </View>
+        </View>
+
+        {/* Additional Info */}
+        <View style={styles.additionalStats}>
+          {route.summary.traffic_delay_min > 0 && (
+            <View style={styles.infoChip}>
+              <Ionicons name="car" size={14} color={Colors.warning} />
+              <Text style={styles.infoChipText}>+{Math.round(route.summary.traffic_delay_min)}m traffic</Text>
+            </View>
+          )}
+          <View style={styles.infoChip}>
+            <Ionicons name="trending-up" size={14} color={Colors.primary} />
+            <Text style={styles.infoChipText}>↑{route.elevation_gain_m}m</Text>
+          </View>
+          <View style={styles.infoChip}>
+            <Ionicons name="flash" size={14} color={Colors.primary} />
+            <Text style={styles.infoChipText}>{route.summary.chargers_available} chargers</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  // Render map with routes
+  const renderMap = () => {
+    if (Platform.OS === 'web' || !MapView) {
+      return (
+        <View style={styles.webMapFallback}>
+          <Ionicons name="map" size={64} color={Colors.borderStrong} />
+          <Text style={styles.mapPlaceholderText}>Map view available on mobile</Text>
+          <Text style={styles.mapPlaceholderSubtext}>Download the app to see interactive routes</Text>
+        </View>
+      );
+    }
+
+    if (!selectedRoute || !selectedRoute.coordinates || selectedRoute.coordinates.length === 0) {
+      return (
+        <View style={styles.webMapFallback}>
+          <Ionicons name="map-outline" size={64} color={Colors.borderStrong} />
+          <Text style={styles.mapPlaceholderText}>Loading route...</Text>
+        </View>
+      );
+    }
+
+    const initialRegion = {
+      latitude: selectedRoute.coordinates[0].latitude,
+      longitude: selectedRoute.coordinates[0].longitude,
+      latitudeDelta: 0.1,
+      longitudeDelta: 0.1,
+    };
+
+    const typeInfo = getRouteTypeInfo(selectedRoute.type);
+
+    return (
+      <MapView
+        ref={mapRef}
+        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+        style={styles.map}
+        initialRegion={initialRegion}
+        showsUserLocation
+      >
+        {/* Route polyline - Google Maps style with outline */}
+        <Polyline
+          coordinates={selectedRoute.coordinates}
+          strokeColor={typeInfo.color}
+          strokeWidth={6}
+          lineJoin="round"
+          lineCap="round"
+        />
+        <Polyline
+          coordinates={selectedRoute.coordinates}
+          strokeColor="#1565C0"
+          strokeWidth={9}
+          lineJoin="round"
+          lineCap="round"
+          zIndex={-1}
+        />
+        
+        {/* Origin marker */}
+        <Marker
+          coordinate={selectedRoute.coordinates[0]}
+          title="Origin"
+          description={origin}
+        >
+          <View style={[styles.markerCircle, { backgroundColor: Colors.info }]}>
+            <Ionicons name="location" size={20} color={Colors.textInverse} />
+          </View>
+        </Marker>
+
+        {/* Destination marker */}
+        <Marker
+          coordinate={selectedRoute.coordinates[selectedRoute.coordinates.length - 1]}
+          title="Destination"
+          description={destination}
+        >
+          <View style={[styles.markerCircle, { backgroundColor: Colors.error }]}>
+            <Ionicons name="flag" size={20} color={Colors.textInverse} />
+          </View>
+        </Marker>
+
+        {/* Charger markers */}
+        {chargersAlongRoute.slice(0, 5).map((charger) => (
+          <Marker
+            key={charger.id}
+            coordinate={{
+              latitude: charger.latitude,
+              longitude: charger.longitude,
+            }}
+            title={charger.name}
+            description={`${charger.available_ports}/${charger.total_ports} available • ${charger.distance_from_route_km} km from route`}
+          >
+            <View style={[styles.markerCircle, { backgroundColor: Colors.primary }]}>
+              <Ionicons name="flash" size={16} color={Colors.textInverse} />
+            </View>
+          </Marker>
+        ))}
+      </MapView>
+    );
+  };
+
+  // Render input view
+  if (viewMode === 'input') {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}
+        >
+          <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.headerIconContainer}>
+                <Ionicons name="navigate-circle" size={48} color={Colors.primary} />
+              </View>
+              <Text style={styles.headerTitle}>Smart Eco-Routing</Text>
+              <Text style={styles.headerSubtitle}>
+                AI-optimized routing for maximum EV efficiency
+              </Text>
+            </View>
+
+            {/* Battery Info */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Current Battery Status</Text>
+              <View style={styles.batteryCard}>
+                <View style={styles.batteryHeader}>
+                  <Ionicons name="battery-charging" size={32} color={Colors.primary} />
+                  <View style={styles.batteryInfo}>
+                    <Text style={styles.batteryPercent}>{batteryPercent}%</Text>
+                    <Text style={styles.batteryCapacity}>
+                      {getBatteryCapacity()} kWh • {user?.vehicle_type || 'Sedan'}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.batterySlider}>
+                  <TouchableOpacity
+                    style={styles.sliderButton}
+                    onPress={() => setBatteryPercent(Math.max(0, batteryPercent - 10))}
+                  >
+                    <Ionicons name="remove" size={20} color={Colors.primary} />
+                  </TouchableOpacity>
+                  <View style={styles.sliderTrack}>
+                    <View
+                      style={[
+                        styles.sliderFill,
+                        {
+                          width: `${batteryPercent}%`,
+                          backgroundColor: batteryPercent > 30 ? Colors.primary : Colors.warning
+                        }
+                      ]}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    style={styles.sliderButton}
+                    onPress={() => setBatteryPercent(Math.min(100, batteryPercent + 10))}
+                  >
+                    <Ionicons name="add" size={20} color={Colors.primary} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
+            {/* Route Input */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Plan Your Journey</Text>
+              
+              <View style={styles.inputContainer}>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="location" size={20} color={Colors.primary} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Starting point (e.g., T Nagar, Chennai)"
+                    value={origin}
+                    onChangeText={setOrigin}
+                    placeholderTextColor={Colors.textTertiary}
+                  />
+                </View>
+
+                <View style={styles.routeDivider}>
+                  <View style={styles.dividerLine} />
+                  <Ionicons name="arrow-down" size={20} color={Colors.borderStrong} />
+                  <View style={styles.dividerLine} />
+                </View>
+
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="flag" size={20} color={Colors.error} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Destination (e.g., Anna Nagar)"
+                    value={destination}
+                    onChangeText={setDestination}
+                    placeholderTextColor={Colors.textTertiary}
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Calculate Button */}
+            <TouchableOpacity
+              style={[styles.calculateButton, loading && styles.calculateButtonDisabled]}
+              onPress={calculateRoutes}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              {loading ? (
+                <>
+                  <ActivityIndicator size="small" color={Colors.textInverse} />
+                  <Text style={styles.calculateButtonText}>Calculating routes...</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons name="analytics" size={20} color={Colors.textInverse} />
+                  <Text style={styles.calculateButtonText}>Find Best EV Routes</Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            {/* Feature Cards */}
+            <View style={styles.featuresSection}>
+              <View style={styles.featureCard}>
+                <Ionicons name="leaf" size={28} color={Colors.primary} />
+                <Text style={styles.featureTitle}>Energy First</Text>
+                <Text style={styles.featureText}>
+                  Routes optimized for lowest battery consumption using real terrain and traffic data
+                </Text>
+              </View>
+
+              <View style={styles.featureCard}>
+                <Ionicons name="flash" size={28} color={Colors.warning} />
+                <Text style={styles.featureTitle}>Smart Charging</Text>
+                <Text style={styles.featureText}>
+                  Only suggests verified, high-uptime chargers from SharaSpot community
+                </Text>
+              </View>
+
+              <View style={styles.featureCard}>
+                <Ionicons name="cloudy" size={28} color={Colors.primary} />
+                <Text style={styles.featureTitle}>Live Conditions</Text>
+                <Text style={styles.featureText}>
+                  Adapts to real-time weather, traffic, and elevation for accurate predictions
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
+
+  // Render results view
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.surface} />
+      <View style={styles.resultsContainer}>
+        {/* Map Section */}
+        <View style={styles.mapSection}>
+          {renderMap()}
+          
+          {/* Back button */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => {
+              setViewMode('input');
+              setRoutes([]);
+              setSelectedRoute(null);
+              setChargersAlongRoute([]);
+            }}
+          >
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
+          </TouchableOpacity>
+
+          {/* Route type indicator */}
+          {selectedRoute && (
+            <View style={[styles.routeTypeIndicator, { backgroundColor: getRouteTypeInfo(selectedRoute.type).color }]}>
+              <Ionicons
+                name={getRouteTypeInfo(selectedRoute.type).icon as any}
+                size={16}
+                color={Colors.textInverse}
+              />
+              <Text style={styles.routeTypeText}>{getRouteTypeInfo(selectedRoute.type).name}</Text>
+            </View>
+          )}
+
+          {/* Weather info */}
+          {weatherData && (
+            <View style={styles.weatherBadge}>
+              <Ionicons name="partly-sunny" size={16} color={Colors.warning} />
+              <Text style={styles.weatherText}>{weatherData.temperature_c}°C</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Route Options */}
+        <View style={styles.routeOptionsSection}>
+          <View style={styles.routeOptionsHeader}>
+            <Text style={styles.routeOptionsTitle}>Route Options</Text>
+            <Text style={styles.routeOptionsSubtitle}>
+              {routes.length} alternatives • Tap to compare
+            </Text>
+          </View>
+          
+          <ScrollView 
+            style={styles.routeOptionsList}
+            showsVerticalScrollIndicator={false}
+          >
+            {routes.map(route => renderRouteOption(route))}
+
+            {/* Chargers Along Route */}
+            {chargersAlongRoute.length > 0 && selectedRoute && (
+              <View style={styles.chargersSection}>
+                <Text style={styles.chargersSectionTitle}>
+                  ⚡ Charging Stations Along Route
+                </Text>
+                {chargersAlongRoute.slice(0, 3).map((charger) => (
+                  <View key={charger.id} style={styles.chargerItem}>
+                    <View style={styles.chargerIconCircle}>
+                      <Ionicons name="flash" size={18} color={Colors.primary} />
+                    </View>
+                    <View style={styles.chargerItemInfo}>
+                      <Text style={styles.chargerItemName}>{charger.name}</Text>
+                      <Text style={styles.chargerItemDetails}>
+                        {charger.distance_from_route_km} km from route • {charger.available_ports}/{charger.total_ports} available
+                      </Text>
+                    </View>
+                    <View style={styles.reliabilityBadge}>
+                      <Text style={styles.reliabilityText}>{Math.round(charger.uptime_percentage)}%</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Start Navigation Button */}
+            {selectedRoute && (
+              <TouchableOpacity
+                style={styles.startNavigationButton}
+                onPress={startNavigation}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="navigate" size={24} color="#fff" />
+                <Text style={styles.startNavigationText}>Start Navigation</Text>
+                <Ionicons name="arrow-forward" size={20} color="#fff" />
+              </TouchableOpacity>
+            )}
+
+            <View style={styles.bottomPadding} />
+          </ScrollView>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.backgroundSecondary,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 20,
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  headerIconContainer: {
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    paddingHorizontal: 32,
+  },
+  section: {
+    padding: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 16,
+  },
+  batteryCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  batteryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  batteryInfo: {
+    marginLeft: 16,
+  },
+  batteryPercent: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  batteryCapacity: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  batterySlider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  sliderButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.backgroundTertiary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sliderTrack: {
+    flex: 1,
+    height: 8,
+    backgroundColor: Colors.borderLight,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  sliderFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  inputContainer: {
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: Colors.backgroundSecondary,
+    borderRadius: 12,
+    gap: 12,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: Colors.textPrimary,
+  },
+  routeDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingLeft: 8,
+  },
+  dividerLine: {
+    width: 1,
+    height: 20,
+    backgroundColor: Colors.border,
+  },
+  calculateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary,
+    marginHorizontal: 24,
+    marginBottom: 24,
+    paddingVertical: 16,
+    borderRadius: 16,
+    gap: 8,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  calculateButtonDisabled: {
+    opacity: 0.6,
+  },
+  calculateButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textInverse,
+  },
+  featuresSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    gap: 12,
+  },
+  featureCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  featureTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginTop: 12,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  featureText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  resultsContainer: {
+    flex: 1,
+    backgroundColor: Colors.backgroundSecondary,
+  },
+  mapSection: {
+    height: height * 0.35,
+    position: 'relative',
+    backgroundColor: Colors.backgroundSecondary,
+  },
+  map: {
+    width: '100%',
+    height: '100%',
+  },
+  webMapFallback: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundTertiary,
+    padding: 20,
+  },
+  mapPlaceholderText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textTertiary,
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  mapPlaceholderSubtext: {
+    fontSize: 12,
+    color: Colors.textDisabled,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  markerCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: Colors.surface,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  routeTypeIndicator: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    gap: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  routeTypeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.textInverse,
+  },
+  weatherBadge: {
+    position: 'absolute',
+    bottom: 40,
+    left: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    gap: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  weatherText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  routeOptionsSection: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    marginTop: -24,
+    paddingTop: 20,
+  },
+  routeOptionsHeader: {
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+  },
+  routeOptionsTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  routeOptionsSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
+  routeOptionsList: {
+    flex: 1,
+  },
+  routeCard: {
+    backgroundColor: Colors.backgroundSecondary,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  routeCardSelected: {
+    backgroundColor: Colors.successLight,
+    borderColor: Colors.primary,
+  },
+  routeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  routeIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  routeInfo: {
+    flex: 1,
+  },
+  routeName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 2,
+  },
+  routeDescription: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+  },
+  quickStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 12,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+  },
+  statItem: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  statValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  scoresSection: {
+    gap: 12,
+    marginBottom: 12,
+  },
+  scoreItem: {
+    gap: 6,
+  },
+  scoreHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    gap: 6,
+  },
+  scoreLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: Colors.textSecondary,
+  },
+  scoreBar: {
+    height: 6,
+    backgroundColor: Colors.borderLight,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  scoreBarFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  scoreValue: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  batteryPrediction: {
+    marginBottom: 12,
+  },
+  predictionLabel: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginBottom: 6,
+  },
+  batteryBar: {
+    height: 28,
+    backgroundColor: Colors.borderLight,
+    borderRadius: 8,
+    overflow: 'hidden',
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  batteryFill: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    height: '100%',
+    borderRadius: 8,
+  },
+  batteryText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    textAlign: 'center',
+    zIndex: 1,
+  },
+  additionalStats: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  infoChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surface,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    gap: 6,
+    minHeight: 28,
+  },
+  infoChipText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: Colors.textSecondary,
+  },
+  chargersSection: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  chargersSectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 12,
+  },
+  chargerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  chargerIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.successLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  chargerItemInfo: {
+    flex: 1,
+  },
+  chargerItemName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 2,
+  },
+  chargerItemDetails: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+  },
+  reliabilityBadge: {
+    backgroundColor: Colors.successLight,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+  reliabilityText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  startNavigationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    marginHorizontal: 16,
+    marginTop: 20,
+    marginBottom: 16,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  startNavigationText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginHorizontal: 12,
+  },
+  bottomPadding: {
+    height: 20,
+  },
+});
