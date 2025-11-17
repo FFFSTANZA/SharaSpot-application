@@ -1,5 +1,18 @@
 # SharaSpot Backend Documentation
 
+> **Note**: This documentation describes the API endpoints and functionality. For the latest modular monolith architecture and code organization, see:
+> - **[Modular Monolith Architecture](./MODULAR_MONOLITH_ARCHITECTURE.md)** - Complete architecture guide
+> - **[Migration Guide](./MIGRATION_GUIDE.md)** - New module structure and patterns
+> - **[Getting Started](./GETTING_STARTED.md)** - Setup and development guide
+>
+> The backend now uses a **modular monolith architecture** with modules organized into 4 layers:
+> - `domain/` - Business entities and logic
+> - `application/` - Use cases and services
+> - `infrastructure/` - Data access and external services
+> - `presentation/` - API routes and DTOs
+>
+> **Example**: The auth module is located at `backend/modules/auth/` instead of `backend/app/api/auth.py`
+
 ## Table of Contents
 - [Architecture Overview](#architecture-overview)
 - [API Routes](#api-routes)
