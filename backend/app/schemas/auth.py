@@ -25,6 +25,8 @@ class SignupRequest(BaseModel):
     @classmethod
     def validate_password_strength(cls, v):
         """Validate password meets minimum security requirements"""
+        import string
+
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
         if not any(c.isupper() for c in v):
@@ -33,6 +35,8 @@ class SignupRequest(BaseModel):
             raise ValueError('Password must contain at least one lowercase letter')
         if not any(c.isdigit() for c in v):
             raise ValueError('Password must contain at least one digit')
+        if not any(c in string.punctuation for c in v):
+            raise ValueError('Password must contain at least one special character')
         return v
 
 

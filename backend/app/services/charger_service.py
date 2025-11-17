@@ -225,6 +225,23 @@ async def get_chargers(
     # Build query with filters
     query = select(Charger).options(selectinload(Charger.verification_actions))
 
+    # Apply geospatial bounding box filter FIRST (uses idx_charger_location index)
+    # This significantly reduces the dataset before other filters
+    if user_lat is not None and user_lng is not None and max_distance is not None:
+        # Calculate bounding box for efficient database-level filtering
+        # Approximate: 1 degree latitude ≈ 111 km
+        # 1 degree longitude ≈ 111 km * cos(latitude)
+        lat_delta = max_distance / 111.0
+        lng_delta = max_distance / (111.0 * math.cos(math.radians(user_lat)))
+
+        # Apply bounding box filter - this uses the composite index on (latitude, longitude)
+        query = query.where(
+            and_(
+                Charger.latitude.between(user_lat - lat_delta, user_lat + lat_delta),
+                Charger.longitude.between(user_lng - lng_delta, user_lng + lng_delta)
+            )
+        )
+
     # Apply verification level filter
     if verification_level is not None:
         query = query.where(Charger.verification_level >= verification_level)
@@ -247,12 +264,13 @@ async def get_chargers(
     # Convert to Pydantic models with distance calculation
     charger_models = []
     for charger in chargers:
-        # Calculate distance if user location provided
+        # Calculate precise distance if user location provided
         distance = None
         if user_lat is not None and user_lng is not None:
             distance = calculate_distance(user_lat, user_lng, charger.latitude, charger.longitude)
 
-            # Apply distance filter
+            # Apply precise distance filter (refines the bounding box approximation)
+            # The bounding box got us close, now we filter with precise Haversine distance
             if max_distance is not None and distance > max_distance:
                 continue
 

@@ -4,17 +4,21 @@ from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+import logging
 
 from ..models.user import User as UserModel
 from ..core.db_models import User, UserSession
 from ..schemas.auth import SignupRequest, LoginRequest, PreferencesUpdate
 from ..core.config import settings
+from ..core.constants import ErrorMessages
 from ..core import (
     get_database,
     hash_password,
     verify_password,
     create_session,
 )
+
+logger = logging.getLogger(__name__)
 
 
 async def signup_user(data: SignupRequest, db: AsyncSession) -> tuple[UserModel, str]:
@@ -23,7 +27,8 @@ async def signup_user(data: SignupRequest, db: AsyncSession) -> tuple[UserModel,
     result = await db.execute(select(User).where(User.email == data.email))
     existing = result.scalar_one_or_none()
     if existing:
-        raise HTTPException(400, "Email already registered")
+        logger.warning(f"Signup attempt with existing email: {data.email}")
+        raise HTTPException(400, ErrorMessages.EMAIL_ALREADY_EXISTS)
 
     # Create new user
     user = User(
@@ -71,21 +76,24 @@ async def login_user(data: LoginRequest, db: AsyncSession) -> tuple[UserModel, s
     user = result.scalar_one_or_none()
 
     if not user or not user.password:
-        raise HTTPException(401, "Invalid credentials")
+        logger.warning(f"Login attempt with non-existent or OAuth-only email: {data.email}")
+        raise HTTPException(401, ErrorMessages.INVALID_CREDENTIALS)
 
     # Check if account is locked
     now = datetime.now(timezone.utc)
     if user.account_locked_until and user.account_locked_until > now:
-        # Calculate remaining lockout time
+        # Calculate remaining lockout time for logging
         remaining_minutes = int((user.account_locked_until - now).total_seconds() / 60)
-        raise HTTPException(
-            403,
-            f"Account is locked due to too many failed login attempts. "
-            f"Please try again in {remaining_minutes} minutes."
+        logger.warning(
+            f"Login attempt on locked account: {user.email}, "
+            f"locked until {user.account_locked_until}, "
+            f"remaining: {remaining_minutes} minutes"
         )
+        raise HTTPException(403, ErrorMessages.AUTHENTICATION_FAILED)
 
     # If lockout period has expired, reset the counter
     if user.account_locked_until and user.account_locked_until <= now:
+        logger.info(f"Account lockout expired, resetting for user: {user.email}")
         user.failed_login_attempts = 0
         user.account_locked_until = None
         user.last_failed_login = None
@@ -100,18 +108,20 @@ async def login_user(data: LoginRequest, db: AsyncSession) -> tuple[UserModel, s
         if user.failed_login_attempts >= settings.MAX_LOGIN_ATTEMPTS:
             user.account_locked_until = now + timedelta(minutes=settings.ACCOUNT_LOCKOUT_DURATION_MINUTES)
             await db.flush()
-            raise HTTPException(
-                403,
-                f"Account locked due to {settings.MAX_LOGIN_ATTEMPTS} failed login attempts. "
-                f"Please try again in {settings.ACCOUNT_LOCKOUT_DURATION_MINUTES} minutes."
+            logger.warning(
+                f"Account locked due to {settings.MAX_LOGIN_ATTEMPTS} failed attempts: {user.email}, "
+                f"locked until {user.account_locked_until}"
             )
+            raise HTTPException(403, ErrorMessages.AUTHENTICATION_FAILED)
 
         await db.flush()
         remaining_attempts = settings.MAX_LOGIN_ATTEMPTS - user.failed_login_attempts
-        raise HTTPException(
-            401,
-            f"Invalid credentials. {remaining_attempts} attempts remaining before account lockout."
+        logger.warning(
+            f"Failed login attempt for {user.email}, "
+            f"attempts: {user.failed_login_attempts}/{settings.MAX_LOGIN_ATTEMPTS}, "
+            f"remaining: {remaining_attempts}"
         )
+        raise HTTPException(401, ErrorMessages.INVALID_CREDENTIALS)
 
     # Successful login - reset failed attempts
     user.failed_login_attempts = 0
