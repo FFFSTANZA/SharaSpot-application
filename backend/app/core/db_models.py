@@ -39,6 +39,11 @@ class User(Base):
     theme = Column(String, nullable=False, default="light")
     notifications_enabled = Column(Boolean, nullable=False, default=True)
 
+    # Security - Account lockout
+    failed_login_attempts = Column(Integer, nullable=False, default=0)
+    account_locked_until = Column(DateTime(timezone=True), nullable=True)
+    last_failed_login = Column(DateTime(timezone=True), nullable=True)
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), nullable=False,
                        default=lambda: datetime.now(timezone.utc),

@@ -1,5 +1,6 @@
 """Authentication service business logic"""
 from typing import Optional
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.user import User as UserModel
 from ..core.db_models import User, UserSession
 from ..schemas.auth import SignupRequest, LoginRequest, PreferencesUpdate
+from ..core.config import settings
 from ..core import (
     get_database,
     hash_password,
@@ -63,7 +65,7 @@ async def signup_user(data: SignupRequest, db: AsyncSession) -> tuple[UserModel,
 
 
 async def login_user(data: LoginRequest, db: AsyncSession) -> tuple[UserModel, str]:
-    """Login existing user"""
+    """Login existing user with account lockout protection"""
     # Find user by email
     result = await db.execute(select(User).where(User.email == data.email))
     user = result.scalar_one_or_none()
@@ -71,9 +73,51 @@ async def login_user(data: LoginRequest, db: AsyncSession) -> tuple[UserModel, s
     if not user or not user.password:
         raise HTTPException(401, "Invalid credentials")
 
+    # Check if account is locked
+    now = datetime.now(timezone.utc)
+    if user.account_locked_until and user.account_locked_until > now:
+        # Calculate remaining lockout time
+        remaining_minutes = int((user.account_locked_until - now).total_seconds() / 60)
+        raise HTTPException(
+            403,
+            f"Account is locked due to too many failed login attempts. "
+            f"Please try again in {remaining_minutes} minutes."
+        )
+
+    # If lockout period has expired, reset the counter
+    if user.account_locked_until and user.account_locked_until <= now:
+        user.failed_login_attempts = 0
+        user.account_locked_until = None
+        user.last_failed_login = None
+
     # Verify password
     if not verify_password(data.password, user.password):
-        raise HTTPException(401, "Invalid credentials")
+        # Increment failed login attempts
+        user.failed_login_attempts += 1
+        user.last_failed_login = now
+
+        # Lock account if max attempts reached
+        if user.failed_login_attempts >= settings.MAX_LOGIN_ATTEMPTS:
+            user.account_locked_until = now + timedelta(minutes=settings.ACCOUNT_LOCKOUT_DURATION_MINUTES)
+            await db.flush()
+            raise HTTPException(
+                403,
+                f"Account locked due to {settings.MAX_LOGIN_ATTEMPTS} failed login attempts. "
+                f"Please try again in {settings.ACCOUNT_LOCKOUT_DURATION_MINUTES} minutes."
+            )
+
+        await db.flush()
+        remaining_attempts = settings.MAX_LOGIN_ATTEMPTS - user.failed_login_attempts
+        raise HTTPException(
+            401,
+            f"Invalid credentials. {remaining_attempts} attempts remaining before account lockout."
+        )
+
+    # Successful login - reset failed attempts
+    user.failed_login_attempts = 0
+    user.account_locked_until = None
+    user.last_failed_login = None
+    await db.flush()
 
     # Create session
     session_token = await create_session(user.id, db)

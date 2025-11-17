@@ -45,15 +45,25 @@ class Settings:
     # ===========================
     # CORS Configuration
     # ===========================
-    CORS_ORIGINS: list = [
-        "http://localhost:8081",  # Expo development
-        "http://localhost:19006",  # Expo web
-        "exp://localhost:8081",   # Expo app
-        # Add production URLs when deployed
-    ]
+    # Load from environment variable, fallback to development defaults
+    CORS_ORIGINS: list = os.environ.get(
+        'CORS_ORIGINS',
+        'http://localhost:8081,http://localhost:19006,exp://localhost:8081'
+    ).split(',')
+
     CORS_ALLOW_CREDENTIALS: bool = True
-    CORS_ALLOW_METHODS: list = ["*"]
-    CORS_ALLOW_HEADERS: list = ["*"]
+
+    # Restrict to only necessary HTTP methods
+    CORS_ALLOW_METHODS: list = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+
+    # Restrict to only necessary headers
+    CORS_ALLOW_HEADERS: list = [
+        "Content-Type",
+        "Authorization",
+        "Accept",
+        "Origin",
+        "X-Requested-With",
+    ]
 
     # ===========================
     # Cookie Configuration
@@ -98,6 +108,18 @@ Community-driven platform for discovering and verifying EV charging stations.
     # ===========================
     SESSION_CLEANUP_INTERVAL_HOURS: int = 24
     SESSION_CLEANUP_BATCH_SIZE: int = 1000
+
+    # ===========================
+    # Security Configuration
+    # ===========================
+    # Rate limiting
+    AUTH_RATE_LIMIT: str = "5/minute"  # Login/Signup rate limit
+    WRITE_RATE_LIMIT: str = "20/minute"  # Write operations rate limit
+    READ_RATE_LIMIT: str = "60/minute"  # Read operations rate limit
+
+    # Account lockout configuration
+    MAX_LOGIN_ATTEMPTS: int = 5  # Max failed login attempts before lockout
+    ACCOUNT_LOCKOUT_DURATION_MINUTES: int = 15  # How long to lock account
 
 
 settings = Settings()

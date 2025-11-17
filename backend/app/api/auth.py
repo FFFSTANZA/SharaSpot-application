@@ -8,13 +8,16 @@ from ..schemas.auth import SignupRequest, LoginRequest, PreferencesUpdate
 from ..services import auth_service, oauth_service
 from ..core.security import get_user_from_session
 from ..core.database import get_session
+from ..core.middleware import limiter
+from ..core.config import settings
 from ..models.user import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/signup")
-async def signup(data: SignupRequest, response: Response, db: AsyncSession = Depends(get_session)):
+@limiter.limit(settings.AUTH_RATE_LIMIT)
+async def signup(request: Request, data: SignupRequest, response: Response, db: AsyncSession = Depends(get_session)):
     """Email/Password signup"""
     user, session_token = await auth_service.signup_user(data, db)
 
@@ -34,7 +37,8 @@ async def signup(data: SignupRequest, response: Response, db: AsyncSession = Dep
 
 
 @router.post("/login")
-async def login(data: LoginRequest, response: Response, db: AsyncSession = Depends(get_session)):
+@limiter.limit(settings.AUTH_RATE_LIMIT)
+async def login(request: Request, data: LoginRequest, response: Response, db: AsyncSession = Depends(get_session)):
     """Email/Password login"""
     user, session_token = await auth_service.login_user(data, db)
 
@@ -62,7 +66,8 @@ async def get_current_user(user: User = Depends(get_user_from_session)):
 
 
 @router.post("/guest")
-async def create_guest_session(response: Response, db: AsyncSession = Depends(get_session)):
+@limiter.limit(settings.AUTH_RATE_LIMIT)
+async def create_guest_session(request: Request, response: Response, db: AsyncSession = Depends(get_session)):
     """Create guest user session"""
     guest, session_token = await auth_service.create_guest_user(db)
 

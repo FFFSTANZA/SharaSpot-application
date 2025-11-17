@@ -108,6 +108,24 @@ backend/
 4. **Scalability**: Easy to add new features without touching existing code
 5. **Team Collaboration**: Multiple developers can work on different modules
 
+## Environment Setup
+
+1. Copy the example environment file:
+```bash
+cp .env.example .env
+```
+
+2. Update the `.env` file with your actual values:
+   - Database credentials
+   - API keys (HERE, OpenWeather)
+   - Google OAuth credentials
+   - **CORS_ORIGINS** (comma-separated list of allowed origins)
+
+3. Run database migrations:
+```bash
+alembic upgrade head
+```
+
 ## Running the Application
 
 ```bash
@@ -159,6 +177,33 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 - 📚 Clear separation of concerns
 - 🎯 Single responsibility principle
 - 🧪 Easier to write unit tests
+
+## Security Features
+
+### CORS Configuration
+- **Whitelisted Origins**: Configure allowed origins via `CORS_ORIGINS` environment variable
+- **Restricted Methods**: Only `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS` allowed
+- **Restricted Headers**: Only necessary headers permitted
+- **Production**: Always set specific domains, never use `*`
+
+### Rate Limiting
+- **Authentication Endpoints**: 5 requests/minute for login/signup/guest
+- **Write Operations**: 20 requests/minute (configurable)
+- **Read Operations**: 60 requests/minute (configurable)
+
+### Account Security
+- **Failed Login Protection**: Tracks failed login attempts per user
+- **Account Lockout**: After 5 failed attempts, account locks for 15 minutes
+- **Automatic Unlock**: Lockout expires automatically after duration
+- **Progressive Feedback**: Users informed of remaining attempts
+
+### Additional Security Headers
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `X-XSS-Protection: 1; mode=block`
+- `Strict-Transport-Security: max-age=31536000`
+- `Content-Security-Policy: default-src 'self'`
+- `Referrer-Policy: strict-origin-when-cross-origin`
 
 ## Testing
 
