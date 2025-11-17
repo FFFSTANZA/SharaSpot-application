@@ -1,18 +1,21 @@
 """Authentication API routes"""
-from fastapi import APIRouter, Response, Cookie, Header, HTTPException
+from fastapi import APIRouter, Response, Depends, Header, Cookie, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from ..schemas.auth import SignupRequest, LoginRequest, PreferencesUpdate
 from ..services import auth_service
 from ..core.security import get_user_from_session
+from ..core.database import get_session
+from ..models.user import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/signup")
-async def signup(data: SignupRequest, response: Response):
+async def signup(data: SignupRequest, response: Response, db: AsyncSession = Depends(get_session)):
     """Email/Password signup"""
-    user, session_token = await auth_service.signup_user(data)
+    user, session_token = await auth_service.signup_user(data, db)
 
     # Set cookie
     response.set_cookie(
@@ -30,9 +33,9 @@ async def signup(data: SignupRequest, response: Response):
 
 
 @router.post("/login")
-async def login(data: LoginRequest, response: Response):
+async def login(data: LoginRequest, response: Response, db: AsyncSession = Depends(get_session)):
     """Email/Password login"""
-    user, session_token = await auth_service.login_user(data)
+    user, session_token = await auth_service.login_user(data, db)
 
     # Set cookie
     response.set_cookie(
@@ -50,12 +53,15 @@ async def login(data: LoginRequest, response: Response):
 
 
 @router.get("/session-data")
-async def get_session_data(x_session_id: Optional[str] = Header(None)):
+async def get_session_data(
+    x_session_id: Optional[str] = Header(None),
+    db: AsyncSession = Depends(get_session)
+):
     """Process Emergent Auth session ID"""
     if not x_session_id:
         raise HTTPException(400, "Session ID required")
 
-    user, session_token, emergent_token = await auth_service.process_emergent_auth_session(x_session_id)
+    user, session_token, emergent_token = await auth_service.process_emergent_auth_session(x_session_id, db)
 
     needs_preferences = not (user.port_type and user.vehicle_type)
     return {
@@ -67,21 +73,17 @@ async def get_session_data(x_session_id: Optional[str] = Header(None)):
 
 
 @router.get("/me")
-async def get_current_user(
-    session_token: Optional[str] = Cookie(None),
-    authorization: Optional[str] = Header(None)
-):
+async def get_current_user(user: User = Depends(get_user_from_session)):
     """Get current user from session"""
-    user = await get_user_from_session(session_token, authorization)
     if not user:
         raise HTTPException(401, "Not authenticated")
     return user
 
 
 @router.post("/guest")
-async def create_guest_session(response: Response):
+async def create_guest_session(response: Response, db: AsyncSession = Depends(get_session)):
     """Create guest user session"""
-    guest, session_token = await auth_service.create_guest_user()
+    guest, session_token = await auth_service.create_guest_user(db)
 
     response.set_cookie(
         key="session_token",
@@ -99,16 +101,18 @@ async def create_guest_session(response: Response):
 @router.post("/logout")
 async def logout(
     response: Response,
+    db: AsyncSession = Depends(get_session),
     session_token: Optional[str] = Cookie(None),
     authorization: Optional[str] = Header(None)
 ):
     """Logout user"""
+    # Extract token from Authorization header or Cookie
     token = session_token
     if not token and authorization:
         if authorization.startswith('Bearer '):
             token = authorization[7:]
 
-    await auth_service.logout_user(token)
+    await auth_service.logout_user(token, db)
     response.delete_cookie(key="session_token", path="/")
 
     return {"message": "Logged out successfully"}
@@ -117,13 +121,12 @@ async def logout(
 @router.put("/preferences")
 async def update_preferences(
     data: PreferencesUpdate,
-    session_token: Optional[str] = Cookie(None),
-    authorization: Optional[str] = Header(None)
+    db: AsyncSession = Depends(get_session),
+    user: User = Depends(get_user_from_session)
 ):
     """Update user preferences"""
-    user = await get_user_from_session(session_token, authorization)
     if not user:
         raise HTTPException(401, "Not authenticated")
 
-    updated_user = await auth_service.update_user_preferences(user, data)
+    updated_user = await auth_service.update_user_preferences(user, data, db)
     return updated_user
