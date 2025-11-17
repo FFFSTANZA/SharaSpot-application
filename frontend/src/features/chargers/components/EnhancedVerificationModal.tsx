@@ -10,7 +10,7 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius } from '../constants/theme';
+import { Colors, Spacing, BorderRadius } from '../../../shared/constants/theme';
 
 interface EnhancedVerificationModalProps {
   visible: boolean;

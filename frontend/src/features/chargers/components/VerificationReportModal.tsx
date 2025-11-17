@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { VerificationBadge } from './VerificationBadge';
-import { Colors } from '../constants/theme';
+import { Colors } from '../../../shared/constants/theme';
 
 interface VerificationAction {
   user_id: string;

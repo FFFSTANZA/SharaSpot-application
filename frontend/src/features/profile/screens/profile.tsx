@@ -14,11 +14,11 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SessionManager } from '../utils/secureStorage';
+import { SessionManager } from '../../../shared/utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
-import { useAuth } from '../contexts/AuthContext';
-import { Colors } from '../constants/theme';
+import { useAuth } from '../../../shared/../features/auth';
+import { Colors } from '../../../shared/constants/theme';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 

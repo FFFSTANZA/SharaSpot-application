@@ -16,12 +16,12 @@ import {
   StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../contexts/AuthContext';
-import { SessionManager } from '../../utils/secureStorage';
+import { useAuth } from '../../../shared/../features/auth';
+import { SessionManager } from '../../../shared/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import Constants from 'expo-constants';
-import { Colors } from '../../constants/theme';
+import { Colors } from '../../../shared/constants/theme';
 
 // Conditional import for MapView (mobile only)
 let MapView: any = null;

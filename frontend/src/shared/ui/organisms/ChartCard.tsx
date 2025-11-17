@@ -10,7 +10,7 @@ import {
   Spacing,
   Typography,
   Shadows,
-} from '../../constants/theme';
+} from '../../../shared/constants/theme';
 
 export interface ChartCardProps {
   title: string;

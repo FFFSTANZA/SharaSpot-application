@@ -20,7 +20,7 @@ import {
   Typography,
   Layout,
   AnimationDuration,
-} from '../../constants/theme';
+} from '../../../shared/constants/theme';
 import { createInputA11y } from '../../utils/accessibility';
 
 export interface FloatingInputProps extends Omit<TextInputProps, 'style'> {

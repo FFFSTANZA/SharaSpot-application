@@ -1,6 +1,6 @@
 import React, { useRef, ReactNode } from 'react';
 import { Animated, Pressable, StyleSheet, ViewStyle, PressableProps } from 'react-native';
-import { Colors, BorderRadius } from '../../constants/theme';
+import { Colors, BorderRadius } from '../../../shared/constants/theme';
 
 interface AnimatedCardProps extends Omit<PressableProps, 'style'> {
   children: ReactNode;

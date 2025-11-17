@@ -3,7 +3,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp, Animated, Easing } from 'react-native';
-import { Colors, AnimationDuration } from '../../constants/theme';
+import { Colors, AnimationDuration } from '../../../shared/constants/theme';
 
 export interface PulseIndicatorProps {
   size?: number;

@@ -8,7 +8,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db_models import User, OAuthToken, OAuthState
-from modules.user.domain.user import User as UserModel
+from modules.auth.domain.user import User as UserModel
 from app.core.config import settings
 from app.core.security import create_session
 

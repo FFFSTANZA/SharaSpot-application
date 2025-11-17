@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 
-from modules.user.domain.user import User as UserModel
+from modules.auth.domain.user import User as UserModel
 from app.core.db_models import User, UserSession
 from modules.auth.presentation.auth import SignupRequest, LoginRequest, PreferencesUpdate
 from app.core.config import settings

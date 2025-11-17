@@ -17,10 +17,10 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
-import { SessionManager } from '../utils/secureStorage';
+import { SessionManager } from '../../../shared/utils/secureStorage';
 import axios from 'axios';
 import Constants from 'expo-constants';
-import { Colors } from '../constants/theme';
+import { Colors } from '../../../shared/constants/theme';
 
 const API_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 

@@ -6,7 +6,7 @@ from typing import List, Optional
 from modules.charger.domain.charger import Charger
 from modules.user.domain.user import User
 from modules.charger.presentation.charger import ChargerCreateRequest, VerificationActionRequest
-from ..services import charger_service
+from modules.chargers.application import charger_service
 from app.core.security import get_user_from_session
 from app.core.database import get_session
 

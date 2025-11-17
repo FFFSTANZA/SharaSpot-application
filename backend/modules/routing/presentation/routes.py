@@ -5,7 +5,7 @@ import logging
 
 from modules.user.domain.user import User
 from modules.routing.presentation.routing import HERERouteRequest, HERERouteResponse
-from ..services import routing_service
+from modules.routing.application import routing_service
 from app.core.security import get_user_from_session
 from app.core.database import get_session
 

@@ -11,7 +11,7 @@ import {
   Spacing,
   Typography,
   Shadows,
-} from '../../constants/theme';
+} from '../../../shared/constants/theme';
 import { createHeadingA11y } from '../../utils/accessibility';
 
 export interface StatCardProps {

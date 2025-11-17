@@ -8,7 +8,7 @@ import {
   Colors,
   Typography,
   AnimationDuration,
-} from '../../constants/theme';
+} from '../../../shared/constants/theme';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 

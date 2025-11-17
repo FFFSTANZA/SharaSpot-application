@@ -5,12 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from modules.auth.presentation.auth import SignupRequest, LoginRequest, PreferencesUpdate
-from ..services import auth_service, oauth_service
+from modules.auth.application import auth_service, oauth_service
 from app.core.security import get_user_from_session, verify_token, create_token_pair
 from app.core.database import get_session
 from app.core.middleware import limiter
 from app.core.config import settings
-from modules.user.domain.user import User
+from modules.auth.domain.user import User
 from app.core.db_models import User as DBUser
 
 router = APIRouter(prefix="/auth", tags=["auth"])

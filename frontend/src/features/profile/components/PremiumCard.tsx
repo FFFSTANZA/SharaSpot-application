@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, Shadows, BorderRadius } from '../constants/theme';
+import { Colors, Shadows, BorderRadius } from '../../../shared/constants/theme';
 
 interface PremiumCardProps {
   children: React.ReactNode;

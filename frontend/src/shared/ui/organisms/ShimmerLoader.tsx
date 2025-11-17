@@ -4,7 +4,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp, Animated, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, BorderRadius, AnimationDuration } from '../../constants/theme';
+import { Colors, BorderRadius, AnimationDuration } from '../../../shared/constants/theme';
 
 export interface ShimmerLoaderProps {
   width?: number | string;

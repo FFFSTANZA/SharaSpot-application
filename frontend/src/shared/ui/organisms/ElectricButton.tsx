@@ -23,7 +23,7 @@ import {
   Layout,
   Shadows,
   AnimationDuration,
-} from '../../constants/theme';
+} from '../../../shared/constants/theme';
 import { createButtonA11y } from '../../utils/accessibility';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
-import { Colors } from '../constants/theme';
+import { Colors } from '../../../shared/constants/theme';
 
 interface VerificationBadgeProps {
   level: number;

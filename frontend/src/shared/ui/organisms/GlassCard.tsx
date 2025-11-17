@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { Colors, BorderRadius, Spacing, Shadows } from '../../constants/theme';
+import { Colors, BorderRadius, Spacing, Shadows } from '../../../shared/constants/theme';
 
 export interface GlassCardProps {
   children: React.ReactNode;

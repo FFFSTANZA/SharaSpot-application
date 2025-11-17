@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { TouchableOpacity, StyleSheet, Animated } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors } from '../../../shared/constants/theme';
 
 interface AnimatedRadioProps {
   selected: boolean;
