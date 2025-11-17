@@ -44,6 +44,23 @@ async def calculate_trust_score(user_id: str, db: AsyncSession) -> float:
     return round(score, 1)
 
 
+async def update_user_trust_score(user_id: str, db: AsyncSession) -> float:
+    """Calculate and update user's trust score in database"""
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        return 0.0
+
+    # Calculate new trust score
+    new_score = await calculate_trust_score(user_id, db)
+
+    # Update in database
+    user.trust_score = new_score
+    await db.flush()
+
+    return new_score
+
+
 async def award_charger_coins(user_id: str, charger_name: str, photos_count: int, db: AsyncSession) -> int:
     """Award coins for adding a charger"""
     # Base reward for adding charger
@@ -83,6 +100,9 @@ async def award_charger_coins(user_id: str, charger_name: str, photos_count: int
             db
         )
         coins_earned += photo_coins
+
+    # Update trust score after contribution
+    await update_user_trust_score(user_id, db)
 
     return coins_earned
 
@@ -166,6 +186,9 @@ async def award_verification_coins(
         description,
         db
     )
+
+    # Update trust score after contribution
+    await update_user_trust_score(user_id, db)
 
     return {
         "total_coins": total_coins,
