@@ -1,12 +1,11 @@
 """Charger management service"""
 from typing import List, Optional
-from datetime import datetime, timezone, timedelta
-import uuid
-import random
+from datetime import datetime, timezone
 from fastapi import HTTPException
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+import math
 
 from ..models.charger import Charger as ChargerModel, VerificationAction as VerificationModel
 from ..models.user import User as UserModel
@@ -15,148 +14,19 @@ from ..schemas.charger import ChargerCreateRequest, VerificationActionRequest
 from .gamification_service import award_charger_coins, award_verification_coins
 
 
-def generate_mock_verification_history(level: int, verified_by_count: int, now: datetime) -> List[dict]:
-    """Generate realistic mock verification history for chargers with enhanced data"""
-    history = []
+def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate distance between two coordinates using Haversine formula (in km)"""
+    R = 6371  # Earth radius in kilometers
 
-    # Generate history based on verification level
-    history_count = verified_by_count
-    action_types = ['active', 'not_working', 'partial']
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
 
-    # Higher level = more "active" verifications
-    if level >= 4:
-        weights = [0.85, 0.05, 0.10]  # Mostly active
-    elif level >= 3:
-        weights = [0.70, 0.15, 0.15]
-    elif level >= 2:
-        weights = [0.55, 0.25, 0.20]
-    else:
-        weights = [0.40, 0.35, 0.25]
+    a = math.sin(dlat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2
+    c = 2 * math.asin(math.sqrt(a))
 
-    notes_options = [
-        'Working perfectly',
-        'All ports available',
-        'Quick charging confirmed',
-        'One port not working',
-        'Slow charging on port 2',
-        'Well maintained station',
-        'Station needs cleaning',
-        'Charger verified working',
-        'Fast charging available',
-        'Good location with amenities',
-        'Charging speed excellent',
-        'No wait time',
-        'Had to wait 15 minutes',
-        'Very crowded during lunch',
-        'Empty early morning',
-        'Clean and well-lit',
-        'Great amenities nearby'
-    ]
-
-    # Peak hours: 8-10am and 5-7pm are busier
-    for i in range(history_count):
-        # Distribute verifications over last 60 days
-        days_ago = int((i / max(history_count - 1, 1)) * 60) if history_count > 1 else 0
-
-        # Generate realistic time distribution (more during peak hours)
-        hour = random.choices(
-            range(24),
-            weights=[2,1,1,1,2,3,5,8,10,8,6,7,8,7,6,7,8,10,9,7,5,4,3,2],  # Peak at 8-10am and 5-7pm
-            k=1
-        )[0]
-
-        timestamp = now - timedelta(days=days_ago, hours=hour, minutes=random.randint(0, 59))
-
-        # Weighted random selection of action
-        rand = random.random()
-        if rand < weights[0]:
-            action = 'active'
-        elif rand < weights[0] + weights[1]:
-            action = 'not_working'
-        else:
-            action = 'partial'
-
-        user_id = f"user_{str(uuid.uuid4())[:8]}"
-
-        # 65% chance of having notes
-        notes = random.choice(notes_options) if random.random() > 0.35 else None
-
-        # Add detailed feedback data
-        wait_time = None
-        port_type_used = None
-        ports_available = None
-        charging_success = None
-        payment_method = None
-        station_lighting = None
-        cleanliness_rating = None
-        charging_speed_rating = None
-        amenities_rating = None
-        would_recommend = None
-        photo_url = None
-
-        if action == 'active':
-            # Wait time based on time of day (0-30 minutes)
-            if 8 <= hour <= 10 or 17 <= hour <= 19:  # Peak hours
-                wait_time = random.randint(0, 30)
-            else:
-                wait_time = random.randint(0, 10)
-
-            # 70% chance of providing detailed port context
-            if random.random() < 0.7:
-                port_type_used = random.choice(['Type 2', 'CCS', 'CHAdeMO', 'Type 1'])
-                ports_available = random.randint(0, 3)
-                charging_success = random.random() < 0.85  # 85% success rate
-
-            # 70% chance of providing operational details
-            if random.random() < 0.7:
-                payment_method = random.choice(['App', 'Card', 'Free', 'Cash'])
-                station_lighting = random.choice(['Well-lit', 'Adequate', 'Poor'])
-
-            # 70% chance of providing quality ratings for active verifications
-            if random.random() < 0.7:
-                # Higher level stations get better ratings
-                if level >= 4:
-                    cleanliness_rating = random.randint(4, 5)
-                    charging_speed_rating = random.randint(4, 5)
-                    amenities_rating = random.randint(4, 5)
-                    would_recommend = random.random() < 0.9
-                elif level >= 3:
-                    cleanliness_rating = random.randint(3, 5)
-                    charging_speed_rating = random.randint(3, 5)
-                    amenities_rating = random.randint(3, 5)
-                    would_recommend = random.random() < 0.75
-                else:
-                    cleanliness_rating = random.randint(2, 4)
-                    charging_speed_rating = random.randint(2, 4)
-                    amenities_rating = random.randint(2, 4)
-                    would_recommend = random.random() < 0.6
-
-        elif action == 'not_working':
-            # For not_working reports, 60% include photo evidence
-            if random.random() < 0.6:
-                photo_url = f"https://example.com/photos/station_{random.randint(1000, 9999)}.jpg"
-
-        history.append({
-            "user_id": user_id,
-            "action": action,
-            "timestamp": timestamp,
-            "notes": notes,
-            "wait_time": wait_time,
-            "port_type_used": port_type_used,
-            "ports_available": ports_available,
-            "charging_success": charging_success,
-            "payment_method": payment_method,
-            "station_lighting": station_lighting,
-            "cleanliness_rating": cleanliness_rating,
-            "charging_speed_rating": charging_speed_rating,
-            "amenities_rating": amenities_rating,
-            "would_recommend": would_recommend,
-            "photo_url": photo_url
-        })
-
-    # Sort by timestamp descending (newest first)
-    history.sort(key=lambda x: x["timestamp"], reverse=True)
-    return history
+    return R * c
 
 
 async def get_chargers(
@@ -164,164 +34,98 @@ async def get_chargers(
     verification_level: Optional[int] = None,
     port_type: Optional[str] = None,
     amenity: Optional[str] = None,
-    max_distance: Optional[float] = None
+    max_distance: Optional[float] = None,
+    user_lat: Optional[float] = None,
+    user_lng: Optional[float] = None,
+    db: Optional[AsyncSession] = None
 ) -> List[ChargerModel]:
-    """Get nearby chargers with optional filters"""
-    # Enhanced mock chargers data - Tamil Nadu region
-    now = datetime.now(timezone.utc)
-    mock_chargers = [
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Ather Grid - Anna Nagar",
-            "address": "Anna Nagar, Chennai, Tamil Nadu",
-            "latitude": 13.0878,
-            "longitude": 80.2088,
-            "port_types": ["Type 2", "CCS"],
-            "available_ports": 6,
-            "total_ports": 8,
-            "source_type": "official",
-            "verification_level": 5,
-            "added_by": "admin",
-            "amenities": ["restroom", "cafe", "wifi", "parking"],
-            "nearby_amenities": ["restaurant", "atm"],
-            "photos": [],
-            "verified_by_count": 25,
-            "verification_history": generate_mock_verification_history(5, 25, now),
-            "last_verified": now - timedelta(days=2),
-            "uptime_percentage": 98.5,
-            "distance": 0.5,
-            "notes": None,
-            "created_at": now - timedelta(days=180),
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Tata Power Charging - Phoenix Marketcity",
-            "address": "Velachery, Chennai, Tamil Nadu",
-            "latitude": 12.9916,
-            "longitude": 80.2206,
-            "port_types": ["Type 2", "CHAdeMO"],
-            "available_ports": 2,
-            "total_ports": 4,
-            "source_type": "official",
-            "verification_level": 4,
-            "added_by": "admin",
-            "amenities": ["restroom", "shopping", "wifi", "parking"],
-            "nearby_amenities": ["bank", "food court"],
-            "photos": [],
-            "verified_by_count": 18,
-            "verification_history": generate_mock_verification_history(4, 18, now),
-            "last_verified": now - timedelta(days=5),
-            "uptime_percentage": 95.2,
-            "distance": 1.2,
-            "notes": None,
-            "created_at": now - timedelta(days=120),
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "ChargeZone - Coimbatore",
-            "address": "RS Puram, Coimbatore, Tamil Nadu",
-            "latitude": 11.0168,
-            "longitude": 76.9558,
-            "port_types": ["CCS", "CHAdeMO"],
-            "available_ports": 0,
-            "total_ports": 3,
-            "source_type": "official",
-            "verification_level": 3,
-            "added_by": "admin",
-            "amenities": ["restroom", "parking"],
-            "nearby_amenities": [],
-            "photos": [],
-            "verified_by_count": 12,
-            "verification_history": generate_mock_verification_history(3, 12, now),
-            "last_verified": now - timedelta(days=15),
-            "uptime_percentage": 87.3,
-            "distance": 2.8,
-            "notes": None,
-            "created_at": now - timedelta(days=90),
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Ather Grid - T Nagar",
-            "address": "T Nagar, Chennai, Tamil Nadu",
-            "latitude": 13.0418,
-            "longitude": 80.2341,
-            "port_types": ["Type 2", "CCS"],
-            "available_ports": 4,
-            "total_ports": 6,
-            "source_type": "official",
-            "verification_level": 5,
-            "added_by": "admin",
-            "amenities": ["restroom", "cafe", "wifi", "parking", "shopping"],
-            "nearby_amenities": ["mall", "restaurant"],
-            "photos": [],
-            "verified_by_count": 30,
-            "verification_history": generate_mock_verification_history(5, 30, now),
-            "last_verified": now - timedelta(days=1),
-            "uptime_percentage": 99.1,
-            "distance": 3.5,
-            "notes": None,
-            "created_at": now - timedelta(days=200),
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Hidden Gem - Adyar Cafe",
-            "address": "Adyar, Chennai, Tamil Nadu",
-            "latitude": 13.0067,
-            "longitude": 80.2574,
-            "port_types": ["Type 2"],
-            "available_ports": 1,
-            "total_ports": 2,
-            "source_type": "community_manual",
-            "verification_level": 2,
-            "added_by": user.id if not user.is_guest else "community",
-            "amenities": ["cafe", "wifi"],
-            "nearby_amenities": ["cafe"],
-            "photos": [],
-            "verified_by_count": 5,
-            "verification_history": generate_mock_verification_history(2, 5, now),
-            "last_verified": now - timedelta(days=30),
-            "uptime_percentage": 78.5,
-            "distance": 1.8,
-            "notes": "Small cafe with 2 chargers",
-            "created_at": now - timedelta(days=45),
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Community Charger - Madurai Junction",
-            "address": "Madurai Junction, Madurai, Tamil Nadu",
-            "latitude": 9.9252,
-            "longitude": 78.1198,
-            "port_types": ["Type 2", "Type 1"],
-            "available_ports": 3,
-            "total_ports": 4,
-            "source_type": "community_manual",
-            "verification_level": 3,
-            "added_by": "community",
-            "amenities": ["parking"],
-            "nearby_amenities": ["bus stop"],
-            "photos": [],
-            "verified_by_count": 8,
-            "verification_history": generate_mock_verification_history(3, 8, now),
-            "last_verified": now - timedelta(days=10),
-            "uptime_percentage": 91.7,
-            "distance": 2.1,
-            "notes": "Free parking available",
-            "created_at": now - timedelta(days=60),
-        }
-    ]
+    """Get chargers from database with optional filters"""
+    if db is None:
+        raise HTTPException(500, "Database session required")
 
-    # Apply filters
-    filtered_chargers = mock_chargers
+    # Build query with filters
+    query = select(Charger).options(selectinload(Charger.verification_actions))
+
+    # Apply verification level filter
     if verification_level is not None:
-        filtered_chargers = [c for c in filtered_chargers if c["verification_level"] >= verification_level]
-    if port_type:
-        filtered_chargers = [c for c in filtered_chargers if port_type in c["port_types"]]
-    if amenity:
-        filtered_chargers = [c for c in filtered_chargers if amenity in c["amenities"]]
-    if max_distance is not None:
-        filtered_chargers = [c for c in filtered_chargers if c["distance"] <= max_distance]
+        query = query.where(Charger.verification_level >= verification_level)
 
-    return [ChargerModel(**charger) for charger in filtered_chargers]
+    # Apply port type filter (check if port_type is in the array)
+    if port_type:
+        query = query.where(Charger.port_types.contains([port_type]))
+
+    # Apply amenity filter (check if amenity is in the array)
+    if amenity:
+        query = query.where(Charger.amenities.contains([amenity]))
+
+    # Execute query
+    result = await db.execute(query)
+    chargers = result.scalars().all()
+
+    # Convert to Pydantic models with distance calculation
+    charger_models = []
+    for charger in chargers:
+        # Calculate distance if user location provided
+        distance = None
+        if user_lat is not None and user_lng is not None:
+            distance = calculate_distance(user_lat, user_lng, charger.latitude, charger.longitude)
+
+            # Apply distance filter
+            if max_distance is not None and distance > max_distance:
+                continue
+
+        # Convert verification actions to Pydantic models
+        verification_history = [
+            VerificationModel(
+                user_id=v.user_id,
+                action=v.action,
+                timestamp=v.timestamp,
+                notes=v.notes,
+                wait_time=v.wait_time,
+                port_type_used=v.port_type_used,
+                ports_available=v.ports_available,
+                charging_success=v.charging_success,
+                payment_method=v.payment_method,
+                station_lighting=v.station_lighting,
+                cleanliness_rating=v.cleanliness_rating,
+                charging_speed_rating=v.charging_speed_rating,
+                amenities_rating=v.amenities_rating,
+                would_recommend=v.would_recommend,
+                photo_url=v.photo_url
+            )
+            for v in charger.verification_actions
+        ]
+
+        charger_model = ChargerModel(
+            id=charger.id,
+            name=charger.name,
+            address=charger.address,
+            latitude=charger.latitude,
+            longitude=charger.longitude,
+            port_types=charger.port_types,
+            available_ports=charger.available_ports,
+            total_ports=charger.total_ports,
+            source_type=charger.source_type,
+            verification_level=charger.verification_level,
+            added_by=charger.added_by,
+            amenities=charger.amenities,
+            nearby_amenities=charger.nearby_amenities,
+            photos=charger.photos,
+            last_verified=charger.last_verified,
+            uptime_percentage=charger.uptime_percentage,
+            verified_by_count=charger.verified_by_count,
+            verification_history=verification_history,
+            distance=distance,
+            notes=charger.notes,
+            created_at=charger.created_at
+        )
+        charger_models.append(charger_model)
+
+    # Sort by distance if available
+    if user_lat is not None and user_lng is not None:
+        charger_models.sort(key=lambda c: c.distance if c.distance is not None else float('inf'))
+
+    return charger_models
 
 
 async def add_charger(user: UserModel, request: ChargerCreateRequest, db: AsyncSession) -> ChargerModel:
