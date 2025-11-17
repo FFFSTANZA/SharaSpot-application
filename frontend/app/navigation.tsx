@@ -100,6 +100,8 @@ export default function NavigationScreen() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [startLocation, setStartLocation] = useState<Location.LocationObject | null>(null);
   const [totalDistanceTraveled, setTotalDistanceTraveled] = useState(0);
+  const [remainingDistanceKm, setRemainingDistanceKm] = useState(0);
+  const [remainingDurationMin, setRemainingDurationMin] = useState(0);
 
   // Voice guidance state
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -155,6 +157,8 @@ export default function NavigationScreen() {
 
       setNavigationData(routeData);
       setBatteryPercent(routeData.starting_battery_percent || 80);
+      setRemainingDistanceKm(routeData.route.summary.distance_km);
+      setRemainingDurationMin(routeData.route.summary.duration_min);
     } catch (error) {
       console.error('Failed to load navigation data:', error);
       Alert.alert('Error', 'Failed to load navigation data. Please try again.', [
@@ -260,6 +264,17 @@ export default function NavigationScreen() {
       // Update battery percentage
       const batteryUsedPercent = (energyUsed / navigationData.battery_capacity_kwh) * 100;
       setBatteryPercent(Math.max(0, navigationData.starting_battery_percent - batteryUsedPercent));
+
+      // Update remaining distance and duration
+      const totalRouteDistance = navigationData.route.distance_m / 1000; // km
+      const remainingDist = Math.max(0, totalRouteDistance - distanceTraveled);
+      setRemainingDistanceKm(remainingDist);
+
+      // Calculate remaining duration based on remaining distance and average speed
+      const totalRouteDuration = navigationData.route.duration_s / 60; // minutes
+      const progressRatio = distanceTraveled / totalRouteDistance;
+      const remainingDur = Math.max(0, totalRouteDuration * (1 - progressRatio));
+      setRemainingDurationMin(remainingDur);
     }
 
     // Voice guidance triggers
@@ -496,12 +511,12 @@ export default function NavigationScreen() {
         {/* ETA */}
         <View style={styles.etaContainer}>
           <Text style={styles.etaLabel}>ETA</Text>
-          <Text style={styles.etaValue}>{navigationData.route.summary.duration_min} min</Text>
+          <Text style={styles.etaValue}>{Math.round(remainingDurationMin)} min</Text>
         </View>
 
         {/* Distance */}
         <View style={styles.distanceContainer}>
-          <Text style={styles.distanceValue}>{navigationData.route.summary.distance_km} km</Text>
+          <Text style={styles.distanceValue}>{remainingDistanceKm.toFixed(1)} km</Text>
           <Text style={styles.distanceLabel}>remaining</Text>
         </View>
       </View>

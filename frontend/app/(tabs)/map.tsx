@@ -59,6 +59,7 @@ interface RouteAlternative {
     avg_speed_kmh: number;
     chargers_available: number;
     traffic_delay_min: number;
+    turn_instructions?: any[];  // Turn-by-turn navigation instructions
   };
 }
 
