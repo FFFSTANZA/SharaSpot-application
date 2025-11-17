@@ -1,0 +1,16 @@
+# Data Collection System Requirements
+
+# Core dependencies
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+python-dotenv>=1.0.0
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+
+# Data processing
+pandas>=2.0.0  # Optional, for advanced data analysis
+
+# Logging and utilities
+colorlog>=6.7.0  # Optional, for colored logs
