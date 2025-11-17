@@ -1,0 +1,37 @@
+# Environment variables
+.env
+
+# Raw scraped data
+raw/*.json
+raw/*.csv
+
+# Processed data
+processed/*.json
+processed/*.csv
+
+# Logs
+logs/*.log
+logs/*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep directory structure
+!raw/.gitkeep
+!processed/.gitkeep
+!logs/.gitkeep
