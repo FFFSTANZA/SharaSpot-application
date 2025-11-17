@@ -373,11 +373,21 @@ export default function SmartEcoRouting() {
         initialRegion={initialRegion}
         showsUserLocation
       >
-        {/* Route polyline */}
+        {/* Route polyline - Google Maps style with outline */}
         <Polyline
           coordinates={selectedRoute.coordinates}
           strokeColor={typeInfo.color}
-          strokeWidth={5}
+          strokeWidth={6}
+          lineJoin="round"
+          lineCap="round"
+        />
+        <Polyline
+          coordinates={selectedRoute.coordinates}
+          strokeColor="#1565C0"
+          strokeWidth={9}
+          lineJoin="round"
+          lineCap="round"
+          zIndex={-1}
         />
         
         {/* Origin marker */}

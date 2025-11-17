@@ -21,10 +21,12 @@ import {
   Alert,
   Platform,
   ScrollView,
+  Animated,
 } from 'react-native';
 import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Speech from 'expo-speech';
 import * as Location from 'expo-location';
+import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -106,6 +108,10 @@ export default function NavigationScreen() {
   // Voice guidance state
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastSpokenStep, setLastSpokenStep] = useState(-1);
+  const [estimatedArrivalTime, setEstimatedArrivalTime] = useState<string>('');
+
+  // Animation values
+  const instructionFadeAnim = useRef(new Animated.Value(1)).current;
 
   // Load navigation data on mount
   useEffect(() => {
@@ -159,6 +165,11 @@ export default function NavigationScreen() {
       setBatteryPercent(routeData.starting_battery_percent || 80);
       setRemainingDistanceKm(routeData.route.summary.distance_km);
       setRemainingDurationMin(routeData.route.summary.duration_min);
+
+      // Calculate initial arrival time
+      const arrivalTime = new Date();
+      arrivalTime.setMinutes(arrivalTime.getMinutes() + routeData.route.summary.duration_min);
+      setEstimatedArrivalTime(arrivalTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
     } catch (error) {
       console.error('Failed to load navigation data:', error);
       Alert.alert('Error', 'Failed to load navigation data. Please try again.', [
@@ -190,6 +201,20 @@ export default function NavigationScreen() {
       setStartLocation(location);
       setStartTime(new Date());
 
+      // Animate map to user location with navigation perspective
+      if (mapRef.current && navigationData) {
+        mapRef.current.animateCamera({
+          center: {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          },
+          pitch: 60, // 3D tilt like Google Maps
+          heading: location.coords.heading || 0, // Rotate map in direction of travel
+          altitude: 500,
+          zoom: 17,
+        }, { duration: 1000 });
+      }
+
       // Start watching location with high accuracy
       locationSubscription.current = await Location.watchPositionAsync(
         {
@@ -200,6 +225,17 @@ export default function NavigationScreen() {
         (newLocation) => {
           setCurrentLocation(newLocation);
           updateNavigationProgress(newLocation);
+
+          // Smoothly follow user location with heading
+          if (mapRef.current) {
+            mapRef.current.animateCamera({
+              center: {
+                latitude: newLocation.coords.latitude,
+                longitude: newLocation.coords.longitude,
+              },
+              heading: newLocation.coords.heading || 0,
+            }, { duration: 500 });
+          }
         }
       );
 
@@ -275,19 +311,41 @@ export default function NavigationScreen() {
       const progressRatio = distanceTraveled / totalRouteDistance;
       const remainingDur = Math.max(0, totalRouteDuration * (1 - progressRatio));
       setRemainingDurationMin(remainingDur);
+
+      // Update estimated arrival time
+      const arrivalTime = new Date();
+      arrivalTime.setMinutes(arrivalTime.getMinutes() + remainingDur);
+      setEstimatedArrivalTime(arrivalTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
     }
 
-    // Voice guidance triggers
+    // Voice guidance triggers with haptic feedback
     if (distance <= 200 && currentStepIndex !== lastSpokenStep && !isSpeaking) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); // Haptic feedback
       speakInstruction(`In ${Math.round(distance)} meters, ${currentInstruction.voice_text}`);
       setLastSpokenStep(currentStepIndex);
     } else if (distance <= 50 && currentStepIndex !== lastSpokenStep) {
-      // Repeat when very close
+      // Repeat when very close with stronger haptic
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       speakInstruction(currentInstruction.voice_text);
     }
 
     // Move to next instruction if close enough
     if (distance <= 20) {
+      // Fade out current instruction, then switch
+      Animated.sequence([
+        Animated.timing(instructionFadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(instructionFadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy); // Strong haptic for turn completion
       setCurrentStepIndex((prev) => prev + 1);
       setLastSpokenStep(-1); // Reset for next instruction
     }
@@ -438,6 +496,16 @@ export default function NavigationScreen() {
     return '#F44336'; // Red
   };
 
+  const formatDistance = (meters: number): string => {
+    if (meters < 100) {
+      return `${Math.round(meters / 10) * 10} m`; // Round to nearest 10m
+    } else if (meters < 1000) {
+      return `${Math.round(meters / 50) * 50} m`; // Round to nearest 50m
+    } else {
+      return `${(meters / 1000).toFixed(1)} km`;
+    }
+  };
+
   if (!navigationData) {
     return (
       <View style={styles.loadingContainer}>
@@ -469,11 +537,22 @@ export default function NavigationScreen() {
         showsCompass
         showsTraffic
       >
-        {/* Route Polyline */}
+        {/* Route Polyline - Google Maps style */}
         <Polyline
           coordinates={navigationData.route.coordinates}
-          strokeColor="#2196F3"
-          strokeWidth={4}
+          strokeColor="#5E96FF"
+          strokeWidth={6}
+          lineJoin="round"
+          lineCap="round"
+        />
+        {/* Route Outline for better visibility */}
+        <Polyline
+          coordinates={navigationData.route.coordinates}
+          strokeColor="#1565C0"
+          strokeWidth={9}
+          lineJoin="round"
+          lineCap="round"
+          zIndex={-1}
         />
 
         {/* Charger Markers */}
@@ -510,8 +589,8 @@ export default function NavigationScreen() {
 
         {/* ETA */}
         <View style={styles.etaContainer}>
-          <Text style={styles.etaLabel}>ETA</Text>
-          <Text style={styles.etaValue}>{Math.round(remainingDurationMin)} min</Text>
+          <Text style={styles.etaLabel}>ARRIVE</Text>
+          <Text style={styles.etaValue}>{estimatedArrivalTime || '--:--'}</Text>
         </View>
 
         {/* Distance */}
@@ -521,24 +600,24 @@ export default function NavigationScreen() {
         </View>
       </View>
 
-      {/* Turn Instruction Card */}
+      {/* Turn Instruction Card with Smooth Animations */}
       {currentInstruction && (
-        <View style={styles.instructionCard}>
+        <Animated.View style={[styles.instructionCard, { opacity: instructionFadeAnim }]}>
           <View style={styles.instructionHeader}>
-            <Ionicons
-              name={getManeuverIcon(currentInstruction.type, currentInstruction.modifier) as any}
-              size={60}
-              color="#2196F3"
-            />
+            <View style={styles.maneuverIconContainer}>
+              <Ionicons
+                name={getManeuverIcon(currentInstruction.type, currentInstruction.modifier) as any}
+                size={56}
+                color="#2196F3"
+              />
+            </View>
             <View style={styles.instructionText}>
               <Text style={styles.instructionDistance}>
-                {distanceToNextTurn < 1000
-                  ? `${Math.round(distanceToNextTurn)} m`
-                  : `${(distanceToNextTurn / 1000).toFixed(1)} km`}
+                {formatDistance(distanceToNextTurn)}
               </Text>
               <Text style={styles.instructionMain}>{currentInstruction.instruction}</Text>
               {currentInstruction.street_name && (
-                <Text style={styles.streetName}>{currentInstruction.street_name}</Text>
+                <Text style={styles.streetName}>on {currentInstruction.street_name}</Text>
               )}
             </View>
           </View>
@@ -560,7 +639,7 @@ export default function NavigationScreen() {
               ))}
             </View>
           )}
-        </View>
+        </Animated.View>
       )}
 
       {/* Charging Prompt Modal */}
@@ -752,28 +831,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  maneuverIconContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 16,
+    backgroundColor: '#E3F2FD',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   instructionText: {
     flex: 1,
     marginLeft: 20,
   },
   instructionDistance: {
-    fontSize: 28,
-    fontWeight: '800',
+    fontSize: 32,
+    fontWeight: '900',
     color: '#2196F3',
-    letterSpacing: -0.5,
+    letterSpacing: -1,
+    marginBottom: 4,
   },
   instructionMain: {
-    fontSize: 19,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#1a1a1a',
-    marginTop: 6,
-    lineHeight: 26,
+    marginTop: 4,
+    lineHeight: 28,
   },
   streetName: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#666',
-    marginTop: 6,
+    marginTop: 8,
     fontWeight: '500',
+    fontStyle: 'italic',
   },
   laneGuidance: {
     flexDirection: 'row',

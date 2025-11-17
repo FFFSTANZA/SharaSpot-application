@@ -443,9 +443,10 @@ async def find_chargers_along_route(coordinates: List[dict], db: AsyncSession, m
 
     # Calculate bounding box around route with padding for max_detour
     # Approximate: 1 degree latitude ≈ 111 km, 1 degree longitude ≈ 111 km * cos(lat)
+    import math
     avg_lat = sum(c["latitude"] for c in coordinates) / len(coordinates)
     lat_padding = max_detour_km / 111.0
-    lng_padding = max_detour_km / (111.0 * abs(max(0.01, abs(avg_lat) / 90.0)))  # Adjust for latitude
+    lng_padding = max_detour_km / (111.0 * math.cos(math.radians(avg_lat)))  # Correct cosine adjustment
 
     min_lat = min(c["latitude"] for c in coordinates) - lat_padding
     max_lat = max(c["latitude"] for c in coordinates) + lat_padding
