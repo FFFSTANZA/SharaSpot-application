@@ -5,6 +5,9 @@ from typing import List
 # API Keys (Set these in environment variables or .env file)
 OPEN_CHARGE_MAP_API_KEY = os.getenv("OPEN_CHARGE_MAP_API_KEY", "")
 GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
+HERE_MAPS_API_KEY = os.getenv("HERE_MAPS_API_KEY", "")
+TOMTOM_API_KEY = os.getenv("TOMTOM_API_KEY", "")
+PLUGSHARE_API_KEY = os.getenv("PLUGSHARE_API_KEY", "")  # If available
 
 # Database connection (from backend config)
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/sharaspot")

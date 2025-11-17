@@ -31,14 +31,26 @@ logger = logging.getLogger(__name__)
 def run_scrapers():
     """Run all data scrapers"""
     logger.info("=" * 80)
-    logger.info("PHASE 1: DATA SCRAPING")
+    logger.info("PHASE 1: DATA SCRAPING - COMPREHENSIVE MULTI-SOURCE COLLECTION")
     logger.info("=" * 80)
 
     scraped_files = []
 
-    # 1. Open Charge Map
+    # 1. OpenStreetMap (FREE - No API key needed!)
     try:
-        logger.info("\n--- Running Open Charge Map Scraper ---")
+        logger.info("\n--- [1/8] Running OpenStreetMap Overpass API Scraper ---")
+        logger.info("Source: Community-maintained open database")
+        import scraper_openstreetmap
+        filepath = scraper_openstreetmap.main()
+        if filepath:
+            scraped_files.append(filepath)
+    except Exception as e:
+        logger.error(f"OpenStreetMap scraper failed: {e}")
+
+    # 2. Open Charge Map
+    try:
+        logger.info("\n--- [2/8] Running Open Charge Map Scraper ---")
+        logger.info("Source: Free API (3000 req/day)")
         import scraper_open_charge_map
         filepath = scraper_open_charge_map.main()
         if filepath:
@@ -46,10 +58,11 @@ def run_scrapers():
     except Exception as e:
         logger.error(f"Open Charge Map scraper failed: {e}")
 
-    # 2. Google Places
+    # 3. Google Places
     try:
-        logger.info("\n--- Running Google Places Scraper ---")
+        logger.info("\n--- [3/8] Running Google Places API Scraper ---")
         if config.GOOGLE_PLACES_API_KEY:
+            logger.info("Source: Google Maps Platform")
             import scraper_google_places
             filepath = scraper_google_places.main()
             if filepath:
@@ -59,9 +72,60 @@ def run_scrapers():
     except Exception as e:
         logger.error(f"Google Places scraper failed: {e}")
 
-    # 3. Public Data
+    # 4. HERE Maps
     try:
-        logger.info("\n--- Running Public Data Scraper ---")
+        logger.info("\n--- [4/8] Running HERE Maps EV Charging API Scraper ---")
+        if config.HERE_MAPS_API_KEY:
+            logger.info("Source: HERE Technologies (250k req/month free)")
+            import scraper_here_maps
+            filepath = scraper_here_maps.main()
+            if filepath:
+                scraped_files.append(filepath)
+        else:
+            logger.warning("HERE Maps API key not configured. Skipping...")
+    except Exception as e:
+        logger.error(f"HERE Maps scraper failed: {e}")
+
+    # 5. TomTom
+    try:
+        logger.info("\n--- [5/8] Running TomTom EV Charging API Scraper ---")
+        if config.TOMTOM_API_KEY:
+            logger.info("Source: TomTom (2500 req/day free)")
+            import scraper_tomtom
+            filepath = scraper_tomtom.main()
+            if filepath:
+                scraped_files.append(filepath)
+        else:
+            logger.warning("TomTom API key not configured. Skipping...")
+    except Exception as e:
+        logger.error(f"TomTom scraper failed: {e}")
+
+    # 6. Indian Charging Networks
+    try:
+        logger.info("\n--- [6/8] Running Indian Charging Networks Scraper ---")
+        logger.info("Networks: Tata Power, Ather Grid, Statiq, IOCL, BPCL, ChargeZone, Magenta...")
+        import scraper_charging_networks
+        filepath = scraper_charging_networks.main()
+        if filepath:
+            scraped_files.append(filepath)
+    except Exception as e:
+        logger.error(f"Charging Networks scraper failed: {e}")
+
+    # 7. Community Data Sources
+    try:
+        logger.info("\n--- [7/8] Running Community Data Sources Scraper ---")
+        logger.info("Sources: Wikidata, GitHub datasets, community contributions")
+        import scraper_community_data
+        filepath = scraper_community_data.main()
+        if filepath:
+            scraped_files.append(filepath)
+    except Exception as e:
+        logger.error(f"Community Data scraper failed: {e}")
+
+    # 8. Public/Government Data
+    try:
+        logger.info("\n--- [8/8] Running Public & Government Data Scraper ---")
+        logger.info("Sources: data.gov.in, Ministry of Power, public datasets")
         import scraper_public_data
         filepath = scraper_public_data.main()
         if filepath:
@@ -69,7 +133,9 @@ def run_scrapers():
     except Exception as e:
         logger.error(f"Public Data scraper failed: {e}")
 
-    logger.info(f"\nScraping complete. Collected data from {len(scraped_files)} sources")
+    logger.info("\n" + "=" * 80)
+    logger.info(f"SCRAPING COMPLETE! Collected data from {len(scraped_files)} sources")
+    logger.info("=" * 80)
 
     return scraped_files
 

@@ -4,13 +4,23 @@ Automated system for collecting EV charging station data across India from **leg
 
 ## 🎯 Overview
 
-This system collects charging station data from multiple legitimate sources:
-- **Open Charge Map** - Open database with free API access
-- **Google Places API** - Public charging station data
-- **Government Open Data** - Public datasets from Indian government portals
-- **Public operator websites** - With proper permissions and robots.txt compliance
+**Comprehensive Multi-Source Data Collection System**
 
-**Target**: 10,000 - 50,000 charging stations across India
+This system collects charging station data from **8 major sources** with **17+ sub-sources**:
+
+### Primary Sources
+1. **OpenStreetMap** - FREE, community-maintained (5k-10k stations)
+2. **Open Charge Map** - FREE API access (2k-5k stations)
+3. **Google Places** - Licensed API (10k-20k stations)
+4. **HERE Maps** - FREE tier available (3k-8k stations)
+5. **TomTom** - FREE tier available (2k-6k stations)
+6. **Indian Charging Networks** - Tata Power, Ather Grid, Statiq, IOCL, BPCL, ChargeZone, Magenta Power
+7. **Community Data** - Wikidata, GitHub datasets (500-2k stations)
+8. **Government Data** - data.gov.in, Ministry of Power, NITI Aayog (1.5k-5k stations)
+
+**Target**: 25,000 - 50,000 unique charging stations across India
+**Cost**: $0 (using free API tiers)
+**Coverage**: All major cities + highways + rural areas
 
 ## 📁 Directory Structure
 
