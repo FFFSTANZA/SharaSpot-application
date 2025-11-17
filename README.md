@@ -1,7 +1,5 @@
 # SharaSpot - EV Charging Station Network
 
-> **Modular Monolith Architecture** | **Production Ready** | **Fully Verified**
-
 SharaSpot is a comprehensive EV charging station discovery and route planning application built with a modern modular monolith architecture.
 
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
@@ -17,7 +15,7 @@ SharaSpot is a comprehensive EV charging station discovery and route planning ap
 - Python 3.9+
 - Node.js 16+
 - PostgreSQL 12+ with PostGIS
-- Yarn 1.22+
+- Yarn 1.22
 
 ### Backend Setup
 
