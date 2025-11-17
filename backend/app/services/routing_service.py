@@ -6,9 +6,13 @@ import requests
 import logging
 import random
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from ..schemas.routing import HERERouteRequest, HERERouteResponse
 from ..models.routing import RouteAlternative
-from ..core import get_database, calculate_distance
+from ..core import calculate_distance
+from ..core.db_models import Charger
 
 
 async def call_here_routing_api(request: HERERouteRequest) -> dict:
@@ -219,10 +223,10 @@ def calculate_route_scores(route_data: dict, chargers_count: int,
     return round(eco_score, 1), round(reliability_score, 1)
 
 
-async def find_chargers_along_route(coordinates: List[dict], max_detour_km: float = 5.0) -> List[dict]:
+async def find_chargers_along_route(coordinates: List[dict], db: AsyncSession, max_detour_km: float = 5.0) -> List[dict]:
     """Find SharaSpot chargers along the route"""
-    db = get_database()
-    all_chargers = await db.chargers.find().to_list(1000)
+    result = await db.execute(select(Charger))
+    all_chargers = result.scalars().all()
 
     route_chargers = []
     for charger in all_chargers:
@@ -230,7 +234,7 @@ async def find_chargers_along_route(coordinates: List[dict], max_detour_km: floa
         min_distance = float('inf')
         for coord in coordinates[::max(1, len(coordinates) // 20)]:  # Sample every ~5% of route
             distance = calculate_distance(
-                charger["latitude"], charger["longitude"],
+                charger.latitude, charger.longitude,
                 coord["latitude"], coord["longitude"]
             )
             min_distance = min(min_distance, distance)
@@ -238,18 +242,18 @@ async def find_chargers_along_route(coordinates: List[dict], max_detour_km: floa
         # If charger is within max detour distance, include it
         if min_distance <= max_detour_km:
             route_chargers.append({
-                "id": charger["id"],
-                "name": charger["name"],
-                "address": charger["address"],
-                "latitude": charger["latitude"],
-                "longitude": charger["longitude"],
-                "port_types": charger["port_types"],
-                "available_ports": charger["available_ports"],
-                "total_ports": charger["total_ports"],
-                "verification_level": charger["verification_level"],
-                "uptime_percentage": charger["uptime_percentage"],
+                "id": charger.id,
+                "name": charger.name,
+                "address": charger.address,
+                "latitude": charger.latitude,
+                "longitude": charger.longitude,
+                "port_types": charger.port_types,
+                "available_ports": charger.available_ports,
+                "total_ports": charger.total_ports,
+                "verification_level": charger.verification_level,
+                "uptime_percentage": charger.uptime_percentage,
                 "distance_from_route_km": round(min_distance, 2),
-                "amenities": charger.get("amenities", [])
+                "amenities": charger.amenities or []
             })
 
     # Sort by distance from route
@@ -258,7 +262,7 @@ async def find_chargers_along_route(coordinates: List[dict], max_detour_km: floa
     return route_chargers[:10]  # Return top 10 closest chargers
 
 
-async def calculate_here_routes(request: HERERouteRequest) -> HERERouteResponse:
+async def calculate_here_routes(request: HERERouteRequest, db: AsyncSession) -> HERERouteResponse:
     """Calculate EV routes using HERE API with SharaSpot charger integration"""
     # Call HERE API
     here_response = await call_here_routing_api(request)
@@ -282,7 +286,7 @@ async def calculate_here_routes(request: HERERouteRequest) -> HERERouteResponse:
         )
 
         # Find chargers along this route
-        chargers = await find_chargers_along_route(coordinates, max_detour_km=5.0)
+        chargers = await find_chargers_along_route(coordinates, db, max_detour_km=5.0)
 
         # Calculate average charger reliability
         avg_reliability = sum(c["uptime_percentage"] for c in chargers) / len(chargers) if chargers else 0.75

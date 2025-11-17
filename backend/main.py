@@ -9,7 +9,7 @@ from slowapi.errors import RateLimitExceeded
 import logging
 
 from app.core.config import settings
-from app.core.database import connect_to_database, close_database_connection, get_database
+from app.core.database import connect_to_database, close_database_connection
 from app.core.middleware import (
     limiter,
     RequestLoggingMiddleware,
@@ -17,7 +17,6 @@ from app.core.middleware import (
     SecurityHeadersMiddleware,
     rate_limit_exceeded_handler,
 )
-from app.core.db_init import initialize_database
 from app.api import api_router
 
 # Configure logging
@@ -58,15 +57,8 @@ async def startup_event():
     """Initialize application on startup"""
     logger.info("Starting SharaSpot Backend...")
     await connect_to_database()
-    logger.info("Database connected successfully")
-
-    # Initialize database indexes
-    try:
-        db = await get_database()
-        await initialize_database(db)
-        logger.info("Database initialization completed")
-    except Exception as e:
-        logger.warning(f"Database initialization skipped or failed: {str(e)}")
+    logger.info("PostgreSQL database connected successfully")
+    logger.info("Note: Run 'alembic upgrade head' to apply database migrations")
 
 
 @app.on_event("shutdown")

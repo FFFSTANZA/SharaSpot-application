@@ -14,8 +14,8 @@ class Settings:
     # ===========================
     # Database Configuration
     # ===========================
-    MONGO_URL: str = os.environ.get('MONGO_URL', '')
-    DB_NAME: str = os.environ.get('DB_NAME', 'sharaspot')
+    DATABASE_URL: str = os.environ.get('DATABASE_URL', 'postgresql+asyncpg://postgres:postgres@localhost:5432/sharaspot')
+    DEBUG: bool = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
 
     # ===========================
     # HERE API Configuration

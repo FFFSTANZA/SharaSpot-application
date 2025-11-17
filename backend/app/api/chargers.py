@@ -1,26 +1,27 @@
 """Charger API routes"""
-from fastapi import APIRouter, Cookie, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 
 from ..models.charger import Charger
+from ..models.user import User
 from ..schemas.charger import ChargerCreateRequest, VerificationActionRequest
 from ..services import charger_service
 from ..core.security import get_user_from_session
+from ..core.database import get_session
 
 router = APIRouter(prefix="/chargers", tags=["chargers"])
 
 
 @router.get("", response_model=List[Charger])
 async def get_chargers(
-    session_token: Optional[str] = Cookie(None),
-    authorization: Optional[str] = Header(None),
+    user: User = Depends(get_user_from_session),
     verification_level: Optional[int] = None,
     port_type: Optional[str] = None,
     amenity: Optional[str] = None,
     max_distance: Optional[float] = None
 ):
     """Get nearby chargers with optional filters"""
-    user = await get_user_from_session(session_token, authorization)
     if not user:
         raise HTTPException(401, "Not authenticated")
 
@@ -36,41 +37,38 @@ async def get_chargers(
 @router.post("")
 async def add_charger(
     request: ChargerCreateRequest,
-    session_token: Optional[str] = Cookie(None),
-    authorization: Optional[str] = Header(None)
+    db: AsyncSession = Depends(get_session),
+    user: User = Depends(get_user_from_session)
 ):
     """Add new charger (restricted for guests)"""
-    user = await get_user_from_session(session_token, authorization)
     if not user:
         raise HTTPException(401, "Not authenticated")
 
-    return await charger_service.add_charger(user, request)
+    return await charger_service.add_charger(user, request, db)
 
 
 @router.get("/{charger_id}")
 async def get_charger_detail(
     charger_id: str,
-    session_token: Optional[str] = Cookie(None),
-    authorization: Optional[str] = Header(None)
+    db: AsyncSession = Depends(get_session),
+    user: User = Depends(get_user_from_session)
 ):
     """Get detailed charger information"""
-    user = await get_user_from_session(session_token, authorization)
     if not user:
         raise HTTPException(401, "Not authenticated")
 
-    return await charger_service.get_charger_detail(charger_id)
+    return await charger_service.get_charger_detail(charger_id, db)
 
 
 @router.post("/{charger_id}/verify")
 async def verify_charger(
     charger_id: str,
     request: VerificationActionRequest,
-    session_token: Optional[str] = Cookie(None),
-    authorization: Optional[str] = Header(None)
+    db: AsyncSession = Depends(get_session),
+    user: User = Depends(get_user_from_session)
 ):
     """Add verification action to charger"""
-    user = await get_user_from_session(session_token, authorization)
     if not user:
         raise HTTPException(401, "Not authenticated")
 
-    return await charger_service.verify_charger(user, charger_id, request)
+    return await charger_service.verify_charger(user, charger_id, request, db)
