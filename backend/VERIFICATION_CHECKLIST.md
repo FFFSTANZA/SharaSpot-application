@@ -35,7 +35,7 @@
   - update_user_preferences(user, data, db)
 
 - [x] **charger_service.py**: All functions accept `db: AsyncSession` parameter
-  - get_chargers(user, ...) - Returns mock data (no db needed)
+  - get_chargers(user, ..., db) - Queries database with filters and pagination ✓
   - add_charger(user, request, db)
   - get_charger_detail(charger_id, db)
   - verify_charger(user, charger_id, request, db)
@@ -118,7 +118,7 @@
 - [ ] PUT /auth/preferences - Update user preferences
 
 #### Charger Endpoints
-- [ ] GET /chargers - List chargers (returns mock data currently)
+- [ ] GET /chargers - List chargers with filters (queries database) ✓
 - [ ] POST /chargers - Add new charger
 - [ ] GET /chargers/{id} - Get charger details
 - [ ] POST /chargers/{id}/verify - Verify charger
@@ -161,8 +161,10 @@
 
 ## 🚨 Known Issues / TODO
 
-1. **Mock Data**: `get_chargers()` currently returns mock data instead of querying database
-   - Should be updated to query the Charger table when real data exists
+1. ~~**Mock Data**: `get_chargers()` currently returns mock data instead of querying database~~ **✓ FIXED**
+   - ✓ Updated to query the Charger table with proper filters and pagination
+   - ✓ Supports geospatial queries, verification level, port type, and amenity filters
+   - ✓ Uses optimized indexes for performance
 
 2. **Session Cleanup**: No automatic cleanup of expired sessions
    - Consider adding a background task or cron job to delete expired sessions
