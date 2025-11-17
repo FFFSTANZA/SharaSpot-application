@@ -4,6 +4,7 @@ from . import charger_service
 from . import gamification_service
 from . import routing_service
 from . import profile_service
+from . import scraping_service
 
 __all__ = [
     "auth_service",
@@ -11,4 +12,5 @@ __all__ = [
     "gamification_service",
     "routing_service",
     "profile_service",
+    "scraping_service",
 ]
