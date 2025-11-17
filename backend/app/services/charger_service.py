@@ -1,8 +1,8 @@
 """Charger management service"""
 from typing import List, Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 import math
@@ -11,7 +11,7 @@ from ..models.charger import Charger as ChargerModel, VerificationAction as Veri
 from ..models.user import User as UserModel
 from ..core.db_models import Charger, VerificationAction, User
 from ..schemas.charger import ChargerCreateRequest, VerificationActionRequest
-from .gamification_service import award_charger_coins, award_verification_coins
+from .gamification_service import award_charger_coins, award_verification_coins, calculate_trust_score
 
 
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -27,6 +27,157 @@ def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     c = 2 * math.asin(math.sqrt(a))
 
     return R * c
+
+
+def calculate_time_decay_weight(timestamp: datetime, current_time: datetime, half_life_days: float = 30.0) -> float:
+    """
+    Calculate time-decay weight using exponential decay.
+    Recent verifications have weight closer to 1.0, older ones decay exponentially.
+
+    Args:
+        timestamp: When the verification was made
+        current_time: Current time
+        half_life_days: Number of days for weight to decay to 0.5 (default 30 days)
+
+    Returns:
+        Weight between 0.0 and 1.0
+    """
+    age_days = (current_time - timestamp).total_seconds() / 86400.0  # Convert to days
+
+    # Exponential decay: weight = 0.5^(age / half_life)
+    decay_weight = math.pow(0.5, age_days / half_life_days)
+
+    return max(0.0, min(1.0, decay_weight))
+
+
+def normalize_trust_score(trust_score: float) -> float:
+    """
+    Normalize trust score to a weight multiplier (0.5 to 2.0).
+    - Trust score 0: weight 0.5 (low trust)
+    - Trust score 50: weight 1.0 (average trust)
+    - Trust score 100: weight 2.0 (high trust)
+
+    Args:
+        trust_score: User's trust score (0-100)
+
+    Returns:
+        Weight multiplier (0.5-2.0)
+    """
+    # Linear scaling: 0 -> 0.5, 50 -> 1.0, 100 -> 2.0
+    normalized = 0.5 + (trust_score / 100.0) * 1.5
+    return max(0.5, min(2.0, normalized))
+
+
+def calculate_weighted_verification_score(
+    action: str,
+    timestamp: datetime,
+    user_trust_score: float,
+    current_time: datetime
+) -> float:
+    """
+    Calculate weighted verification score combining:
+    1. Action value (active=1.0, partial=0.5, not_working=-1.0)
+    2. Time decay weight (recent verifications matter more)
+    3. User trust score (high-trust users count more)
+
+    Args:
+        action: Verification action type
+        timestamp: When verification was made
+        user_trust_score: User's trust score (0-100)
+        current_time: Current time
+
+    Returns:
+        Weighted score (can be negative for not_working)
+    """
+    # Base action value
+    action_values = {
+        "active": 1.0,
+        "partial": 0.5,
+        "not_working": -1.0
+    }
+    base_value = action_values.get(action, 0.0)
+
+    # Apply time decay
+    time_weight = calculate_time_decay_weight(timestamp, current_time)
+
+    # Apply trust score multiplier
+    trust_multiplier = normalize_trust_score(user_trust_score)
+
+    # Calculate final weighted score
+    weighted_score = base_value * time_weight * trust_multiplier
+
+    return weighted_score
+
+
+async def check_rate_limit(
+    user_id: str,
+    charger_id: str,
+    db: AsyncSession,
+    rate_limit_minutes: int = 5
+) -> bool:
+    """
+    Check if user has verified this charger within the rate limit window.
+
+    Args:
+        user_id: User ID
+        charger_id: Charger ID
+        db: Database session
+        rate_limit_minutes: Minimum minutes between verifications (default 5)
+
+    Returns:
+        True if rate limit is violated (too soon), False if allowed
+    """
+    cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=rate_limit_minutes)
+
+    result = await db.execute(
+        select(VerificationAction)
+        .where(
+            and_(
+                VerificationAction.user_id == user_id,
+                VerificationAction.charger_id == charger_id,
+                VerificationAction.timestamp >= cutoff_time
+            )
+        )
+        .order_by(VerificationAction.timestamp.desc())
+        .limit(1)
+    )
+
+    recent_verification = result.scalar_one_or_none()
+    return recent_verification is not None
+
+
+async def detect_spam_velocity(
+    user_id: str,
+    db: AsyncSession,
+    time_window_minutes: int = 60,
+    max_verifications: int = 12
+) -> bool:
+    """
+    Detect if user is submitting verifications too quickly (spam detection).
+
+    Args:
+        user_id: User ID
+        db: Database session
+        time_window_minutes: Time window to check (default 60 minutes)
+        max_verifications: Maximum allowed verifications in window (default 12 = 1 per 5 min avg)
+
+    Returns:
+        True if spam detected, False otherwise
+    """
+    cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=time_window_minutes)
+
+    result = await db.execute(
+        select(VerificationAction)
+        .where(
+            and_(
+                VerificationAction.user_id == user_id,
+                VerificationAction.timestamp >= cutoff_time
+            )
+        )
+    )
+
+    recent_verifications = result.scalars().all()
+    return len(recent_verifications) >= max_verifications
 
 
 async def get_chargers(
@@ -259,9 +410,34 @@ async def get_charger_detail(charger_id: str, db: AsyncSession) -> ChargerModel:
 
 
 async def verify_charger(user: UserModel, charger_id: str, request: VerificationActionRequest, db: AsyncSession) -> dict:
-    """Add verification action to charger"""
+    """
+    Add verification action to charger with advanced algorithm.
+
+    Features:
+    - Rate limiting: One verification per 5 minutes per user per charger
+    - Spam detection: Velocity checks to prevent abuse
+    - Time-decay weighting: Recent verifications matter more
+    - Trust score influence: High-trust users' verifications count more
+    - Age filtering: Verifications older than 3 months have minimal impact
+    """
     if user.is_guest:
         raise HTTPException(403, "Please sign in to verify chargers")
+
+    # Check rate limit (5 minutes per charger per user)
+    is_rate_limited = await check_rate_limit(user.id, charger_id, db, rate_limit_minutes=5)
+    if is_rate_limited:
+        raise HTTPException(
+            429,
+            "You can only verify this charger once every 5 minutes. Please wait before verifying again."
+        )
+
+    # Check for spam velocity (max 12 verifications per hour across all chargers)
+    is_spamming = await detect_spam_velocity(user.id, db, time_window_minutes=60, max_verifications=12)
+    if is_spamming:
+        raise HTTPException(
+            429,
+            "Too many verifications in a short time. Please slow down to prevent spam."
+        )
 
     result = await db.execute(
         select(Charger).options(selectinload(Charger.verification_actions)).where(Charger.id == charger_id)
@@ -293,30 +469,97 @@ async def verify_charger(user: UserModel, charger_id: str, request: Verification
 
     # Get all verification history for this charger
     verification_history = charger.verification_actions
+    current_time = datetime.now(timezone.utc)
 
-    # Calculate new verification level based on recent actions
-    recent_actions = verification_history[-10:] if len(verification_history) >= 10 else verification_history
-    active_count = sum(1 for a in recent_actions if a.action == "active")
-    not_working_count = sum(1 for a in recent_actions if a.action == "not_working")
+    # Filter verifications to only recent ones (last 3 months)
+    cutoff_date = current_time - timedelta(days=90)
+    recent_verifications = [v for v in verification_history if v.timestamp >= cutoff_date]
 
-    # Determine new level
-    if not_working_count >= 3:
+    # Calculate weighted verification scores
+    weighted_scores = []
+
+    # Get trust scores for all users who verified (batch query for efficiency)
+    user_ids = list(set(v.user_id for v in recent_verifications))
+    result = await db.execute(select(User).where(User.id.in_(user_ids)))
+    users_dict = {u.id: u for u in result.scalars().all()}
+
+    # Calculate weighted score for each verification
+    for verification in recent_verifications:
+        verifier = users_dict.get(verification.user_id)
+        if not verifier:
+            continue
+
+        # Get or calculate user's trust score
+        trust_score = verifier.trust_score
+        if trust_score == 0.0:
+            trust_score = await calculate_trust_score(verification.user_id, db)
+
+        # Calculate weighted score
+        weighted_score = calculate_weighted_verification_score(
+            verification.action,
+            verification.timestamp,
+            trust_score,
+            current_time
+        )
+
+        weighted_scores.append({
+            'action': verification.action,
+            'weighted_score': weighted_score,
+            'timestamp': verification.timestamp
+        })
+
+    # Add current verification with user's trust score
+    current_trust_score = user.trust_score
+    if current_trust_score == 0.0:
+        current_trust_score = await calculate_trust_score(user.id, db)
+
+    current_weighted_score = calculate_weighted_verification_score(
+        request.action,
+        current_time,
+        current_trust_score,
+        current_time
+    )
+
+    weighted_scores.append({
+        'action': request.action,
+        'weighted_score': current_weighted_score,
+        'timestamp': current_time
+    })
+
+    # Calculate aggregate weighted scores
+    total_weighted_score = sum(s['weighted_score'] for s in weighted_scores)
+    active_weighted_score = sum(s['weighted_score'] for s in weighted_scores if s['action'] == 'active')
+    not_working_weighted_score = abs(sum(s['weighted_score'] for s in weighted_scores if s['action'] == 'not_working'))
+
+    # Determine verification level based on weighted scores
+    # Level 5: Strong positive score (>= 6.0 weighted points)
+    # Level 4: Good positive score (>= 4.0 weighted points)
+    # Level 3: Moderate positive score (>= 2.0 weighted points)
+    # Level 2: Neutral or low positive score (>= 0.0 weighted points)
+    # Level 1: Negative score (not_working reports outweigh active) or >= 2.0 not_working weighted
+
+    if not_working_weighted_score >= 2.0 or total_weighted_score < 0:
         new_level = 1
-    elif active_count >= 8:
+    elif active_weighted_score >= 6.0:
         new_level = 5
-    elif active_count >= 6:
+    elif active_weighted_score >= 4.0:
         new_level = 4
-    elif active_count >= 4:
+    elif active_weighted_score >= 2.0:
         new_level = 3
     else:
         new_level = 2
 
-    # Calculate uptime
-    total_actions = len(verification_history) + 1  # +1 for the new action
-    active_actions = sum(1 for a in verification_history if a.action == "active")
-    if request.action == "active":
-        active_actions += 1
-    uptime = (active_actions / total_actions * 100) if total_actions > 0 else 100.0
+    # Calculate uptime percentage based on weighted scores
+    # Use ratio of positive to total absolute scores
+    positive_score = max(0, active_weighted_score)
+    total_absolute_score = positive_score + not_working_weighted_score
+
+    if total_absolute_score > 0:
+        uptime = (positive_score / total_absolute_score * 100)
+    else:
+        uptime = 100.0 if request.action == "active" else 0.0
+
+    uptime = max(0.0, min(100.0, uptime))  # Clamp between 0-100
 
     # Count unique users who have verified
     unique_users = len(set(v.user_id for v in verification_history)) + (1 if user.id not in [v.user_id for v in verification_history] else 0)
@@ -324,8 +567,8 @@ async def verify_charger(user: UserModel, charger_id: str, request: Verification
     # Update charger
     charger.verification_level = new_level
     charger.verified_by_count = unique_users
-    charger.last_verified = datetime.now(timezone.utc)
-    charger.uptime_percentage = uptime
+    charger.last_verified = current_time
+    charger.uptime_percentage = round(uptime, 1)
     await db.flush()
 
     # Reward user with SharaCoins
