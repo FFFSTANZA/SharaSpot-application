@@ -227,20 +227,56 @@ def calculate_route_scores(route_data: dict, chargers_count: int,
 
 
 async def find_chargers_along_route(coordinates: List[dict], db: AsyncSession, max_detour_km: float = 5.0) -> List[dict]:
-    """Find SharaSpot chargers along the route"""
-    result = await db.execute(select(Charger))
-    all_chargers = result.scalars().all()
+    """
+    Find SharaSpot chargers along the route using optimized bounding box filtering
 
+    Args:
+        coordinates: List of route coordinates
+        db: Database session
+        max_detour_km: Maximum detour distance from route in km
+
+    Returns:
+        List of chargers near the route (max 10)
+    """
+    if not coordinates:
+        return []
+
+    # Calculate bounding box around route with padding for max_detour
+    # Approximate: 1 degree latitude ≈ 111 km, 1 degree longitude ≈ 111 km * cos(lat)
+    avg_lat = sum(c["latitude"] for c in coordinates) / len(coordinates)
+    lat_padding = max_detour_km / 111.0
+    lng_padding = max_detour_km / (111.0 * abs(max(0.01, abs(avg_lat) / 90.0)))  # Adjust for latitude
+
+    min_lat = min(c["latitude"] for c in coordinates) - lat_padding
+    max_lat = max(c["latitude"] for c in coordinates) + lat_padding
+    min_lng = min(c["longitude"] for c in coordinates) - lng_padding
+    max_lng = max(c["longitude"] for c in coordinates) + lng_padding
+
+    # Query only chargers within bounding box (dramatically reduces rows scanned)
+    query = select(Charger).where(
+        Charger.latitude >= min_lat,
+        Charger.latitude <= max_lat,
+        Charger.longitude >= min_lng,
+        Charger.longitude <= max_lng,
+        Charger.verification_level >= 1  # Only verified chargers
+    ).limit(500)  # Safety limit to prevent excessive processing
+
+    result = await db.execute(query)
+    candidate_chargers = result.scalars().all()
+
+    # Calculate actual distance to route for each candidate
     route_chargers = []
-    for charger in all_chargers:
+    sampled_coords = coordinates[::max(1, len(coordinates) // 20)]  # Sample every ~5% of route
+
+    for charger in candidate_chargers:
         # Calculate minimum distance from charger to any point on route
-        min_distance = float('inf')
-        for coord in coordinates[::max(1, len(coordinates) // 20)]:  # Sample every ~5% of route
-            distance = calculate_distance(
+        min_distance = min(
+            calculate_distance(
                 charger.latitude, charger.longitude,
                 coord["latitude"], coord["longitude"]
             )
-            min_distance = min(min_distance, distance)
+            for coord in sampled_coords
+        )
 
         # If charger is within max detour distance, include it
         if min_distance <= max_detour_km:
