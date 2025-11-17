@@ -567,6 +567,31 @@ async def calculate_mapbox_routes(request: HERERouteRequest, db: AsyncSession) -
     """
     from fastapi import HTTPException
 
+    # Validate input parameters
+    if not (-90 <= request.origin_lat <= 90) or not (-180 <= request.origin_lng <= 180):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid origin coordinates"
+        )
+
+    if not (-90 <= request.destination_lat <= 90) or not (-180 <= request.destination_lng <= 180):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid destination coordinates"
+        )
+
+    # Check if origin and destination are not too close (< 100m)
+    distance_between = (
+        ((request.destination_lat - request.origin_lat) ** 2 +
+         (request.destination_lng - request.origin_lng) ** 2) ** 0.5
+    ) * 111000  # Rough conversion to meters
+
+    if distance_between < 100:
+        raise HTTPException(
+            status_code=400,
+            detail="Origin and destination are too close. Minimum distance is 100 meters."
+        )
+
     # Call Mapbox API for all route profiles in parallel
     route_profiles = ["driving", "driving-traffic", "driving"]  # eco, balanced, fastest
     route_types = ["eco", "balanced", "fastest"]
@@ -612,7 +637,7 @@ async def calculate_mapbox_routes(request: HERERouteRequest, db: AsyncSession) -
         )
 
     # Process each route
-    for route_data, route_type in all_routes:
+    for route_idx, (route_data, route_type) in enumerate(all_routes):
         # Decode polyline to coordinates
         polyline = route_data.get("geometry", "")
         if not polyline:
@@ -667,9 +692,9 @@ async def calculate_mapbox_routes(request: HERERouteRequest, db: AsyncSession) -
                 if "steps" in leg:
                     turn_instructions.extend(process_turn_instructions(leg["steps"]))
 
-        # Build processed route
+        # Build processed route with correct index
         processed_route = RouteAlternative(
-            id=f"mapbox_{route_type}_{idx}",
+            id=f"mapbox_{route_type}_{route_idx}",
             type=route_type,
             distance_m=distance_m,
             duration_s=duration_s,

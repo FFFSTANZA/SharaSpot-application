@@ -97,6 +97,9 @@ export default function NavigationScreen() {
     coins_earned: 0,
     duration_min: 0,
   });
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [startLocation, setStartLocation] = useState<Location.LocationObject | null>(null);
+  const [totalDistanceTraveled, setTotalDistanceTraveled] = useState(0);
 
   // Voice guidance state
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -121,16 +124,42 @@ export default function NavigationScreen() {
       // In production, this would come from route params or AsyncStorage
       const routeData = params.routeData ? JSON.parse(params.routeData as string) : null;
 
-      if (routeData) {
-        setNavigationData(routeData);
-        setBatteryPercent(routeData.starting_battery_percent || 80);
-      } else {
-        Alert.alert('Error', 'No navigation data available');
-        router.back();
+      if (!routeData) {
+        Alert.alert('Error', 'No navigation data available', [
+          { text: 'OK', onPress: () => router.back() }
+        ]);
+        return;
       }
+
+      // Validate required fields
+      if (!routeData.route || !routeData.route.coordinates || routeData.route.coordinates.length === 0) {
+        Alert.alert('Error', 'Invalid route data - missing coordinates', [
+          { text: 'OK', onPress: () => router.back() }
+        ]);
+        return;
+      }
+
+      if (!routeData.route.summary || !routeData.route.summary.turn_instructions) {
+        Alert.alert('Error', 'Invalid route data - missing turn instructions', [
+          { text: 'OK', onPress: () => router.back() }
+        ]);
+        return;
+      }
+
+      if (typeof routeData.battery_capacity_kwh !== 'number' || routeData.battery_capacity_kwh <= 0) {
+        Alert.alert('Error', 'Invalid battery capacity', [
+          { text: 'OK', onPress: () => router.back() }
+        ]);
+        return;
+      }
+
+      setNavigationData(routeData);
+      setBatteryPercent(routeData.starting_battery_percent || 80);
     } catch (error) {
       console.error('Failed to load navigation data:', error);
-      Alert.alert('Error', 'Failed to load navigation data');
+      Alert.alert('Error', 'Failed to load navigation data. Please try again.', [
+        { text: 'OK', onPress: () => router.back() }
+      ]);
     }
   };
 
@@ -154,6 +183,8 @@ export default function NavigationScreen() {
         accuracy: Location.Accuracy.BestForNavigation,
       });
       setCurrentLocation(location);
+      setStartLocation(location);
+      setStartTime(new Date());
 
       // Start watching location with high accuracy
       locationSubscription.current = await Location.watchPositionAsync(
@@ -198,8 +229,38 @@ export default function NavigationScreen() {
 
     setDistanceToNextTurn(distance);
 
-    // Update battery based on distance traveled
-    updateBatteryLevel();
+    // Update real-time stats
+    if (currentLocation && startLocation && startTime) {
+      // Calculate distance traveled from start
+      const distanceTraveled = calculateDistance(
+        startLocation.coords.latitude,
+        startLocation.coords.longitude,
+        location.coords.latitude,
+        location.coords.longitude
+      ) / 1000; // Convert to km
+
+      setTotalDistanceTraveled(distanceTraveled);
+
+      // Calculate duration in minutes
+      const durationMs = new Date().getTime() - startTime.getTime();
+      const durationMin = durationMs / (1000 * 60);
+
+      // Calculate energy used (based on distance and route energy rate)
+      const energyRate = navigationData.route.energy_consumption_kwh / (navigationData.route.distance_m / 1000);
+      const energyUsed = distanceTraveled * energyRate;
+
+      // Update stats
+      setNavigationStats({
+        distance_driven_km: distanceTraveled,
+        energy_used_kwh: energyUsed,
+        coins_earned: 0, // Will be set at arrival
+        duration_min: durationMin,
+      });
+
+      // Update battery percentage
+      const batteryUsedPercent = (energyUsed / navigationData.battery_capacity_kwh) * 100;
+      setBatteryPercent(Math.max(0, navigationData.starting_battery_percent - batteryUsedPercent));
+    }
 
     // Voice guidance triggers
     if (distance <= 200 && currentStepIndex !== lastSpokenStep && !isSpeaking) {
@@ -249,19 +310,6 @@ export default function NavigationScreen() {
       console.error('Speech error:', error);
       setIsSpeaking(false);
     }
-  };
-
-  const updateBatteryLevel = () => {
-    if (!navigationData) return;
-
-    // Simple battery depletion simulation
-    // In production, this could be more sophisticated
-    const energyPerKm = navigationData.route.energy_consumption_kwh / (navigationData.route.distance_m / 1000);
-    const distanceDriven = navigationStats.distance_driven_km;
-    const energyUsed = distanceDriven * energyPerKm;
-    const batteryUsedPercent = (energyUsed / navigationData.battery_capacity_kwh) * 100;
-
-    setBatteryPercent(Math.max(0, navigationData.starting_battery_percent - batteryUsedPercent));
   };
 
   const checkBatteryAlert = () => {
@@ -611,9 +659,11 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   backButton: {
     width: 40,
@@ -625,55 +675,63 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   batteryText: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 4,
+    fontSize: 15,
+    fontWeight: '700',
+    marginLeft: 6,
   },
   etaContainer: {
     marginLeft: 'auto',
     alignItems: 'flex-end',
+    paddingHorizontal: 8,
   },
   etaLabel: {
-    fontSize: 10,
-    color: '#999',
+    fontSize: 11,
+    color: '#bbb',
+    fontWeight: '500',
   },
   etaValue: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
     color: '#fff',
+    marginTop: 2,
   },
   distanceContainer: {
-    marginLeft: 16,
+    marginLeft: 20,
     alignItems: 'flex-end',
+    paddingRight: 4,
   },
   distanceValue: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
     color: '#fff',
   },
   distanceLabel: {
-    fontSize: 10,
-    color: '#999',
+    fontSize: 11,
+    color: '#bbb',
+    marginTop: 2,
+    fontWeight: '500',
   },
   instructionCard: {
     position: 'absolute',
     bottom: 40,
-    left: 16,
-    right: 16,
+    left: 20,
+    right: 20,
     backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 20,
+    padding: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 12,
   },
   instructionHeader: {
     flexDirection: 'row',
@@ -681,23 +739,26 @@ const styles = StyleSheet.create({
   },
   instructionText: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 20,
   },
   instructionDistance: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#2196F3',
+    letterSpacing: -0.5,
   },
   instructionMain: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '600',
-    color: '#333',
-    marginTop: 4,
+    color: '#1a1a1a',
+    marginTop: 6,
+    lineHeight: 26,
   },
   streetName: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#666',
-    marginTop: 4,
+    marginTop: 6,
+    fontWeight: '500',
   },
   laneGuidance: {
     flexDirection: 'row',
@@ -733,18 +794,23 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 24,
   },
   modalContent: {
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 24,
+    borderRadius: 24,
+    padding: 32,
     alignItems: 'center',
-    maxWidth: 400,
+    maxWidth: 420,
     width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 16,
   },
   modalTitle: {
     fontSize: 24,
