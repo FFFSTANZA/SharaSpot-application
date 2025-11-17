@@ -23,6 +23,12 @@ class Settings:
     HERE_API_KEY: str = os.environ.get('HERE_API_KEY', '')
 
     # ===========================
+    # Weather API Configuration
+    # ===========================
+    OPENWEATHER_API_KEY: str = os.environ.get('OPENWEATHER_API_KEY', '')
+    WEATHER_API_TIMEOUT: int = 5  # seconds
+
+    # ===========================
     # Session Configuration
     # ===========================
     SESSION_EXPIRE_DAYS: int = 7

@@ -11,6 +11,7 @@ from ..schemas.routing import HERERouteRequest, HERERouteResponse
 from ..models.routing import RouteAlternative
 from ..core import calculate_distance
 from ..core.db_models import Charger
+from .weather_service import get_weather_along_route
 
 
 async def call_here_routing_api(request: HERERouteRequest) -> dict:
@@ -329,8 +330,11 @@ async def calculate_here_routes(request: HERERouteRequest, db: AsyncSession) -> 
             detail="Failed to process routes from routing service"
         )
 
-    # Weather data is optional - can be added later via HERE Weather API or other service
+    # Get real-time weather data for the route
+    # Use coordinates from the first (recommended) route
     weather_data = None
+    if processed_routes and processed_routes[0]["route"].coordinates:
+        weather_data = await get_weather_along_route(processed_routes[0]["route"].coordinates)
 
     return HERERouteResponse(
         routes=[item["route"] for item in processed_routes],
