@@ -18,6 +18,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { SessionManager } from '../../utils/secureStorage';
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 import Constants from 'expo-constants';
 import { Colors } from '../../constants/theme';
@@ -78,8 +79,9 @@ interface Charger {
 
 export default function SmartEcoRouting() {
   const { user } = useAuth();
+  const router = useRouter();
   const mapRef = useRef<any>(null);
-  
+
   // State
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
@@ -195,6 +197,35 @@ export default function SmartEcoRouting() {
     const remainingBatteryKwh = currentBatteryKwh - energyKwh;
     const remainingPercent = (remainingBatteryKwh / batteryCapacity) * 100;
     return Math.max(0, Math.min(100, remainingPercent));
+  };
+
+  // Start navigation with selected route
+  const startNavigation = () => {
+    if (!selectedRoute) {
+      Alert.alert('No Route Selected', 'Please select a route to start navigation');
+      return;
+    }
+
+    if (Platform.OS === 'web') {
+      Alert.alert('Navigation Unavailable', 'Turn-by-turn navigation is only available on mobile devices');
+      return;
+    }
+
+    // Prepare navigation data
+    const navigationData = {
+      route: selectedRoute,
+      chargers: chargersAlongRoute,
+      starting_battery_percent: batteryPercent,
+      battery_capacity_kwh: getBatteryCapacity(),
+    };
+
+    // Navigate to navigation screen
+    router.push({
+      pathname: '/navigation',
+      params: {
+        routeData: JSON.stringify(navigationData),
+      },
+    });
   };
 
   // Render route option card
@@ -620,6 +651,19 @@ export default function SmartEcoRouting() {
                   </View>
                 ))}
               </View>
+            )}
+
+            {/* Start Navigation Button */}
+            {selectedRoute && (
+              <TouchableOpacity
+                style={styles.startNavigationButton}
+                onPress={startNavigation}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="navigate" size={24} color="#fff" />
+                <Text style={styles.startNavigationText}>Start Navigation</Text>
+                <Ionicons name="arrow-forward" size={20} color="#fff" />
+              </TouchableOpacity>
             )}
 
             <View style={styles.bottomPadding} />
@@ -1144,6 +1188,29 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     color: Colors.primary,
+  },
+  startNavigationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    marginHorizontal: 16,
+    marginTop: 20,
+    marginBottom: 16,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  startNavigationText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginHorizontal: 12,
   },
   bottomPadding: {
     height: 20,

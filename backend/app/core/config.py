@@ -18,7 +18,12 @@ class Settings:
     DEBUG: bool = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
 
     # ===========================
-    # HERE API Configuration
+    # Mapbox API Configuration (PRIMARY - Production)
+    # ===========================
+    MAPBOX_API_KEY: str = os.environ.get('MAPBOX_API_KEY', '')
+
+    # ===========================
+    # HERE API Configuration (LEGACY - Deprecated)
     # ===========================
     HERE_API_KEY: str = os.environ.get('HERE_API_KEY', '')
 
@@ -103,11 +108,21 @@ class Settings:
 Community-driven platform for discovering and verifying EV charging stations.
 
 ### Features
-- 🔐 Secure authentication with session-based auth
+- 🔐 Secure authentication with JWT tokens
 - 🗺️ Real-time charger discovery and verification
 - 🎮 Gamification with SharaCoin rewards
-- 🚗 Smart EV routing with HERE Maps integration
+- 🚗 Production-grade EV routing with Mapbox Directions API
+- 🎯 Turn-by-turn navigation with voice guidance (Expo Speech)
+- 📈 Elevation-aware energy consumption (Open-Topo-Data)
+- 🔋 Real-time battery monitoring and charging alerts
 - 📊 User activity tracking and trust scores
+
+### Navigation Features
+- **Mapbox Directions API**: Industry-leading route planning with 3 alternatives (Eco, Balanced, Fastest)
+- **Open-Topo-Data**: Free elevation data for accurate energy consumption
+- **Voice Guidance**: Turn-by-turn instructions with text-to-speech (zero additional cost)
+- **Battery Intelligence**: Physics-based energy consumption modeling
+- **Charger Integration**: Smart charging stop suggestions along route
 
 ### Rate Limits
 - Authentication endpoints: 5 requests/minute
