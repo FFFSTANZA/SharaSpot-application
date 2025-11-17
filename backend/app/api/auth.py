@@ -6,15 +6,19 @@ from typing import Optional
 
 from ..schemas.auth import SignupRequest, LoginRequest, PreferencesUpdate
 from ..services import auth_service, oauth_service
-from ..core.security import get_user_from_session
+from ..core.security import get_user_from_session, verify_token, create_token_pair
 from ..core.database import get_session
+from ..core.middleware import limiter
+from ..core.config import settings
 from ..models.user import User
+from ..core.db_models import User as DBUser
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/signup")
-async def signup(data: SignupRequest, response: Response, db: AsyncSession = Depends(get_session)):
+@limiter.limit(settings.AUTH_RATE_LIMIT)
+async def signup(request: Request, data: SignupRequest, response: Response, db: AsyncSession = Depends(get_session)):
     """Email/Password signup"""
     user, session_token = await auth_service.signup_user(data, db)
 
@@ -34,7 +38,8 @@ async def signup(data: SignupRequest, response: Response, db: AsyncSession = Dep
 
 
 @router.post("/login")
-async def login(data: LoginRequest, response: Response, db: AsyncSession = Depends(get_session)):
+@limiter.limit(settings.AUTH_RATE_LIMIT)
+async def login(request: Request, data: LoginRequest, response: Response, db: AsyncSession = Depends(get_session)):
     """Email/Password login"""
     user, session_token = await auth_service.login_user(data, db)
 
@@ -62,7 +67,8 @@ async def get_current_user(user: User = Depends(get_user_from_session)):
 
 
 @router.post("/guest")
-async def create_guest_session(response: Response, db: AsyncSession = Depends(get_session)):
+@limiter.limit(settings.AUTH_RATE_LIMIT)
+async def create_guest_session(request: Request, response: Response, db: AsyncSession = Depends(get_session)):
     """Create guest user session"""
     guest, session_token = await auth_service.create_guest_user(db)
 
@@ -111,6 +117,75 @@ async def update_preferences(
 
     updated_user = await auth_service.update_user_preferences(user, data, db)
     return updated_user
+
+
+@router.post("/refresh")
+@limiter.limit("10/minute")
+async def refresh_token(
+    request: Request,
+    response: Response,
+    refresh_token: str = Cookie(None),
+    db: AsyncSession = Depends(get_session)
+):
+    """
+    Refresh access token using refresh token
+
+    This endpoint allows clients to get a new access token using their refresh token
+    without requiring re-authentication
+    """
+    if not refresh_token:
+        raise HTTPException(401, "Refresh token not provided")
+
+    # Verify refresh token
+    payload = verify_token(refresh_token, token_type="refresh")
+    if not payload:
+        raise HTTPException(401, "Invalid or expired refresh token")
+
+    # Extract user ID
+    user_id = payload.get("sub")
+    email = payload.get("email")
+
+    if not user_id:
+        raise HTTPException(401, "Invalid token payload")
+
+    # Verify user still exists
+    from sqlalchemy import select
+    result = await db.execute(select(DBUser).where(DBUser.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(401, "User not found")
+
+    # Create new token pair
+    tokens = create_token_pair(user_id, email or user.email)
+
+    # Set new cookies
+    response.set_cookie(
+        key="access_token",
+        value=tokens["access_token"],
+        httponly=True,
+        secure=True,
+        samesite="none",
+        max_age=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        path="/"
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens["refresh_token"],
+        httponly=True,
+        secure=True,
+        samesite="none",
+        max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        path="/"
+    )
+
+    return {
+        "access_token": tokens["access_token"],
+        "refresh_token": tokens["refresh_token"],
+        "csrf_token": tokens["csrf_token"],
+        "token_type": "bearer"
+    }
 
 
 @router.get("/google/login")

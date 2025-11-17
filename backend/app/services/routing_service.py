@@ -1,7 +1,8 @@
 """Routing service with HERE API integration"""
 from typing import List
 import os
-import requests
+import httpx
+import asyncio
 import logging
 
 from sqlalchemy import select
@@ -10,13 +11,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..schemas.routing import HERERouteRequest, HERERouteResponse
 from ..models.routing import RouteAlternative
 from ..core import calculate_distance
+from ..core.config import settings
 from ..core.db_models import Charger
 from .weather_service import get_weather_along_route
 
 
 async def call_here_routing_api(request: HERERouteRequest) -> dict:
     """
-    Call HERE Routing API v8 for EV routing
+    Call HERE Routing API v8 for EV routing using async HTTP client with retry logic
     Raises HTTPException if API key is not configured or API call fails
     """
     from fastapi import HTTPException
@@ -30,72 +32,96 @@ async def call_here_routing_api(request: HERERouteRequest) -> dict:
             detail="Routing service unavailable. HERE API key not configured. Please contact administrator."
         )
 
-    # Real HERE API call
-    try:
-        here_url = "https://router.hereapi.com/v8/routes"
+    here_url = "https://router.hereapi.com/v8/routes"
 
-        # HERE API parameters for EV routing
-        params = {
-            "apiKey": here_api_key,
-            "transportMode": "car",
-            "origin": f"{request.origin_lat},{request.origin_lng}",
-            "destination": f"{request.destination_lat},{request.destination_lng}",
-            "return": "polyline,summary,elevation,routeHandle,actions",
-            "alternatives": "3",  # Get 3 route alternatives
-            "ev[freeFlowSpeedTable]": "0,0.239,27,0.239,45,0.259,60,0.196,75,0.207,90,0.238,100,0.26,110,0.296,120,0.337,130,0.351",
-            "ev[trafficSpeedTable]": "0,0.349,27,0.319,45,0.329,60,0.266,75,0.287,90,0.318,100,0.33,110,0.335,120,0.35,130,0.36",
-            "ev[ascent]": "9",
-            "ev[descent]": "4.3",
-            "ev[makeReachable]": "true",
-            "spans": "names,length,duration,baseDuration,elevation,consumption",
-        }
+    # HERE API parameters for EV routing
+    params = {
+        "apiKey": here_api_key,
+        "transportMode": "car",
+        "origin": f"{request.origin_lat},{request.origin_lng}",
+        "destination": f"{request.destination_lat},{request.destination_lng}",
+        "return": "polyline,summary,elevation,routeHandle,actions",
+        "alternatives": "3",  # Get 3 route alternatives
+        "ev[freeFlowSpeedTable]": "0,0.239,27,0.239,45,0.259,60,0.196,75,0.207,90,0.238,100,0.26,110,0.296,120,0.337,130,0.351",
+        "ev[trafficSpeedTable]": "0,0.349,27,0.319,45,0.329,60,0.266,75,0.287,90,0.318,100,0.33,110,0.335,120,0.35,130,0.36",
+        "ev[ascent]": "9",
+        "ev[descent]": "4.3",
+        "ev[makeReachable]": "true",
+        "spans": "names,length,duration,baseDuration,elevation,consumption",
+    }
 
-        response = requests.get(here_url, params=params, timeout=10)
+    # Retry configuration with exponential backoff
+    max_retries = settings.HTTP_CLIENT_MAX_RETRIES
+    retry_delay = settings.HTTP_CLIENT_RETRY_DELAY
 
-        # Handle different error cases
-        if response.status_code == 401:
-            logging.error("HERE API authentication failed - invalid API key")
+    for attempt in range(max_retries):
+        try:
+            async with httpx.AsyncClient(timeout=settings.HTTP_CLIENT_TIMEOUT) as client:
+                response = await client.get(here_url, params=params)
+
+                # Handle different error cases
+                if response.status_code == 401:
+                    logging.error("HERE API authentication failed - invalid API key")
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Routing service authentication failed. Please contact administrator."
+                    )
+                elif response.status_code == 403:
+                    logging.error("HERE API access forbidden - check API key permissions")
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Routing service access denied. Please contact administrator."
+                    )
+                elif response.status_code == 429:
+                    logging.error("HERE API rate limit exceeded")
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Routing service temporarily unavailable due to high demand. Please try again later."
+                    )
+
+                response.raise_for_status()
+                return response.json()
+
+        except HTTPException:
+            # Re-raise HTTPExceptions as-is (no retry for auth/permission errors)
+            raise
+
+        except httpx.TimeoutException:
+            if attempt < max_retries - 1:
+                wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                logging.warning(f"HERE API timeout (attempt {attempt + 1}/{max_retries}), retrying in {wait_time}s...")
+                await asyncio.sleep(wait_time)
+            else:
+                logging.error("HERE API request timeout after all retries")
+                raise HTTPException(
+                    status_code=504,
+                    detail="Routing service timeout. Please try again."
+                )
+
+        except httpx.ConnectError as e:
+            if attempt < max_retries - 1:
+                wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                logging.warning(f"HERE API connection error (attempt {attempt + 1}/{max_retries}), retrying in {wait_time}s...")
+                await asyncio.sleep(wait_time)
+            else:
+                logging.error(f"HERE API connection error after all retries: {str(e)}")
+                raise HTTPException(
+                    status_code=503,
+                    detail="Unable to connect to routing service. Please check your internet connection."
+                )
+
+        except Exception as e:
+            logging.error(f"HERE API unexpected error: {str(e)}")
             raise HTTPException(
-                status_code=503,
-                detail="Routing service authentication failed. Please contact administrator."
-            )
-        elif response.status_code == 403:
-            logging.error("HERE API access forbidden - check API key permissions")
-            raise HTTPException(
-                status_code=503,
-                detail="Routing service access denied. Please contact administrator."
-            )
-        elif response.status_code == 429:
-            logging.error("HERE API rate limit exceeded")
-            raise HTTPException(
-                status_code=503,
-                detail="Routing service temporarily unavailable due to high demand. Please try again later."
+                status_code=500,
+                detail=f"Routing service error: {str(e)}"
             )
 
-        response.raise_for_status()
-        return response.json()
-
-    except HTTPException:
-        # Re-raise HTTPExceptions as-is
-        raise
-    except requests.exceptions.Timeout:
-        logging.error("HERE API request timeout")
-        raise HTTPException(
-            status_code=504,
-            detail="Routing service timeout. Please try again."
-        )
-    except requests.exceptions.ConnectionError as e:
-        logging.error(f"HERE API connection error: {str(e)}")
-        raise HTTPException(
-            status_code=503,
-            detail="Unable to connect to routing service. Please check your internet connection."
-        )
-    except Exception as e:
-        logging.error(f"HERE API unexpected error: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Routing service error: {str(e)}"
-        )
+    # This should never be reached, but add for safety
+    raise HTTPException(
+        status_code=500,
+        detail="Routing service error: Maximum retries exceeded"
+    )
 
 
 def decode_here_flexible_polyline(polyline: str) -> List[dict]:
