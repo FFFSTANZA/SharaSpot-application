@@ -240,3 +240,58 @@ class CoinTransaction(Base):
 
     def __repr__(self):
         return f"<CoinTransaction(id={self.id}, user_id={self.user_id}, action={self.action}, amount={self.amount})>"
+
+
+class AnalyticsSnapshot(Base):
+    """Analytics snapshot table for caching aggregated metrics"""
+    __tablename__ = "analytics_snapshots"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    snapshot_date = Column(DateTime(timezone=True), nullable=False, index=True)
+    metric_type = Column(String, nullable=False, index=True)  # "user_growth", "engagement", "charger_metrics", etc.
+
+    # Aggregated metrics stored as JSON
+    metrics = Column(JSON, nullable=False)
+
+    # Metadata
+    created_at = Column(DateTime(timezone=True), nullable=False,
+                       default=lambda: datetime.now(timezone.utc),
+                       server_default=func.now())
+
+    # Indexes
+    __table_args__ = (
+        Index("idx_analytics_snapshot_date_type", "snapshot_date", "metric_type"),
+        UniqueConstraint("snapshot_date", "metric_type", name="uix_snapshot_date_type"),
+    )
+
+    def __repr__(self):
+        return f"<AnalyticsSnapshot(id={self.id}, date={self.snapshot_date}, type={self.metric_type})>"
+
+
+class UserActivityEvent(Base):
+    """User activity event tracking for detailed analytics"""
+    __tablename__ = "user_activity_events"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)  # Nullable for guest tracking
+    session_id = Column(String, nullable=True)  # For session tracking
+    event_type = Column(String, nullable=False, index=True)  # "login", "logout", "view_charger", "search", "route_plan", etc.
+    event_data = Column(JSON, nullable=True)  # Additional event metadata
+
+    # Context
+    platform = Column(String, nullable=True)  # "ios", "android", "web"
+    app_version = Column(String, nullable=True)
+
+    # Timestamps
+    timestamp = Column(DateTime(timezone=True), nullable=False,
+                      default=lambda: datetime.now(timezone.utc),
+                      server_default=func.now(), index=True)
+
+    # Indexes
+    __table_args__ = (
+        Index("idx_user_activity_event_user_timestamp", "user_id", "timestamp"),
+        Index("idx_user_activity_event_type_timestamp", "event_type", "timestamp"),
+    )
+
+    def __repr__(self):
+        return f"<UserActivityEvent(id={self.id}, user_id={self.user_id}, event_type={self.event_type})>"
