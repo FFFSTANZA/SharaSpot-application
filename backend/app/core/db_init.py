@@ -1,21 +1,22 @@
 """
-Database initialization script for SharaSpot
-Addresses P1 issue #6: Database indexing
-Addresses P1 issue #8: Session cleanup with TTL
+Database initialization for SharaSpot
+Creates indexes and sets up database collections
 """
 
-import asyncio
 import logging
-from motor.motor_asyncio import AsyncIOMotorClient
-from config import MONGO_URL, DB_NAME, DATABASE_INDEXES
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
-logging.basicConfig(level=logging.INFO)
+from .constants import DATABASE_INDEXES
+
 logger = logging.getLogger(__name__)
 
 
-async def create_indexes(db):
+async def create_indexes(db: AsyncIOMotorDatabase) -> None:
     """
     Create all necessary database indexes
+
+    Args:
+        db: MongoDB database instance
     """
     logger.info("Creating database indexes...")
 
@@ -45,8 +46,6 @@ async def create_indexes(db):
         ("latitude", 1),
         ("longitude", 1)
     ])  # Compound index for geospatial queries
-    # Create a 2dsphere index for geospatial queries
-    await db.chargers.create_index([("latitude", "2dsphere"), ("longitude", "2dsphere")])
     logger.info("✓ Chargers indexes created")
 
     # Coin transactions collection indexes
@@ -61,11 +60,14 @@ async def create_indexes(db):
     logger.info("All database indexes created successfully!")
 
 
-async def verify_indexes(db):
+async def verify_indexes(db: AsyncIOMotorDatabase) -> None:
     """
     Verify that all indexes were created successfully
+
+    Args:
+        db: MongoDB database instance
     """
-    logger.info("\nVerifying indexes...")
+    logger.info("Verifying indexes...")
 
     collections = ['users', 'user_sessions', 'chargers', 'coin_transactions']
 
@@ -88,35 +90,42 @@ async def verify_indexes(db):
             logger.info(index_details)
 
 
-async def cleanup_expired_sessions(db):
+async def cleanup_expired_sessions(db: AsyncIOMotorDatabase) -> int:
     """
     Manual cleanup of expired sessions (TTL index should handle this automatically)
     This is a backup cleanup function
+
+    Args:
+        db: MongoDB database instance
+
+    Returns:
+        Number of sessions deleted
     """
     from datetime import datetime, timezone
 
-    logger.info("\nRunning manual session cleanup...")
+    logger.info("Running manual session cleanup...")
 
     result = await db.user_sessions.delete_many({
         "expires_at": {"$lt": datetime.now(timezone.utc)}
     })
 
-    logger.info(f"✓ Deleted {result.deleted_count} expired sessions")
+    deleted_count = result.deleted_count
+    logger.info(f"✓ Deleted {deleted_count} expired sessions")
+
+    return deleted_count
 
 
-async def init_database():
+async def initialize_database(db: AsyncIOMotorDatabase) -> None:
     """
     Initialize database with indexes and settings
+
+    Args:
+        db: MongoDB database instance
     """
-    logger.info(f"Connecting to MongoDB: {MONGO_URL[:20]}...")
-
-    client = AsyncIOMotorClient(MONGO_URL)
-    db = client[DB_NAME]
-
     try:
         # Test connection
         await db.command('ping')
-        logger.info(f"✓ Connected to database: {DB_NAME}")
+        logger.info(f"✓ Connected to database: {db.name}")
 
         # Create indexes
         await create_indexes(db)
@@ -127,7 +136,7 @@ async def init_database():
         # Run initial cleanup
         await cleanup_expired_sessions(db)
 
-        logger.info("\n" + "=" * 50)
+        logger.info("=" * 50)
         logger.info("Database initialization completed successfully!")
         logger.info("=" * 50)
 
@@ -135,14 +144,14 @@ async def init_database():
         logger.error(f"Error initializing database: {str(e)}")
         raise
 
-    finally:
-        client.close()
 
-
-async def drop_all_indexes(db):
+async def drop_all_indexes(db: AsyncIOMotorDatabase) -> None:
     """
     Drop all indexes (useful for testing/reset)
     WARNING: Use with caution!
+
+    Args:
+        db: MongoDB database instance
     """
     logger.warning("Dropping all indexes...")
 
@@ -157,15 +166,15 @@ async def drop_all_indexes(db):
             logger.error(f"Error dropping indexes for {collection_name}: {str(e)}")
 
 
-async def reset_database():
+async def reset_database_indexes(db: AsyncIOMotorDatabase) -> None:
     """
     Reset database by dropping and recreating indexes
     WARNING: Use with caution!
+
+    Args:
+        db: MongoDB database instance
     """
     logger.warning("Resetting database indexes...")
-
-    client = AsyncIOMotorClient(MONGO_URL)
-    db = client[DB_NAME]
 
     try:
         await drop_all_indexes(db)
@@ -173,14 +182,6 @@ async def reset_database():
         await verify_indexes(db)
         logger.info("Database reset completed!")
 
-    finally:
-        client.close()
-
-
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) > 1 and sys.argv[1] == "--reset":
-        asyncio.run(reset_database())
-    else:
-        asyncio.run(init_database())
+    except Exception as e:
+        logger.error(f"Error resetting database: {str(e)}")
+        raise

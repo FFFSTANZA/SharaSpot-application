@@ -1,8 +1,6 @@
 """
 Middleware for SharaSpot API
-Addresses P1 issue #13: Request logging
-Addresses P0 issue #2: Rate limiting
-Addresses P1 issue #9: Error sanitization
+Provides request logging, error handling, and security headers
 """
 
 import time
@@ -11,10 +9,11 @@ from typing import Callable
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from config import ErrorMessages, LOG_REQUEST_DETAILS
+
+from .constants import ErrorMessages
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +40,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         method = request.method
         path = request.url.path
         client_ip = get_remote_address(request)
-        user_agent = request.headers.get("user-agent", "unknown")
 
         # Log request
         logger.info(f"Request started: {method} {path} from {client_ip}")
@@ -54,13 +52,12 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             duration_ms = (time.time() - start_time) * 1000
 
             # Log response
-            if LOG_REQUEST_DETAILS:
-                logger.info(
-                    f"Request completed: {method} {path} "
-                    f"Status: {response.status_code} "
-                    f"Duration: {duration_ms:.2f}ms "
-                    f"IP: {client_ip}"
-                )
+            logger.info(
+                f"Request completed: {method} {path} "
+                f"Status: {response.status_code} "
+                f"Duration: {duration_ms:.2f}ms "
+                f"IP: {client_ip}"
+            )
 
             # Add custom headers
             response.headers["X-Process-Time"] = f"{duration_ms:.2f}ms"

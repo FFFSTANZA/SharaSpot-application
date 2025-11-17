@@ -4,27 +4,41 @@ Main application entry point
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 import logging
 
 from app.core.config import settings
-from app.core.database import connect_to_database, close_database_connection
+from app.core.database import connect_to_database, close_database_connection, get_database
+from app.core.middleware import (
+    limiter,
+    RequestLoggingMiddleware,
+    ErrorSanitizationMiddleware,
+    SecurityHeadersMiddleware,
+    rate_limit_exceeded_handler,
+)
+from app.core.db_init import initialize_database
 from app.api import api_router
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=getattr(logging, settings.LOG_LEVEL),
+    format=settings.LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
 
 # Create FastAPI application
 app = FastAPI(
-    title="SharaSpot API",
-    description="EV Charging Station Discovery and Verification Platform",
-    version="2.0.0"
+    title=settings.API_TITLE,
+    description=settings.API_DESCRIPTION,
+    version=settings.API_VERSION_STRING
 )
 
-# Configure CORS
+# Add rate limiter state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+
+# Configure CORS (must be first middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
@@ -33,6 +47,11 @@ app.add_middleware(
     allow_headers=settings.CORS_ALLOW_HEADERS,
 )
 
+# Add custom middleware (order matters - these run in reverse order)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(ErrorSanitizationMiddleware)
+app.add_middleware(RequestLoggingMiddleware)
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -40,6 +59,14 @@ async def startup_event():
     logger.info("Starting SharaSpot Backend...")
     await connect_to_database()
     logger.info("Database connected successfully")
+
+    # Initialize database indexes
+    try:
+        db = await get_database()
+        await initialize_database(db)
+        logger.info("Database initialization completed")
+    except Exception as e:
+        logger.warning(f"Database initialization skipped or failed: {str(e)}")
 
 
 @app.on_event("shutdown")

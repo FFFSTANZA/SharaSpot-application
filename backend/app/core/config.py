@@ -10,21 +10,80 @@ load_dotenv(ROOT_DIR / '.env')
 
 class Settings:
     """Application settings"""
-    # MongoDB
+
+    # ===========================
+    # Database Configuration
+    # ===========================
     MONGO_URL: str = os.environ.get('MONGO_URL', '')
     DB_NAME: str = os.environ.get('DB_NAME', 'sharaspot')
 
-    # HERE API
+    # ===========================
+    # HERE API Configuration
+    # ===========================
     HERE_API_KEY: str = os.environ.get('HERE_API_KEY', '')
 
-    # Session
+    # ===========================
+    # Session Configuration
+    # ===========================
     SESSION_EXPIRE_DAYS: int = 7
+    SESSION_TOKEN_BYTES: int = 32
 
-    # CORS
-    CORS_ORIGINS: list = ["*"]
+    # ===========================
+    # CORS Configuration
+    # ===========================
+    CORS_ORIGINS: list = [
+        "http://localhost:8081",  # Expo development
+        "http://localhost:19006",  # Expo web
+        "exp://localhost:8081",   # Expo app
+        # Add production URLs when deployed
+    ]
     CORS_ALLOW_CREDENTIALS: bool = True
     CORS_ALLOW_METHODS: list = ["*"]
     CORS_ALLOW_HEADERS: list = ["*"]
+
+    # ===========================
+    # Cookie Configuration
+    # ===========================
+    COOKIE_SECURE: bool = False  # Set to True in production
+    COOKIE_SAMESITE: str = "lax"
+    COOKIE_HTTPONLY: bool = True
+
+    # ===========================
+    # Logging Configuration
+    # ===========================
+    LOG_LEVEL: str = os.environ.get('LOG_LEVEL', 'INFO')
+    LOG_FORMAT: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    LOG_REQUEST_DETAILS: bool = True
+
+    # ===========================
+    # API Configuration
+    # ===========================
+    API_VERSION: str = "v1"
+    API_TITLE: str = "SharaSpot API"
+    API_DESCRIPTION: str = """
+## SharaSpot EV Charging Aggregator API
+
+Community-driven platform for discovering and verifying EV charging stations.
+
+### Features
+- 🔐 Secure authentication with session-based auth
+- 🗺️ Real-time charger discovery and verification
+- 🎮 Gamification with SharaCoin rewards
+- 🚗 Smart EV routing with HERE Maps integration
+- 📊 User activity tracking and trust scores
+
+### Rate Limits
+- Authentication endpoints: 5 requests/minute
+- Write operations: 20 requests/minute
+- Read operations: 60 requests/minute
+"""
+    API_VERSION_STRING: str = "1.0.0"
+
+    # ===========================
+    # Session Cleanup Configuration
+    # ===========================
+    SESSION_CLEANUP_INTERVAL_HOURS: int = 24
+    SESSION_CLEANUP_BATCH_SIZE: int = 1000
 
 
 settings = Settings()

@@ -1,58 +1,9 @@
 """
-Configuration constants and enums for SharaSpot API
-Addresses P2 issues: Magic numbers, String-based action types
+Constants and enums for SharaSpot API
+Provides type-safe constants for the modular monolith architecture
 """
 
 from enum import Enum
-from typing import Optional
-import os
-from dotenv import load_dotenv
-from pathlib import Path
-
-# Load environment variables
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
-
-
-# ===========================
-# Database Configuration
-# ===========================
-MONGO_URL = os.environ.get('MONGO_URL', '')
-DB_NAME = os.environ.get('DB_NAME', 'sharaspot')
-
-
-# ===========================
-# Security Configuration
-# ===========================
-# Session configuration
-SESSION_EXPIRY_DAYS = 7
-SESSION_TOKEN_BYTES = 32
-
-# Password requirements
-MIN_PASSWORD_LENGTH = 8
-MAX_PASSWORD_LENGTH = 128
-REQUIRE_UPPERCASE = True
-REQUIRE_LOWERCASE = True
-REQUIRE_DIGIT = True
-REQUIRE_SPECIAL_CHAR = True
-
-# Rate limiting (requests per minute)
-RATE_LIMIT_AUTH_ENDPOINTS = "5/minute"  # Auth endpoints
-RATE_LIMIT_WRITE_ENDPOINTS = "20/minute"  # POST/PUT/DELETE
-RATE_LIMIT_READ_ENDPOINTS = "60/minute"  # GET
-
-# CORS configuration - Add your frontend URLs here
-ALLOWED_ORIGINS = [
-    "http://localhost:8081",  # Expo development
-    "http://localhost:19006",  # Expo web
-    "exp://localhost:8081",   # Expo app
-    # Add production URLs here when deployed
-]
-
-# Cookie configuration
-COOKIE_SECURE = True  # Set to False for local development
-COOKIE_SAMESITE = "lax"  # Changed from "none" for better security
-COOKIE_HTTPONLY = True
 
 
 # ===========================
@@ -125,6 +76,43 @@ class QueryLimits:
 
 
 # ===========================
+# Security Constants
+# ===========================
+class PasswordRequirements:
+    """Password validation requirements"""
+    MIN_LENGTH = 8
+    MAX_LENGTH = 128
+    REQUIRE_UPPERCASE = True
+    REQUIRE_LOWERCASE = True
+    REQUIRE_DIGIT = True
+    REQUIRE_SPECIAL_CHAR = True
+
+
+class SessionConfig:
+    """Session configuration"""
+    EXPIRY_DAYS = 7
+    TOKEN_BYTES = 32
+
+
+class RateLimits:
+    """Rate limiting configuration"""
+    AUTH_ENDPOINTS = "5/minute"  # Authentication endpoints
+    WRITE_ENDPOINTS = "20/minute"  # POST/PUT/DELETE
+    READ_ENDPOINTS = "60/minute"  # GET
+
+
+# ===========================
+# HERE API Configuration
+# ===========================
+class HEREConfig:
+    """HERE API configuration constants"""
+    ROUTING_API_URL = "https://router.hereapi.com/v8/routes"
+    API_TIMEOUT = 10  # seconds
+    MAX_ROUTE_ALTERNATIVES = 3
+    MAX_DETOUR_KM = 5.0
+
+
+# ===========================
 # Enums for Type Safety
 # ===========================
 class ActionType(str, Enum):
@@ -171,59 +159,38 @@ class RouteType(str, Enum):
 
 
 # ===========================
-# HERE API Configuration
+# Valid Options
 # ===========================
-HERE_API_KEY = os.environ.get('HERE_API_KEY', None)
-HERE_ROUTING_API_URL = "https://router.hereapi.com/v8/routes"
-HERE_API_TIMEOUT = 10  # seconds
-
-# HERE API parameters
-HERE_MAX_ROUTE_ALTERNATIVES = 3
-HERE_MAX_DETOUR_KM = 5.0
-
-
-# ===========================
-# Logging Configuration
-# ===========================
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
-LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-LOG_REQUEST_DETAILS = True  # Log request details (method, path, status, duration)
+class ValidPortTypes:
+    """Valid EV charger port types"""
+    TYPES = {
+        "Type 1",
+        "Type 2",
+        "CCS",
+        "CHAdeMO",
+        "Tesla",
+        "GB/T",
+        "Type 3"
+    }
 
 
-# ===========================
-# API Configuration
-# ===========================
-API_VERSION = "v1"
-API_TITLE = "SharaSpot API"
-API_DESCRIPTION = """
-## SharaSpot EV Charging Aggregator API
-
-Community-driven platform for discovering and verifying EV charging stations.
-
-### Features
-- 🔐 Secure authentication with session-based auth
-- 🗺️ Real-time charger discovery and verification
-- 🎮 Gamification with SharaCoin rewards
-- 🚗 Smart EV routing with HERE Maps integration
-- 📊 User activity tracking and trust scores
-
-### Rate Limits
-- Authentication endpoints: 5 requests/minute
-- Write operations: 20 requests/minute
-- Read operations: 60 requests/minute
-"""
-API_VERSION_STRING = "1.0.0"
+class ValidAmenities:
+    """Valid amenity types"""
+    TYPES = {
+        "restroom",
+        "cafe",
+        "wifi",
+        "parking",
+        "shopping",
+        "restaurant",
+        "atm",
+        "hotel",
+        "rest_area"
+    }
 
 
 # ===========================
-# Session Cleanup Configuration
-# ===========================
-SESSION_CLEANUP_INTERVAL_HOURS = 24  # Run cleanup every 24 hours
-SESSION_CLEANUP_BATCH_SIZE = 1000  # Delete in batches
-
-
-# ===========================
-# Error Messages (Generic, non-verbose)
+# Error Messages
 # ===========================
 class ErrorMessages:
     """Generic error messages that don't leak implementation details"""
