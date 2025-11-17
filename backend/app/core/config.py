@@ -29,6 +29,14 @@ class Settings:
     SESSION_TOKEN_BYTES: int = 32
 
     # ===========================
+    # Google OAuth Configuration
+    # ===========================
+    GOOGLE_CLIENT_ID: str = os.environ.get('GOOGLE_CLIENT_ID', '')
+    GOOGLE_CLIENT_SECRET: str = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+    GOOGLE_REDIRECT_URI: str = os.environ.get('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/auth/google/callback')
+    OAUTH_STATE_EXPIRE_SECONDS: int = 600  # 10 minutes
+
+    # ===========================
     # CORS Configuration
     # ===========================
     CORS_ORIGINS: list = [

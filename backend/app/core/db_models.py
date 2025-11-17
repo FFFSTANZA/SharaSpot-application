@@ -73,6 +73,53 @@ class UserSession(Base):
         return f"<UserSession(id={self.id}, user_id={self.user_id}, expires_at={self.expires_at})>"
 
 
+class OAuthToken(Base):
+    """OAuth token storage table - server-side only"""
+    __tablename__ = "oauth_tokens"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    provider = Column(String, nullable=False)  # "google", "facebook", etc.
+    access_token = Column(Text, nullable=False)  # Encrypted in production
+    refresh_token = Column(Text, nullable=True)  # Encrypted in production
+    token_type = Column(String, nullable=False, default="Bearer")
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    scope = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False,
+                       default=lambda: datetime.now(timezone.utc),
+                       server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False,
+                       default=lambda: datetime.now(timezone.utc),
+                       onupdate=lambda: datetime.now(timezone.utc),
+                       server_default=func.now())
+
+    # Indexes
+    __table_args__ = (
+        UniqueConstraint("user_id", "provider", name="uix_user_provider"),
+        Index("idx_oauth_token_user_provider", "user_id", "provider"),
+    )
+
+    def __repr__(self):
+        return f"<OAuthToken(id={self.id}, user_id={self.user_id}, provider={self.provider})>"
+
+
+class OAuthState(Base):
+    """OAuth state storage for CSRF protection"""
+    __tablename__ = "oauth_states"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    state = Column(String, nullable=False, unique=True, index=True)
+    provider = Column(String, nullable=False)
+    redirect_uri = Column(Text, nullable=True)  # Optional: store original redirect for mobile
+    expires_at = Column(DateTime(timezone=True), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), nullable=False,
+                       default=lambda: datetime.now(timezone.utc),
+                       server_default=func.now())
+
+    def __repr__(self):
+        return f"<OAuthState(id={self.id}, state={self.state}, provider={self.provider})>"
+
+
 class Charger(Base):
     """Charger station table"""
     __tablename__ = "chargers"
