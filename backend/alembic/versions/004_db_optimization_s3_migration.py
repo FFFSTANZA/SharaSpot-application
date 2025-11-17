@@ -33,38 +33,11 @@ def upgrade() -> None:
         unique=False
     )
 
-    # Add composite index on chargers (latitude, longitude) for spatial queries
-    # This significantly improves bounding box queries in routing
-    op.create_index(
-        'ix_chargers_location',
-        'chargers',
-        ['latitude', 'longitude'],
-        unique=False
-    )
-
-    # Add index on verification_actions.charger_id for faster lookups
-    op.create_index(
-        'ix_verification_actions_charger_id',
-        'verification_actions',
-        ['charger_id'],
-        unique=False
-    )
-
-    # Add index on chargers.verification_level for filtering
-    op.create_index(
-        'ix_chargers_verification_level',
-        'chargers',
-        ['verification_level'],
-        unique=False
-    )
-
-    # Add composite index on verification_actions (user_id, timestamp) for spam detection
-    op.create_index(
-        'ix_verification_actions_user_timestamp',
-        'verification_actions',
-        ['user_id', 'timestamp'],
-        unique=False
-    )
+    # Note: The following indexes already exist from migration 001:
+    # - idx_charger_location (chargers: latitude, longitude)
+    # - ix_verification_actions_charger_id (verification_actions: charger_id)
+    # - idx_charger_verification_level (chargers: verification_level)
+    # - idx_verification_user_timestamp (verification_actions: user_id, timestamp)
 
     # Add index on chargers.created_at for pagination ordering
     op.create_index(
@@ -79,8 +52,4 @@ def downgrade() -> None:
     """Remove performance indexes"""
 
     op.drop_index('ix_chargers_created_at', table_name='chargers')
-    op.drop_index('ix_verification_actions_user_timestamp', table_name='verification_actions')
-    op.drop_index('ix_chargers_verification_level', table_name='chargers')
-    op.drop_index('ix_verification_actions_charger_id', table_name='verification_actions')
-    op.drop_index('ix_chargers_location', table_name='chargers')
     op.drop_index('ix_verification_actions_timestamp', table_name='verification_actions')

@@ -21,7 +21,6 @@ from .middleware import (
     SecurityHeadersMiddleware,
     rate_limit_exceeded_handler,
 )
-from .db_init import initialize_database, create_indexes
 from . import constants
 
 __all__ = [
@@ -45,7 +44,5 @@ __all__ = [
     "ErrorSanitizationMiddleware",
     "SecurityHeadersMiddleware",
     "rate_limit_exceeded_handler",
-    "initialize_database",
-    "create_indexes",
     "constants",
 ]
