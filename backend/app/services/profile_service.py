@@ -1,38 +1,48 @@
 """Profile and settings service"""
 from typing import Optional
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.user import User
-from ..core import get_database
+from ..models.user import User as UserModel
+from ..core.db_models import User
 from .gamification_service import calculate_trust_score
 
 
 async def update_settings(
-    user: User,
+    user: UserModel,
+    db: AsyncSession,
     theme: Optional[str] = None,
     notifications_enabled: Optional[bool] = None
 ) -> dict:
     """Update user settings"""
-    db = get_database()
+    # Get user from database
+    result = await db.execute(select(User).where(User.id == user.id))
+    db_user = result.scalar_one_or_none()
 
-    update_data = {}
+    if not db_user:
+        raise HTTPException(404, "User not found")
+
     if theme is not None:
-        update_data["theme"] = theme
+        db_user.theme = theme
     if notifications_enabled is not None:
-        update_data["notifications_enabled"] = notifications_enabled
+        db_user.notifications_enabled = notifications_enabled
 
-    if update_data:
-        await db.users.update_one({"id": user.id}, {"$set": update_data})
+    await db.flush()
 
     return {"message": "Settings updated successfully"}
 
 
-async def get_profile_stats(user: User) -> dict:
+async def get_profile_stats(user: UserModel, db: AsyncSession) -> dict:
     """Get user profile statistics"""
-    db = get_database()
+    trust_score = await calculate_trust_score(user.id, db)
 
-    trust_score = await calculate_trust_score(user.id)
-    await db.users.update_one({"id": user.id}, {"$set": {"trust_score": trust_score}})
+    # Update trust score in database
+    result = await db.execute(select(User).where(User.id == user.id))
+    db_user = result.scalar_one_or_none()
+    if db_user:
+        db_user.trust_score = trust_score
+        await db.flush()
 
     return {
         "shara_coins": user.shara_coins,

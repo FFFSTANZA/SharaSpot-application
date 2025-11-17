@@ -3,11 +3,14 @@ import bcrypt
 import uuid
 from typing import Optional
 from datetime import datetime, timezone, timedelta
-from fastapi import Header, Cookie
+from fastapi import Header, Cookie, Depends
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.user import User, UserSession
+from ..models.user import User as UserModel
+from .db_models import User, UserSession as DBUserSession
 from .config import settings
-from .database import get_database
+from .database import get_session
 
 
 def hash_password(password: str) -> str:
@@ -20,28 +23,27 @@ def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 
-async def create_session(user_id: str) -> str:
+async def create_session(user_id: str, db: AsyncSession) -> str:
     """Create a new session for user"""
-    db = get_database()
     session_token = str(uuid.uuid4())
     expires_at = datetime.now(timezone.utc) + timedelta(days=settings.SESSION_EXPIRE_DAYS)
 
-    session = UserSession(
+    session = DBUserSession(
         user_id=user_id,
         session_token=session_token,
         expires_at=expires_at
     )
-    await db.user_sessions.insert_one(session.dict())
+    db.add(session)
+    await db.flush()
     return session_token
 
 
 async def get_user_from_session(
-    session_token: Optional[str] = None,
-    authorization: Optional[str] = None
-) -> Optional[User]:
+    db: AsyncSession = Depends(get_session),
+    session_token: Optional[str] = Cookie(None),
+    authorization: Optional[str] = Header(None)
+) -> Optional[UserModel]:
     """Get user from session token (cookie or header)"""
-    db = get_database()
-
     token = session_token
     if not token and authorization:
         if authorization.startswith('Bearer '):
@@ -50,21 +52,48 @@ async def get_user_from_session(
     if not token:
         return None
 
-    session = await db.user_sessions.find_one({"session_token": token})
+    # Find session
+    result = await db.execute(
+        select(DBUserSession).where(DBUserSession.session_token == token)
+    )
+    session = result.scalar_one_or_none()
     if not session:
         return None
 
-    # Make sure expires_at is timezone-aware
-    expires_at = session['expires_at']
+    # Check expiration
+    expires_at = session.expires_at
     if expires_at.tzinfo is None:
         expires_at = expires_at.replace(tzinfo=timezone.utc)
 
     if expires_at < datetime.now(timezone.utc):
-        await db.user_sessions.delete_one({"session_token": token})
+        await db.delete(session)
+        await db.flush()
         return None
 
-    user_doc = await db.users.find_one({"id": session['user_id']})
-    if not user_doc:
+    # Get user
+    result = await db.execute(select(User).where(User.id == session.user_id))
+    user = result.scalar_one_or_none()
+    if not user:
         return None
 
-    return User(**user_doc)
+    # Convert to Pydantic model (excluding password)
+    return UserModel(
+        id=user.id,
+        email=user.email,
+        name=user.name,
+        picture=user.picture,
+        port_type=user.port_type,
+        vehicle_type=user.vehicle_type,
+        distance_unit=user.distance_unit,
+        is_guest=user.is_guest,
+        shara_coins=user.shara_coins,
+        verifications_count=user.verifications_count,
+        chargers_added=user.chargers_added,
+        photos_uploaded=user.photos_uploaded,
+        reports_submitted=user.reports_submitted,
+        coins_redeemed=user.coins_redeemed,
+        trust_score=user.trust_score,
+        theme=user.theme,
+        notifications_enabled=user.notifications_enabled,
+        created_at=user.created_at
+    )

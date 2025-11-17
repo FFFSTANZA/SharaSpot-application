@@ -2,8 +2,11 @@
 from typing import Optional
 import requests
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.user import User
+from ..models.user import User as UserModel
+from ..core.db_models import User, UserSession
 from ..schemas.auth import SignupRequest, LoginRequest, PreferencesUpdate
 from ..core import (
     get_database,
@@ -13,12 +16,11 @@ from ..core import (
 )
 
 
-async def signup_user(data: SignupRequest) -> tuple[User, str]:
+async def signup_user(data: SignupRequest, db: AsyncSession) -> tuple[UserModel, str]:
     """Create a new user account"""
-    db = get_database()
-
     # Check if email already exists
-    existing = await db.users.find_one({"email": data.email})
+    result = await db.execute(select(User).where(User.email == data.email))
+    existing = result.scalar_one_or_none()
     if existing:
         raise HTTPException(400, "Email already registered")
 
@@ -26,43 +28,83 @@ async def signup_user(data: SignupRequest) -> tuple[User, str]:
     user = User(
         email=data.email,
         name=data.name,
-        picture=None
+        picture=None,
+        password=hash_password(data.password)
     )
 
-    # Store user with hashed password
-    user_dict = user.dict()
-    user_dict['password'] = hash_password(data.password)
-    await db.users.insert_one(user_dict)
+    db.add(user)
+    await db.flush()  # Flush to get the ID
 
     # Create session
-    session_token = await create_session(user.id)
+    session_token = await create_session(user.id, db)
 
-    return user, session_token
+    # Convert to Pydantic model (excluding password)
+    user_model = UserModel(
+        id=user.id,
+        email=user.email,
+        name=user.name,
+        picture=user.picture,
+        port_type=user.port_type,
+        vehicle_type=user.vehicle_type,
+        distance_unit=user.distance_unit,
+        is_guest=user.is_guest,
+        shara_coins=user.shara_coins,
+        verifications_count=user.verifications_count,
+        chargers_added=user.chargers_added,
+        photos_uploaded=user.photos_uploaded,
+        reports_submitted=user.reports_submitted,
+        coins_redeemed=user.coins_redeemed,
+        trust_score=user.trust_score,
+        theme=user.theme,
+        notifications_enabled=user.notifications_enabled,
+        created_at=user.created_at
+    )
+
+    return user_model, session_token
 
 
-async def login_user(data: LoginRequest) -> tuple[User, str]:
+async def login_user(data: LoginRequest, db: AsyncSession) -> tuple[UserModel, str]:
     """Login existing user"""
-    db = get_database()
-
     # Find user by email
-    user_doc = await db.users.find_one({"email": data.email})
-    if not user_doc or 'password' not in user_doc:
+    result = await db.execute(select(User).where(User.email == data.email))
+    user = result.scalar_one_or_none()
+
+    if not user or not user.password:
         raise HTTPException(401, "Invalid credentials")
 
     # Verify password
-    if not verify_password(data.password, user_doc['password']):
+    if not verify_password(data.password, user.password):
         raise HTTPException(401, "Invalid credentials")
 
-    # Create user object (excluding password)
-    user = User(**{k: v for k, v in user_doc.items() if k != 'password'})
-
     # Create session
-    session_token = await create_session(user.id)
+    session_token = await create_session(user.id, db)
 
-    return user, session_token
+    # Convert to Pydantic model (excluding password)
+    user_model = UserModel(
+        id=user.id,
+        email=user.email,
+        name=user.name,
+        picture=user.picture,
+        port_type=user.port_type,
+        vehicle_type=user.vehicle_type,
+        distance_unit=user.distance_unit,
+        is_guest=user.is_guest,
+        shara_coins=user.shara_coins,
+        verifications_count=user.verifications_count,
+        chargers_added=user.chargers_added,
+        photos_uploaded=user.photos_uploaded,
+        reports_submitted=user.reports_submitted,
+        coins_redeemed=user.coins_redeemed,
+        trust_score=user.trust_score,
+        theme=user.theme,
+        notifications_enabled=user.notifications_enabled,
+        created_at=user.created_at
+    )
+
+    return user_model, session_token
 
 
-async def process_emergent_auth_session(session_id: str) -> tuple[User, str, str]:
+async def process_emergent_auth_session(session_id: str, db: AsyncSession) -> tuple[UserModel, str, str]:
     """Process Emergent Auth session ID"""
     # Call Emergent Auth API
     try:
@@ -75,70 +117,120 @@ async def process_emergent_auth_session(session_id: str) -> tuple[User, str, str
     except Exception as e:
         raise HTTPException(500, f"Failed to verify session: {str(e)}")
 
-    db = get_database()
-
     # Check if user exists
-    user_doc = await db.users.find_one({"email": data['email']})
-    if user_doc:
-        user = User(**user_doc)
-    else:
+    result = await db.execute(select(User).where(User.email == data['email']))
+    user = result.scalar_one_or_none()
+
+    if not user:
         # Create new user
         user = User(
             email=data['email'],
             name=data['name'],
             picture=data.get('picture')
         )
-        await db.users.insert_one(user.dict())
+        db.add(user)
+        await db.flush()
 
     # Create our session
-    session_token = await create_session(user.id)
+    session_token = await create_session(user.id, db)
 
-    return user, session_token, data.get('session_token')
+    # Convert to Pydantic model
+    user_model = UserModel(
+        id=user.id,
+        email=user.email,
+        name=user.name,
+        picture=user.picture,
+        port_type=user.port_type,
+        vehicle_type=user.vehicle_type,
+        distance_unit=user.distance_unit,
+        is_guest=user.is_guest,
+        shara_coins=user.shara_coins,
+        verifications_count=user.verifications_count,
+        chargers_added=user.chargers_added,
+        photos_uploaded=user.photos_uploaded,
+        reports_submitted=user.reports_submitted,
+        coins_redeemed=user.coins_redeemed,
+        trust_score=user.trust_score,
+        theme=user.theme,
+        notifications_enabled=user.notifications_enabled,
+        created_at=user.created_at
+    )
+
+    return user_model, session_token, data.get('session_token')
 
 
-async def create_guest_user() -> tuple[User, str]:
+async def create_guest_user(db: AsyncSession) -> tuple[UserModel, str]:
     """Create a guest user session"""
     import uuid
-
-    db = get_database()
 
     guest = User(
         email=f"guest_{uuid.uuid4().hex[:8]}@example.com",
         name="Guest User",
         is_guest=True
     )
-    await db.users.insert_one(guest.dict())
+    db.add(guest)
+    await db.flush()
 
-    session_token = await create_session(guest.id)
+    session_token = await create_session(guest.id, db)
 
-    return guest, session_token
+    # Convert to Pydantic model
+    guest_model = UserModel(
+        id=guest.id,
+        email=guest.email,
+        name=guest.name,
+        picture=guest.picture,
+        port_type=guest.port_type,
+        vehicle_type=guest.vehicle_type,
+        distance_unit=guest.distance_unit,
+        is_guest=guest.is_guest,
+        shara_coins=guest.shara_coins,
+        verifications_count=guest.verifications_count,
+        chargers_added=guest.chargers_added,
+        photos_uploaded=guest.photos_uploaded,
+        reports_submitted=guest.reports_submitted,
+        coins_redeemed=guest.coins_redeemed,
+        trust_score=guest.trust_score,
+        theme=guest.theme,
+        notifications_enabled=guest.notifications_enabled,
+        created_at=guest.created_at
+    )
+
+    return guest_model, session_token
 
 
-async def logout_user(session_token: Optional[str]) -> None:
+async def logout_user(session_token: Optional[str], db: AsyncSession) -> None:
     """Logout user by deleting session"""
     if not session_token:
         return
 
-    db = get_database()
-    await db.user_sessions.delete_one({"session_token": session_token})
+    result = await db.execute(
+        select(UserSession).where(UserSession.session_token == session_token)
+    )
+    session = result.scalar_one_or_none()
+    if session:
+        await db.delete(session)
 
 
-async def update_user_preferences(user: User, data: PreferencesUpdate) -> User:
+async def update_user_preferences(user: UserModel, data: PreferencesUpdate, db: AsyncSession) -> UserModel:
     """Update user preferences"""
-    db = get_database()
-
     if user.is_guest:
         raise HTTPException(403, "Guests cannot save preferences")
 
-    await db.users.update_one(
-        {"id": user.id},
-        {"$set": {
-            "port_type": data.port_type,
-            "vehicle_type": data.vehicle_type,
-            "distance_unit": data.distance_unit
-        }}
-    )
+    # Get user from database
+    result = await db.execute(select(User).where(User.id == user.id))
+    db_user = result.scalar_one_or_none()
 
+    if not db_user:
+        raise HTTPException(404, "User not found")
+
+    # Update preferences
+    db_user.port_type = data.port_type
+    db_user.vehicle_type = data.vehicle_type
+    db_user.distance_unit = data.distance_unit
+
+    await db.flush()
+
+    # Update Pydantic model
     user.port_type = data.port_type
     user.vehicle_type = data.vehicle_type
     user.distance_unit = data.distance_unit

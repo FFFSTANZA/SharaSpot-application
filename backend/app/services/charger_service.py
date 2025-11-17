@@ -4,11 +4,14 @@ from datetime import datetime, timezone, timedelta
 import uuid
 import random
 from fastapi import HTTPException
+from sqlalchemy import select, func
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
-from ..models.charger import Charger, VerificationAction
-from ..models.user import User
+from ..models.charger import Charger as ChargerModel, VerificationAction as VerificationModel
+from ..models.user import User as UserModel
+from ..core.db_models import Charger, VerificationAction, User
 from ..schemas.charger import ChargerCreateRequest, VerificationActionRequest
-from ..core import get_database
 from .gamification_service import award_charger_coins, award_verification_coins
 
 
@@ -157,12 +160,12 @@ def generate_mock_verification_history(level: int, verified_by_count: int, now: 
 
 
 async def get_chargers(
-    user: User,
+    user: UserModel,
     verification_level: Optional[int] = None,
     port_type: Optional[str] = None,
     amenity: Optional[str] = None,
     max_distance: Optional[float] = None
-) -> List[Charger]:
+) -> List[ChargerModel]:
     """Get nearby chargers with optional filters"""
     # Enhanced mock chargers data - Tamil Nadu region
     now = datetime.now(timezone.utc)
@@ -318,13 +321,11 @@ async def get_chargers(
     if max_distance is not None:
         filtered_chargers = [c for c in filtered_chargers if c["distance"] <= max_distance]
 
-    return [Charger(**charger) for charger in filtered_chargers]
+    return [ChargerModel(**charger) for charger in filtered_chargers]
 
 
-async def add_charger(user: User, request: ChargerCreateRequest) -> Charger:
+async def add_charger(user: UserModel, request: ChargerCreateRequest, db: AsyncSession) -> ChargerModel:
     """Add new charger (restricted for guests)"""
-    db = get_database()
-
     if user.is_guest:
         raise HTTPException(403, "Please sign in to add chargers")
 
@@ -345,46 +346,129 @@ async def add_charger(user: User, request: ChargerCreateRequest) -> Charger:
         verification_level=1,
         added_by=user.id,
         verified_by_count=1,
-        verification_history=[VerificationAction(
-            user_id=user.id,
-            action="active",
-            notes="Initial submission"
-        )],
         last_verified=datetime.now(timezone.utc),
         uptime_percentage=100.0
     )
-    await db.chargers.insert_one(charger.dict())
+    db.add(charger)
+    await db.flush()
+
+    # Add initial verification action
+    verification = VerificationAction(
+        charger_id=charger.id,
+        user_id=user.id,
+        action="active",
+        notes="Initial submission"
+    )
+    db.add(verification)
+    await db.flush()
 
     # Reward user with SharaCoins
-    await award_charger_coins(user.id, charger.name, len(request.photos))
+    await award_charger_coins(user.id, charger.name, len(request.photos), db)
 
-    return charger
+    # Convert to Pydantic model
+    charger_model = ChargerModel(
+        id=charger.id,
+        name=charger.name,
+        address=charger.address,
+        latitude=charger.latitude,
+        longitude=charger.longitude,
+        port_types=charger.port_types,
+        available_ports=charger.available_ports,
+        total_ports=charger.total_ports,
+        source_type=charger.source_type,
+        verification_level=charger.verification_level,
+        added_by=charger.added_by,
+        amenities=charger.amenities,
+        nearby_amenities=charger.nearby_amenities,
+        photos=charger.photos,
+        last_verified=charger.last_verified,
+        uptime_percentage=charger.uptime_percentage,
+        verified_by_count=charger.verified_by_count,
+        verification_history=[VerificationModel(
+            user_id=verification.user_id,
+            action=verification.action,
+            timestamp=verification.timestamp,
+            notes=verification.notes
+        )],
+        distance=None,
+        notes=charger.notes,
+        created_at=charger.created_at
+    )
+
+    return charger_model
 
 
-async def get_charger_detail(charger_id: str) -> Charger:
+async def get_charger_detail(charger_id: str, db: AsyncSession) -> ChargerModel:
     """Get detailed charger information"""
-    db = get_database()
-
-    charger = await db.chargers.find_one({"id": charger_id})
+    result = await db.execute(
+        select(Charger).options(selectinload(Charger.verification_actions)).where(Charger.id == charger_id)
+    )
+    charger = result.scalar_one_or_none()
     if not charger:
         raise HTTPException(404, "Charger not found")
 
-    return Charger(**charger)
+    # Convert verification actions to Pydantic models
+    verification_history = [
+        VerificationModel(
+            user_id=v.user_id,
+            action=v.action,
+            timestamp=v.timestamp,
+            notes=v.notes,
+            wait_time=v.wait_time,
+            port_type_used=v.port_type_used,
+            ports_available=v.ports_available,
+            charging_success=v.charging_success,
+            payment_method=v.payment_method,
+            station_lighting=v.station_lighting,
+            cleanliness_rating=v.cleanliness_rating,
+            charging_speed_rating=v.charging_speed_rating,
+            amenities_rating=v.amenities_rating,
+            would_recommend=v.would_recommend,
+            photo_url=v.photo_url
+        )
+        for v in charger.verification_actions
+    ]
+
+    return ChargerModel(
+        id=charger.id,
+        name=charger.name,
+        address=charger.address,
+        latitude=charger.latitude,
+        longitude=charger.longitude,
+        port_types=charger.port_types,
+        available_ports=charger.available_ports,
+        total_ports=charger.total_ports,
+        source_type=charger.source_type,
+        verification_level=charger.verification_level,
+        added_by=charger.added_by,
+        amenities=charger.amenities,
+        nearby_amenities=charger.nearby_amenities,
+        photos=charger.photos,
+        last_verified=charger.last_verified,
+        uptime_percentage=charger.uptime_percentage,
+        verified_by_count=charger.verified_by_count,
+        verification_history=verification_history,
+        distance=None,
+        notes=charger.notes,
+        created_at=charger.created_at
+    )
 
 
-async def verify_charger(user: User, charger_id: str, request: VerificationActionRequest) -> dict:
+async def verify_charger(user: UserModel, charger_id: str, request: VerificationActionRequest, db: AsyncSession) -> dict:
     """Add verification action to charger"""
-    db = get_database()
-
     if user.is_guest:
         raise HTTPException(403, "Please sign in to verify chargers")
 
-    charger = await db.chargers.find_one({"id": charger_id})
+    result = await db.execute(
+        select(Charger).options(selectinload(Charger.verification_actions)).where(Charger.id == charger_id)
+    )
+    charger = result.scalar_one_or_none()
     if not charger:
         raise HTTPException(404, "Charger not found")
 
     # Create verification action with enhanced feedback
     action = VerificationAction(
+        charger_id=charger_id,
         user_id=user.id,
         action=request.action,
         notes=request.notes,
@@ -400,15 +484,16 @@ async def verify_charger(user: User, charger_id: str, request: VerificationActio
         would_recommend=request.would_recommend,
         photo_url=request.photo_url
     )
+    db.add(action)
+    await db.flush()
 
-    # Update charger
-    verification_history = charger.get("verification_history", [])
-    verification_history.append(action.dict())
+    # Get all verification history for this charger
+    verification_history = charger.verification_actions
 
     # Calculate new verification level based on recent actions
-    recent_actions = verification_history[-10:]  # Last 10 actions
-    active_count = sum(1 for a in recent_actions if a.get("action") == "active")
-    not_working_count = sum(1 for a in recent_actions if a.get("action") == "not_working")
+    recent_actions = verification_history[-10:] if len(verification_history) >= 10 else verification_history
+    active_count = sum(1 for a in recent_actions if a.action == "active")
+    not_working_count = sum(1 for a in recent_actions if a.action == "not_working")
 
     # Determine new level
     if not_working_count >= 3:
@@ -423,27 +508,29 @@ async def verify_charger(user: User, charger_id: str, request: VerificationActio
         new_level = 2
 
     # Calculate uptime
-    total_actions = len(verification_history)
-    active_actions = sum(1 for a in verification_history if a.get("action") == "active")
+    total_actions = len(verification_history) + 1  # +1 for the new action
+    active_actions = sum(1 for a in verification_history if a.action == "active")
+    if request.action == "active":
+        active_actions += 1
     uptime = (active_actions / total_actions * 100) if total_actions > 0 else 100.0
 
-    await db.chargers.update_one(
-        {"id": charger_id},
-        {"$set": {
-            "verification_history": verification_history,
-            "verification_level": new_level,
-            "verified_by_count": len(set(a.get("user_id") for a in verification_history)),
-            "last_verified": datetime.now(timezone.utc),
-            "uptime_percentage": uptime
-        }}
-    )
+    # Count unique users who have verified
+    unique_users = len(set(v.user_id for v in verification_history)) + (1 if user.id not in [v.user_id for v in verification_history] else 0)
+
+    # Update charger
+    charger.verification_level = new_level
+    charger.verified_by_count = unique_users
+    charger.last_verified = datetime.now(timezone.utc)
+    charger.uptime_percentage = uptime
+    await db.flush()
 
     # Reward user with SharaCoins
     coin_result = await award_verification_coins(
         user.id,
-        charger['name'],
+        charger.name,
         request.action,
-        request.dict()
+        request.dict(),
+        db
     )
 
     return {
@@ -456,27 +543,33 @@ async def verify_charger(user: User, charger_id: str, request: VerificationActio
     }
 
 
-async def get_user_activity(user: User):
+async def get_user_activity(user: UserModel, db: AsyncSession):
     """Get user's activity (submissions, verifications, reports)"""
-    db = get_database()
-
     # Get user's submissions
-    submissions = await db.chargers.find({"added_by": user.id}).to_list(100)
+    result = await db.execute(select(Charger).where(Charger.added_by == user.id))
+    submissions = result.scalars().all()
 
     # Get user's verifications
-    verified_chargers = []
-    all_chargers = await db.chargers.find().to_list(1000)
-    for charger in all_chargers:
-        verification_history = charger.get('verification_history', [])
-        user_verifications = [v for v in verification_history if v.get('user_id') == user.id]
-        if user_verifications:
-            verified_chargers.append({
-                "charger": charger,
-                "verifications": user_verifications
-            })
+    result = await db.execute(
+        select(VerificationAction)
+        .options(selectinload(VerificationAction.charger))
+        .where(VerificationAction.user_id == user.id)
+    )
+    verifications = result.scalars().all()
+
+    # Group verifications by charger
+    verified_chargers = {}
+    for v in verifications:
+        charger_id = v.charger_id
+        if charger_id not in verified_chargers:
+            verified_chargers[charger_id] = {
+                "charger": v.charger,
+                "verifications": []
+            }
+        verified_chargers[charger_id]["verifications"].append(v)
 
     return {
         "submissions": submissions,
-        "verifications": verified_chargers,
+        "verifications": list(verified_chargers.values()),
         "reports": []  # Future implementation
     }
